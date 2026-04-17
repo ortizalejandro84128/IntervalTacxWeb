@@ -57,9 +57,10 @@ setChildEnabled(id, enabled) {
     }
   }
 
-    deshabilitar() {
+  deshabilitar() {
     this.elemento.disabled = true;
   }
+  
   habilitar() {
     this.elemento.disabled = false;
   }

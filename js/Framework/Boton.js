@@ -14,6 +14,13 @@ class Boton extends Window {
     btn.style.left = this.left + "px";
     btn.style.width = this.width + "px";
     btn.style.height = this.height + "px";
+    
+    btn.style.fontSize = "7px"; // base pequeña para escalar
+    btn.style.fontWeight = "bold"; 
+    btn.style.display = "flex";
+    btn.style.alignItems = "center";
+    btn.style.justifyContent = "center";
+
     btn.addEventListener("click", () => {
       if (this.fn) this.fn();
     });

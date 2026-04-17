@@ -4,15 +4,19 @@ class FileInput extends Window {
     this.fn = fn;
 
     // Crear el elemento <input type="file">
-    this.elemento = document.createElement("input");
-    this.elemento.type = "file";
-    this.elemento.id = id;
-    this.elemento.accept =  ".erg2"
-    this.elemento.style.position = "absolute";
-    this.elemento.style.top = top + "px";
-    this.elemento.style.left = left + "px";
-    this.elemento.style.width = width + "px";
-    this.elemento.style.height = height + "px";
+this.elemento = document.createElement("input");
+this.elemento.type = "file";
+this.elemento.id = id;
+this.elemento.accept = ".erg2";
+this.elemento.style.position = "absolute";
+this.elemento.style.top = top + "px";
+this.elemento.style.left = left + "px";
+this.elemento.style.width = width + "px";
+this.elemento.style.height = height + "px";
+this.elemento.style.fontSize = "8px";
+this.elemento.style.padding = "2px";
+this.elemento.style.boxSizing = "border-box";
+this.elemento.className = "form-control";
 
     // Callback que el programador puede asignar
     this.onFileLoaded = fn;

@@ -2,8 +2,8 @@ class EntrenamientoDialog extends Dialog {
   constructor(mainApp) {
     super({
       id: "entrenamientoDialog",
-      width: 1250,
-      height: 800,
+      width: 330,
+      height: 220,
       texto: "Entrenamiento ERG Web"
 
     });
@@ -12,6 +12,7 @@ class EntrenamientoDialog extends Dialog {
     this.monitorHR=false;
     this.currentHR=0;
     this.mainApp=mainApp;
+    this.factorPantalla=.9;
 
     this.heartRateMonitor=new HeartRateMonitor(this, this.recibeMonitorHR.bind(this));
 
@@ -22,7 +23,61 @@ class EntrenamientoDialog extends Dialog {
 
   }
 
-  crearInterfaz() {
+crearInterfaz() {
+  // Título
+  this.addChildLabel({
+    id: "lblTitulo", top: 0, left: 5, width: 190, height: 7,
+    texto: "Control rodillo + HR", fontSize: "6px", fontWeight: "bold"
+  });
+
+  // Botones en horizontal
+  this.addChildBoton({ id: "btnRodillo", top: 17, left: 5, width: 36, height: 10, texto: "Rodillo", fn: this.procesaTick.bind(this) });
+  this.addChildBoton({ id: "btnHR", top: 17, left: 43, width: 48, height: 10, texto: "HR", fn: this.conectaMonitorHR.bind(this) });
+  this.addChildBoton({ id: "btnStart", top: 17, left: 94, width: 43, height: 10, texto: "Start" });
+  this.addChildBoton({ id: "btnTCX", top: 17, left: 139, width: 36, height: 10, texto: "TCX" });
+
+  // Input de archivo
+  this.addChildFileInput({ id: "ergFile", top: 17, left: 180, width: 72, height: 7, accept: ".erg2", fn: this.onCargaErg.bind(this) });
+
+  // Encabezados de la tabla
+  this.addChildLabel({ id: "lblTimeHead", top: 36, left: 5, width: 48, height: 10, texto: "Tiempo", fontSize: "6px", fontWeight: "bold" });
+  this.addChildLabel({ id: "lblHRHead", top: 36, left: 53, width: 48, height: 10, texto: "HR", fontSize: "6px", fontWeight: "bold" });
+  this.addChildLabel({ id: "lblWattsObjHead", top: 36, left: 101, width: 48, height: 10, texto: "Obj W", fontSize: "6px", fontWeight: "bold" });
+  this.addChildLabel({ id: "lblWattsHead", top: 36, left: 149, width: 48, height: 10, texto: "Pot W", fontSize: "6px", fontWeight: "bold" });
+  this.addChildLabel({ id: "lblCadenceHead", top: 36, left: 197, width: 48, height: 10, texto: "Cad", fontSize: "6px", fontWeight: "bold" });
+  this.addChildLabel({ id: "lblSpeedHead", top: 36, left: 245, width: 48, height: 10, texto: "Vel", fontSize: "6px", fontWeight: "bold" });
+
+  // Valores dinámicos
+  this.addChildLabel({ id: "timeCell", top: 48, left: 5, width: 48, height: 10, texto: "--", fontSize: "7px", color: "red" });
+  this.addChildLabel({ id: "hrValue", top: 48, left: 53, width: 48, height: 10, texto: "--", fontSize: "7px", color: "green" });
+  this.addChildLabel({ id: "wattsObjCell", top: 48, left: 101, width: 48, height: 10, texto: "--", fontSize: "7px", color: "brown" });
+  this.addChildLabel({ id: "wattsCell", top: 48, left: 149, width: 48, height: 10, texto: "--", fontSize: "7px", color: "red" });
+  this.addChildLabel({ id: "cadenceCell", top: 48, left: 197, width: 48, height: 10, texto: "--", fontSize: "7px", color: "green" });
+  this.addChildLabel({ id: "speedCell", top: 48, left: 245, width: 48, height: 10, texto: "--", fontSize: "7px", color: "brown" });
+
+  // Timeline reducido
+  const workoutDemo = {
+    dominantZone: "endurance",
+    segments: [[5, 50, "50"], [15, 65, "65"], [5, 105, "50"]],
+    workoutName: "Demo"
+  };
+
+  this.timelineControl = new IntervalControl({
+    id: "intervalDemo",
+    top: 70, left: 10, width: 305, height: 120,
+    workout: workoutDemo, ftp: 200,
+    fnIniciaSegmento: this.cambiaSegmento.bind(this),
+    fnFinActividad: this.fnFinActividad.bind(this)
+  });
+
+  this.agregarHijo(this.timelineControl);
+
+  this.setChildEnabled("btnStart", false);
+  this.setChildEnabled("btnTCX", false);
+}
+
+
+  crearInterfaz___res() {
     // Título
     this.addChildLabel({ id: "lblTitulo", top: 10 , left: 20, width: 800, height: 30, texto: "Control de rodillo + monitor cardíaco" , fontSize: "30px", color: "black", fontWeight: "bold" });
 
@@ -85,6 +140,8 @@ this.timelineControl = new IntervalControl({
     this.setChildEnabled("btnTCX", false);
 
   }
+
+
 
   onCargaErg(fileName, contenido) {
     try {

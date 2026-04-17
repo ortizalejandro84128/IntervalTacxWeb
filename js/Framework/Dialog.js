@@ -43,8 +43,13 @@ class Dialog extends Window {
 
 
 
-
-  getScale() {
+getScale() {
+  const factorPantalla = this.factorPantalla || .95; // 1.0 = 100%, 0.5 = 50%, 0.25 = 25%
+  const scaleX = (window.innerWidth * factorPantalla) / this.width;
+  const scaleY = (window.innerHeight * factorPantalla) / this.height;
+  return Math.min(scaleX, scaleY);
+}
+  getScale_res() {
     const availableWidth = window.innerWidth - 20;
     return Math.min(1, availableWidth / this.width);
   }
@@ -57,6 +62,13 @@ class Dialog extends Window {
     this.elemento.style.transformOrigin = "top left";
     this.elemento.style.width = this.width + "px";
     this.elemento.style.height = this.height + "px";
+
+    // Ajustar tipografía de botones
+  this.hijos.forEach(hijo => {
+    if (hijo instanceof Boton && hijo.elemento) {
+      console.log(window.getComputedStyle(hijo.elemento).fontSize);
+    }
+  });
   }
 
   centrar() {

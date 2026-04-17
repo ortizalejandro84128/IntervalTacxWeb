@@ -41,7 +41,7 @@ class IntervalControl extends Window {
 
       // altura proporcional al alto del componente
       var maxHeight = this.height - 50; // espacio para título y regla
-      var relativeHeight = ((seg[2] / this.ftp) * maxHeight) * 1.5;
+      var relativeHeight = ((seg[2] / this.ftp) * maxHeight) * 2.0;
 
       this.intervals.push({
         duration: duration,
@@ -67,8 +67,11 @@ class IntervalControl extends Window {
 
     // Etiqueta superior con el nombre del workout
     var title = document.createElement("div");
-    title.className = "text-center fw-bold bg-primary text-white p-1";
+    title.className = "text-center fw-bold bg-primary text-white p-0"
     title.textContent = this.workout.workoutName || "Workout";
+    title.style.fontSize =  "8px";
+    title.style.fontWeight = "bold"; // ya tienes fw-bold, pero lo puedes reforzar
+
     this.elemento.appendChild(title);
 
     // Contenedor principal
@@ -78,7 +81,7 @@ class IntervalControl extends Window {
     // Contenedor de intervalos
     var intervalsContainer = document.createElement("div");
     intervalsContainer.className = "d-flex align-items-end";
-    intervalsContainer.style.height = (this.height - 50) + "px";
+    intervalsContainer.style.height = (this.height - 22) + "px";
 
     for (var j = 0; j < this.intervals.length; j++) {
       var interval = this.intervals[j];
@@ -109,12 +112,12 @@ class IntervalControl extends Window {
     rule.style.bottom = "0";
     rule.style.left = "0";
     rule.style.width = totalWidth + "px";
-    rule.style.height = "30px";
+    rule.style.height = "20px";
 
     // siempre en pasos de 5 unidades considerando el factor
     var step = 5 * this.factor;
     var numMarks = Math.floor(totalDuration / step);
-    for (var k = 0; k <= numMarks; k++) {
+   /* for (var k = 0; k <= numMarks; k++) {
       var mark = document.createElement("div");
       mark.className = "position-absolute bg-dark";
       mark.style.left = ((k * step) / totalDuration) * totalWidth + "px";
@@ -126,11 +129,33 @@ class IntervalControl extends Window {
       labelMark.textContent = k * 5;
       labelMark.className = "position-absolute small";
       labelMark.style.top = "12px";
-      labelMark.style.left = ((k * step) / totalDuration) * totalWidth - 10 + "px";
+      labelMark.style.left = ((k * step) / totalDuration) * totalWidth - 4 + "px";
+      labelMark.style.fontSize =  "5px";
+
 
       rule.appendChild(mark);
       rule.appendChild(labelMark);
-    }
+    }*/
+   for (var k = 0; k <= numMarks; k++) {
+  var mark = document.createElement("div");
+  mark.className = "position-absolute bg-dark";
+  mark.style.left = ((k * step) / totalDuration) * totalWidth + "px";
+  mark.style.height = "5px";
+  mark.style.width = "1px";
+  mark.style.transform = "translateX(-50%)";
+
+  var labelMark = document.createElement("div");
+  labelMark.textContent = k * 5;
+  labelMark.className = "position-absolute small";
+  labelMark.style.top = "8px";
+  labelMark.style.left = ((k * step) / totalDuration) * totalWidth + "px";
+  labelMark.style.transform = "translateX(-50%)";
+  labelMark.style.fontSize = "5px";
+
+  rule.appendChild(mark);
+  rule.appendChild(labelMark);
+}
+
 
     mainContainer.appendChild(rule);
     this.elemento.appendChild(mainContainer);
