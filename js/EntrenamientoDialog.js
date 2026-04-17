@@ -59,7 +59,7 @@ this.addChildLabel({ id: "speedCell", top: 200, left: 1020, width: 200, height: 
     [15, 65, "65"],
     [5, 105, "50"]
   ],
-  "workoutName": "Demo"
+  "workoutName": "Entrenamiento Demo"
 };
 
 // Instancia de la clase
@@ -134,9 +134,9 @@ this.timelineControl = new IntervalControl({
 	 } 
 
    fnFinActividad() {
-    //this.showAlert("Actividad finalizada");
-    const usu= new UsuarioDialogModal(this.mainApp, this.cerrarUsuarioDialogModal.bind(this)) ;
-    usu.mostrar();
+    this.showAlert("Actividad finalizada");
+    //const usu= new UsuarioDialogModal(this.mainApp, this.cerrarUsuarioDialogModal.bind(this)) ;
+    //usu.mostrar();
     //aqui enviar potencia objetovo al rodillo
 	 } 
 
