@@ -19,7 +19,7 @@ class Main {
     const enrtenamientoDialog = new EntrenamientoDialog(this);
     this.dialogs["enrtenamientoDialog"]=enrtenamientoDialog;
   
-    this.showDialog("usuarioDialog");
+    this.showDialog("enrtenamientoDialog");
 
 }
 
