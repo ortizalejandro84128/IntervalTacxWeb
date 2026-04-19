@@ -6,6 +6,7 @@ class Label extends Window {
 
   crear() {
     const lbl = document.createElement("div");
+    
     lbl.id = this.id;
     lbl.className = "label";
     lbl.textContent = this.texto;

@@ -39,15 +39,14 @@ class IntervalControl extends Window {
       // duración ajustada al factor
       var duration = seg[0] * this.factor;
 
-      // altura proporcional al alto del componente
-      var maxHeight = this.height - 50; // espacio para título y regla
-      var relativeHeight = ((seg[2] / this.ftp) * maxHeight) * 2.0;
+      // 🔹 Guardamos proporción en lugar de altura absoluta
+      var heightRatio = seg[2] / this.ftp;
 
       this.intervals.push({
         duration: duration,
         power: seg[2],
         zona: zona,
-        height: relativeHeight,
+        heightRatio: heightRatio,
         progress: 0
       });
     }
@@ -67,11 +66,9 @@ class IntervalControl extends Window {
 
     // Etiqueta superior con el nombre del workout
     var title = document.createElement("div");
-    title.className = "text-center fw-bold bg-primary text-white p-0"
+    title.className = "text-center fw-bold bg-primary text-white p-0";
     title.textContent = this.workout.workoutName || "Workout";
-    title.style.fontSize =  "8px";
-    title.style.fontWeight = "bold"; // ya tienes fw-bold, pero lo puedes reforzar
-
+    title.style.fontSize = "8px";
     this.elemento.appendChild(title);
 
     // Contenedor principal
@@ -86,10 +83,13 @@ class IntervalControl extends Window {
     for (var j = 0; j < this.intervals.length; j++) {
       var interval = this.intervals[j];
 
+      // 🔹 recalculamos dimensiones dinámicamente
+      var widthPx = (interval.duration / totalDuration) * this.width;
+      var relativeHeight = interval.heightRatio * (this.height - 50) * 2.0;
+
       var container = document.createElement("div");
-      var widthPx = (interval.duration / totalDuration) * totalWidth;
       container.style.width = widthPx + "px";
-      container.style.height = interval.height + "px";
+      container.style.height = relativeHeight + "px";
       container.style.background = ZonaUtils.getMutedColor(interval.zona);
       container.className = "position-relative";
 
@@ -114,48 +114,28 @@ class IntervalControl extends Window {
     rule.style.width = totalWidth + "px";
     rule.style.height = "20px";
 
-    // siempre en pasos de 5 unidades considerando el factor
     var step = 5 * this.factor;
     var numMarks = Math.floor(totalDuration / step);
-   /* for (var k = 0; k <= numMarks; k++) {
+
+    for (var k = 0; k <= numMarks; k++) {
       var mark = document.createElement("div");
       mark.className = "position-absolute bg-dark";
       mark.style.left = ((k * step) / totalDuration) * totalWidth + "px";
-      mark.style.height = "10px";
+      mark.style.height = "5px";
       mark.style.width = "1px";
+      mark.style.transform = "translateX(-50%)";
 
       var labelMark = document.createElement("div");
-      // mostrar en unidades originales (5, 10, 15…)
-      labelMark.textContent = k * 5;
+      labelMark.textContent = k * 5+"min";
       labelMark.className = "position-absolute small";
-      labelMark.style.top = "12px";
-      labelMark.style.left = ((k * step) / totalDuration) * totalWidth - 4 + "px";
-      labelMark.style.fontSize =  "5px";
-
+      labelMark.style.top = "8px";
+      labelMark.style.left = ((k * step) / totalDuration) * totalWidth + "px";
+      labelMark.style.transform = "translateX(-50%)";
+      labelMark.style.fontSize = "5px";
 
       rule.appendChild(mark);
       rule.appendChild(labelMark);
-    }*/
-   for (var k = 0; k <= numMarks; k++) {
-  var mark = document.createElement("div");
-  mark.className = "position-absolute bg-dark";
-  mark.style.left = ((k * step) / totalDuration) * totalWidth + "px";
-  mark.style.height = "5px";
-  mark.style.width = "1px";
-  mark.style.transform = "translateX(-50%)";
-
-  var labelMark = document.createElement("div");
-  labelMark.textContent = k * 5;
-  labelMark.className = "position-absolute small";
-  labelMark.style.top = "8px";
-  labelMark.style.left = ((k * step) / totalDuration) * totalWidth + "px";
-  labelMark.style.transform = "translateX(-50%)";
-  labelMark.style.fontSize = "5px";
-
-  rule.appendChild(mark);
-  rule.appendChild(labelMark);
-}
-
+    }
 
     mainContainer.appendChild(rule);
     this.elemento.appendChild(mainContainer);
@@ -176,7 +156,6 @@ class IntervalControl extends Window {
     if (this.current < this.intervals.length) {
       var interval = this.intervals[this.current];
 
-      // Si es el primer tick del segmento, invocar callback
       if (this.elapsed === 0 && this.fnIniciaSegmento) {
         this.fnIniciaSegmento(this.current, Math.floor((interval.power / 100) * this.ftp));
       }
@@ -190,10 +169,9 @@ class IntervalControl extends Window {
         this.current++;
         this.elapsed = 0;
       }
-       if(this.isFinished()){
+      if (this.isFinished()) {
         this.fnFinActividad();
-       }
-
+      }
 
     } else {
       this.started = false;

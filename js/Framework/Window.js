@@ -1,4 +1,6 @@
 class Window {
+
+  
   constructor({id, top, left, width, height, texto}) {
     this.id = id;
     this.top = top;
@@ -33,8 +35,8 @@ agregarHijo(hijo) {
     return edit;
   }
 
-  addChildBoton({ id, top, left, width, height, texto, fn }) {
-    const btn = new Boton({ id, top, left, width, height, texto, fn });
+  addChildBoton({ id, top, left, width, height, texto, fn, color ,iconoSVG}) {
+    const btn = new Boton({ id, top, left, width, height, texto, fn , color,iconoSVG});
     this.agregarHijo(btn);
     return btn;
   }

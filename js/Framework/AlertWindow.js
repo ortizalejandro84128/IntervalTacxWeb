@@ -59,6 +59,8 @@ class AlertWindow extends Window {
     this.elemento.appendChild(dialog);
 
     document.getElementById("app").appendChild(this.elemento);
+
+    this.factorPantalla=.4;
   }
 
   setMensaje(mensaje) {

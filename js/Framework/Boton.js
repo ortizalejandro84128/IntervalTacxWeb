@@ -1,31 +1,49 @@
 class Boton extends Window {
-  constructor({id, top, left, width, height, texto, fn}) {
+  constructor({id, top, left, width, height, texto = "", fn, color = "primary", iconoSVG = null}) {
     super({id, top, left, width, height, texto});
     this.fn = fn;
+    this.color = color; 
+    this.iconoSVG = iconoSVG; // nuevo parámetro para SVG
     this.crear();
   }
 
   crear() {
     const btn = document.createElement("button");
     btn.id = this.id;
-    btn.className = "boton btn btn-primary";
-    btn.textContent = this.texto;
+    btn.className = `boton btn btn-${this.color}`;
     btn.style.top = this.top + "px";
     btn.style.left = this.left + "px";
     btn.style.width = this.width + "px";
     btn.style.height = this.height + "px";
-    
-    btn.style.fontSize = "7px"; // base pequeña para escalar
+
+    // Estilos base
+    btn.style.fontSize = "7px"; 
     btn.style.fontWeight = "bold"; 
     btn.style.display = "flex";
     btn.style.alignItems = "center";
     btn.style.justifyContent = "center";
+    btn.style.gap = "5px"; // espacio entre icono y texto
+    //alert(this.iconoSVG);
+    // Contenido dinámico
+    if (this.iconoSVG) {
+      const svgWrapper = document.createElement("span");
+      svgWrapper.innerHTML = this.iconoSVG;
+      svgWrapper.style.width = "12px";
+      svgWrapper.style.height = "12px";
+      btn.appendChild(svgWrapper);
+    }
 
+    if (this.texto) {
+      const span = document.createElement("span");
+      span.textContent = this.texto;
+      btn.appendChild(span);
+    }
+
+    // Evento click
     btn.addEventListener("click", () => {
       if (this.fn) this.fn();
     });
+
     this.elemento = btn;
   }
-
-
 }

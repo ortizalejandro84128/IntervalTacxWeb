@@ -2,12 +2,16 @@ class EntrenamientoDialog extends Dialog {
   constructor(mainApp) {
     super({
       id: "entrenamientoDialog",
-      width: 330,
-      height: 220,
+      width: 450,
+      height: 650,
       texto: "Entrenamiento ERG Web"
 
     });
-    this.crearInterfaz();
+
+    this.crearControles();
+    //this.aplicarLayoutHorizontal();
+    //this.aplicarLayoutVertical();
+    
     this.fnCerrar=
     this.monitorHR=false;
     this.currentHR=0;
@@ -23,39 +27,41 @@ class EntrenamientoDialog extends Dialog {
 
   }
 
-crearInterfaz() {
+crearControles() {
   // Título
   this.addChildLabel({
-    id: "lblTitulo", top: 0, left: 5, width: 190, height: 7,
-    texto: "Control rodillo + HR", fontSize: "6px", fontWeight: "bold"
+    id: "lblTitulo",
+    texto: "Control rodillo + HR",
+    fontSize: "8px",
+    fontWeight: "bold"
   });
 
-  // Botones en horizontal
-  this.addChildBoton({ id: "btnRodillo", top: 17, left: 5, width: 36, height: 10, texto: "Rodillo", fn: this.procesaTick.bind(this) });
-  this.addChildBoton({ id: "btnHR", top: 17, left: 43, width: 48, height: 10, texto: "HR", fn: this.conectaMonitorHR.bind(this) });
-  this.addChildBoton({ id: "btnStart", top: 17, left: 94, width: 43, height: 10, texto: "Start" });
-  this.addChildBoton({ id: "btnTCX", top: 17, left: 139, width: 36, height: 10, texto: "TCX" });
+  // Botones
+  this.addChildBoton({ id: "btnRodillo", texto: "Tacx", fn: this.procesaTick.bind(this) });
+  this.addChildBoton({ id: "btnHR", texto: "HR", fn: this.conectaMonitorHR.bind(this) });
+  this.addChildBoton({ id: "btnStart", color: "success", iconoSVG: ImagesSvgRepo.PLAY });
+  this.addChildBoton({ id: "btnTCX", texto: "TCX" });
 
   // Input de archivo
-  this.addChildFileInput({ id: "ergFile", top: 17, left: 180, width: 72, height: 7, accept: ".erg2", fn: this.onCargaErg.bind(this) });
+  this.addChildFileInput({ id: "ergFile", accept: ".erg2", fn: this.onCargaErg.bind(this) });
 
   // Encabezados de la tabla
-  this.addChildLabel({ id: "lblTimeHead", top: 36, left: 5, width: 48, height: 10, texto: "Tiempo", fontSize: "6px", fontWeight: "bold" });
-  this.addChildLabel({ id: "lblHRHead", top: 36, left: 53, width: 48, height: 10, texto: "HR", fontSize: "6px", fontWeight: "bold" });
-  this.addChildLabel({ id: "lblWattsObjHead", top: 36, left: 101, width: 48, height: 10, texto: "Obj W", fontSize: "6px", fontWeight: "bold" });
-  this.addChildLabel({ id: "lblWattsHead", top: 36, left: 149, width: 48, height: 10, texto: "Pot W", fontSize: "6px", fontWeight: "bold" });
-  this.addChildLabel({ id: "lblCadenceHead", top: 36, left: 197, width: 48, height: 10, texto: "Cad", fontSize: "6px", fontWeight: "bold" });
-  this.addChildLabel({ id: "lblSpeedHead", top: 36, left: 245, width: 48, height: 10, texto: "Vel", fontSize: "6px", fontWeight: "bold" });
+  this.addChildLabel({ id: "lblTimeHead", texto: "Tiempo", fontSize: "8px", fontWeight: "bold" });
+  this.addChildLabel({ id: "lblHRHead", texto: "HR", fontSize: "8px", fontWeight: "bold" });
+  this.addChildLabel({ id: "lblWattsObjHead", texto: "Obj W", fontSize: "8px", fontWeight: "bold" });
+  this.addChildLabel({ id: "lblWattsHead", texto: "Pot W", fontSize: "8px", fontWeight: "bold" });
+  this.addChildLabel({ id: "lblCadenceHead", texto: "Cad", fontSize: "8px", fontWeight: "bold" });
+  this.addChildLabel({ id: "lblSpeedHead", texto: "Vel", fontSize: "8px", fontWeight: "bold" });
 
   // Valores dinámicos
-  this.addChildLabel({ id: "timeCell", top: 48, left: 5, width: 48, height: 10, texto: "--", fontSize: "7px", color: "red" });
-  this.addChildLabel({ id: "hrValue", top: 48, left: 53, width: 48, height: 10, texto: "--", fontSize: "7px", color: "green" });
-  this.addChildLabel({ id: "wattsObjCell", top: 48, left: 101, width: 48, height: 10, texto: "--", fontSize: "7px", color: "brown" });
-  this.addChildLabel({ id: "wattsCell", top: 48, left: 149, width: 48, height: 10, texto: "--", fontSize: "7px", color: "red" });
-  this.addChildLabel({ id: "cadenceCell", top: 48, left: 197, width: 48, height: 10, texto: "--", fontSize: "7px", color: "green" });
-  this.addChildLabel({ id: "speedCell", top: 48, left: 245, width: 48, height: 10, texto: "--", fontSize: "7px", color: "brown" });
+  this.addChildLabel({ id: "timeCell", texto: "--", fontSize: "9px", color: "red" });
+  this.addChildLabel({ id: "hrValue", texto: "--", fontSize: "9px", color: "green" });
+  this.addChildLabel({ id: "wattsObjCell", texto: "--", fontSize: "9px", color: "brown" });
+  this.addChildLabel({ id: "wattsCell", texto: "--", fontSize: "9px", color: "red" });
+  this.addChildLabel({ id: "cadenceCell", texto: "--", fontSize: "9px", color: "green" });
+  this.addChildLabel({ id: "speedCell", texto: "--", fontSize: "9px", color: "brown" });
 
-  // Timeline reducido
+  // Timeline
   const workoutDemo = {
     dominantZone: "endurance",
     segments: [[5, 50, "50"], [15, 65, "65"], [5, 105, "50"]],
@@ -64,82 +70,167 @@ crearInterfaz() {
 
   this.timelineControl = new IntervalControl({
     id: "intervalDemo",
-    top: 70, left: 10, width: 305, height: 120,
-    workout: workoutDemo, ftp: 200,
+    workout: workoutDemo,
+    ftp: 200,
     fnIniciaSegmento: this.cambiaSegmento.bind(this),
     fnFinActividad: this.fnFinActividad.bind(this)
   });
 
   this.agregarHijo(this.timelineControl);
 
+  // Estado inicial de botones
   this.setChildEnabled("btnStart", false);
   this.setChildEnabled("btnTCX", false);
 }
 
 
-  crearInterfaz___res() {
-    // Título
-    this.addChildLabel({ id: "lblTitulo", top: 10 , left: 20, width: 800, height: 30, texto: "Control de rodillo + monitor cardíaco" , fontSize: "30px", color: "black", fontWeight: "bold" });
 
-    // Botones en horizontal
-    this.addChildBoton({ id: "btnRodillo", top: 70, left: 20, width: 150, height: 40, texto: "Conectar rodillo", fn: this.procesaTick.bind(this) });
-    this.addChildBoton({ id: "btnHR", top: 70, left: 180, width: 200, height: 40, texto: "Conectar monitor HR" , fn: this.conectaMonitorHR.bind(this)});
-    this.addChildBoton({ id: "btnStart", top: 70, left: 390, width: 180, height: 40, texto: "Iniciar entrenamiento" });
-    this.addChildBoton({ id: "btnTCX", top: 70, left: 580, width: 150, height: 40, texto: "Descargar TCX" });
+escalarLayout(layout, factor) {
+  return layout.map(item => ({
+    id: item.id,
+    top: item.top * factor,
+    left: item.left * factor,
+    width: item.width * factor,
+    height: item.height * factor
+  }));
+}
 
-    // Input de archivo
-    this.addChildFileInput({ id: "ergFile", top: 70, left: 750, width: 300, height: 30, accept: ".erg2", fn: this.onCargaErg.bind(this) });
-
-    // Encabezados de la tabla
-this.addChildLabel({ id: "lblTimeHead", top: 150, left: 20, width: 200, height: 40, texto: "Tiempo", fontSize: "22px", color: "black", fontWeight: "bold" });
-this.addChildLabel({ id: "lblHRHead", top: 150, left: 220, width: 200, height: 40, texto: "HR (bpm)", fontSize: "22px", color: "black", fontWeight: "bold" });
-this.addChildLabel({ id: "lblWattsObjHead", top: 150, left: 420, width: 200, height: 40, texto: "P Objetivo (W)", fontSize: "22px", color: "black", fontWeight: "bold" });
-this.addChildLabel({ id: "lblWattsHead", top: 150, left: 620, width: 200, height: 40, texto: "Potencia (W)", fontSize: "22px", color: "black", fontWeight: "bold" });
-this.addChildLabel({ id: "lblCadenceHead", top: 150, left: 820, width: 200, height: 40, texto: "Cadencia (rpm)", fontSize: "22px", color: "black", fontWeight: "bold" });
-this.addChildLabel({ id: "lblSpeedHead", top: 150, left: 1020, width: 200, height: 40, texto: "Velocidad (km/h)", fontSize: "22px", color: "black", fontWeight: "bold" });
-
-    // Valores dinámicos
-this.addChildLabel({ id: "timeCell", top: 200, left: 20, width: 200, height: 40, texto: "--", fontSize: "24px", color: "red" });
-this.addChildLabel({ id: "hrValue", top: 200, left: 220, width: 200, height: 40, texto: "--", fontSize: "24px", color: "green" });
-this.addChildLabel({ id: "wattsObjCell", top: 200, left: 420, width: 200, height: 40, texto: "--", fontSize: "24px", color: "brown" });
-this.addChildLabel({ id: "wattsCell", top: 200, left: 620, width: 200, height: 40, texto: "--", fontSize: "24px", color: "red" });
-this.addChildLabel({ id: "cadenceCell", top: 200, left: 820, width: 200, height: 40, texto: "--", fontSize: "24px", color: "green" });
-this.addChildLabel({ id: "speedCell", top: 200, left: 1020, width: 200, height: 40, texto: "--", fontSize: "24px", color: "brown" });
-   
-
-  const workoutDemo = {
-  "dominantZone": "endurance",
-  "segments": [
-    [5, 50, "50"],
-    [15, 65, "65"],
-    [5, 105, "50"]
-  ],
-  "workoutName": "Entrenamiento Demo"
-};
-
-// Instancia de la clase
-this.timelineControl = new IntervalControl({
-  id: "intervalDemo",
-  top: 300,
-  left: 50,
-  width: 1150,
-  height: 400,
-  app: null,        // si tienes un objeto app, pásalo aquí
-  workout: workoutDemo,
-  ftp:200,
-  fnIniciaSegmento: this.cambiaSegmento.bind(this),
-  fnFinActividad: this.fnFinActividad.bind(this)
-});
-
-    this.agregarHijo(this.timelineControl);
-
-
-
-
-    this.setChildEnabled("btnStart", false);
-    this.setChildEnabled("btnTCX", false);
-
+aplicarLayout(layout) {
+  for (const item of layout) {
+    //const ctrl = this.getChildById(item.id);
+    //if (ctrl) {
+    //setBounds(id, top, left, width, height)
+      this.setBounds(item.id, item.top, item.left, item.width, item.height);
+    //}
   }
+
+}
+
+
+aplicarLayoutHorizontal() {
+  this.width = 650;
+  this.height = 480;
+
+const layoutHorizontal = [
+  // Fila 0: Encabezado/Título (centrado)
+  { id: "lblTitulo", top: 10, left: 245, width: 150, height: 30 },
+
+  // Fila 1: Botones (todos al mismo top = 60)
+  { id: "btnRodillo", top: 50, left: 10,  width: 120, height: 30 },
+  { id: "btnHR",      top: 50, left: 140, width: 120, height: 30 },
+  { id: "btnStart",   top: 50, left: 270, width: 120, height: 30 },
+  { id: "btnTCX",     top: 50, left: 400, width: 120, height: 30 },
+  { id: "ergFile",    top: 50, left: 530, width: 100, height: 30 },
+
+  // Fila 2: Encabezados (todos al mismo top = 120)
+  { id: "lblTimeHead",     top: 100, left: 10,  width: 100, height: 30 },
+  { id: "lblHRHead",       top: 100, left: 120, width: 100, height: 30 },
+  { id: "lblWattsObjHead", top: 100, left: 230, width: 100, height: 30 },
+  { id: "lblWattsHead",    top: 100, left: 340, width: 100, height: 30 },
+  { id: "lblCadenceHead",  top: 100, left: 450, width: 100, height: 30 },
+  { id: "lblSpeedHead",    top: 100, left: 560, width: 80,  height: 30 },
+
+  // Fila 3: Datos dinámicos (todos al mismo top = 180)
+  { id: "timeCell",     top: 140, left: 10,  width: 100, height: 30 },
+  { id: "hrValue",      top: 140, left: 120, width: 100, height: 30 },
+  { id: "wattsObjCell", top: 140, left: 230, width: 100, height: 30 },
+  { id: "wattsCell",    top: 140, left: 340, width: 100, height: 30 },
+  { id: "cadenceCell",  top: 140, left: 450, width: 100, height: 30 },
+  { id: "speedCell",    top: 140, left: 560, width: 80,  height: 30 },
+
+  // Fila 4: Timeline ocupa todo el ancho y el mayor espacio posible
+  { id: "intervalDemo", top: 180, left: 10, width: 620, height: 280 }
+];
+
+    this.aplicarLayout(layoutHorizontal);
+}
+
+
+
+aplicarLayoutVertical() {
+  this.width = 490;
+  this.height = 640;
+
+
+const layoutVertical = [
+  // Fila 0: Encabezado/Título
+  { id: "lblTitulo", top: 10, left: 165, width: 150, height: 30 },
+
+  // Fila 1: 3 botones
+  { id: "btnRodillo", top: 60, left: 10,  width: 150, height: 30 },
+  { id: "btnHR",      top: 60, left: 170, width: 150, height: 30 },
+  { id: "btnStart",   top: 60, left: 330, width: 150, height: 30 },
+
+  // Fila 2: 2 botones
+  { id: "btnTCX",  top: 100, left: 10,  width: 150, height: 30 },
+  { id: "ergFile", top: 100, left: 170, width: 150, height: 30 },
+
+  // Fila 3: Encabezados (3)
+  { id: "lblTimeHead",     top: 150, left: 10,  width: 150, height: 30 },
+  { id: "lblHRHead",       top: 150, left: 170, width: 150, height: 30 },
+  { id: "lblWattsObjHead", top: 150, left: 330, width: 150, height: 30 },
+
+  // Fila 4: Datos dinámicos (3) justo debajo de los encabezados
+  { id: "timeCell",     top: 190, left: 10,  width: 150, height: 30 },
+  { id: "hrValue",      top: 190, left: 170, width: 150, height: 30 },
+  { id: "wattsObjCell", top: 190, left: 330, width: 150, height: 30 },
+
+  // Fila 5: Encabezados (3)
+  { id: "lblWattsHead",   top: 230, left: 10,  width: 150, height: 30 },
+  { id: "lblCadenceHead", top: 230, left: 170, width: 150, height: 30 },
+  { id: "lblSpeedHead",   top: 230, left: 330, width: 150, height: 30 },
+
+  // Fila 6: Datos dinámicos (3) justo debajo de los encabezados
+  { id: "wattsCell",   top: 270, left: 10,  width: 150, height: 30 },
+  { id: "cadenceCell", top: 270, left: 170, width: 150, height: 30 },
+  { id: "speedCell",   top: 270, left: 330, width: 150, height: 30 },
+
+  // Fila 7: Timeline ocupa todo el ancho inferior
+  { id: "intervalDemo", top: 320, left: 10, width: 460, height: 300 }
+];
+
+
+  this.aplicarLayout(layoutVertical);
+
+}
+
+
+
+
+
+
+setBounds(id, top, left, width, height) {
+  const ctrl = this.getChildById(id);
+  if (!ctrl) return;
+
+  // Guardar coordenadas en el objeto
+  ctrl.top = top;
+  ctrl.left = left;
+  ctrl.width = width;
+  ctrl.height = height;
+
+  // Aplicar al DOM usando la referencia correcta
+  if (ctrl.elemento) {
+    ctrl.elemento.style.position = "absolute"; // importante
+    ctrl.elemento.style.top = top + "px";
+    ctrl.elemento.style.left = left + "px";
+    ctrl.elemento.style.width = width + "px";
+    ctrl.elemento.style.height = height + "px";
+  }
+
+  if (ctrl instanceof IntervalControl){
+    console.log("render de interval control");
+    ctrl.render();
+  }
+
+  
+}
+
+
+
+
+
+
 
 
 
@@ -175,6 +266,7 @@ this.timelineControl = new IntervalControl({
 
 
   procesaTick() {
+    this.resize();
     if(!this.pause){
      this.timelineControl.tick();
      this.temporizador.tick();

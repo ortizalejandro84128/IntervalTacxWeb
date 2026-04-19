@@ -41,7 +41,13 @@ class Dialog extends Window {
     });
   }
 
+detectarLayoutPorAspecto() {
+  const ratio = window.innerWidth / window.innerHeight;
 
+  // Si la pantalla es más ancha que alta → horizontal
+  // Si es más alta que ancha → vertical
+  return ratio >= 1.2 ? "horizontal" : "vertical";
+}
 
 getScale() {
   const factorPantalla = this.factorPantalla || .95; // 1.0 = 100%, 0.5 = 50%, 0.25 = 25%
@@ -73,6 +79,14 @@ getScale() {
 
   centrar() {
     if (this.elemento && this.focus) {
+
+const layout = this.detectarLayoutPorAspecto();
+    if (layout === "horizontal") {
+      this.aplicarLayoutHorizontal();
+    } else {
+      this.aplicarLayoutVertical();
+    }
+
       this.applyScale();
 
       const scale = this.getScale();
