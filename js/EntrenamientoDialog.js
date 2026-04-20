@@ -12,19 +12,19 @@ class EntrenamientoDialog extends Dialog {
     //this.aplicarLayoutHorizontal();
     //this.aplicarLayoutVertical();
     
-    this.fnCerrar=
+    
     this.monitorHR=false;
+    this.rodillo=false;
     this.currentHR=0;
     this.mainApp=mainApp;
-    this.factorPantalla=1.0;
+
 
     this.heartRateMonitor=new HeartRateMonitor(this, this.recibeMonitorHR.bind(this));
+    this.trainer = new TacxTrainer(this); 
 
     this.temporizador = new Temporizador();
     this.temporizador.init();
-
-    this.pause=false;
-
+    this.pause=true;
   }
 
 crearControles() {
@@ -32,10 +32,11 @@ crearControles() {
   this.addChildLabel({ id: "lblTitulo", texto: "Control rodillo + HR", fontSize: "30px", fontWeight: "bold" });
 
   // Botones
-  this.addChildBoton({ id: "btnRodillo", texto: "Tacx", fn: this.procesaTick.bind(this) });
+  this.addChildBoton({ id: "btnRodillo", texto: "Tacx", fn: this.conectarRodillo.bind(this) });
   this.addChildBoton({ id: "btnHR", texto: "HR", fn: this.conectaMonitorHR.bind(this) });
-  this.addChildBoton({ id: "btnStart", color: "success", iconoSVG: ImagesSvgRepo.PLAY });
-  //this.addChildBoton({ id: "btnStart", color: "success", texto: ">" });
+  this.addChildBoton({ id: "btnStart", color: "success", texto:"Iniciar", fn:this.iniciActividad.bind(this)});
+  this.addChildBoton({ id: "btnPausa", color: "info", texto: "Pausa", fn:this.pauseActividad.bind(this)});
+  this.addChildBoton({ id: "btnDetener", color: "danger", texto: "Stop", fn:this.detenerActividad.bind(this)});
   //this.addChildBoton({ id: "btnTCX", texto: "TCX", iconoSVG:ImagesSvgRepo.DOWNLOAD});
   this.addChildBoton({ id: "btnTCX", texto: "TCX"});
 
@@ -78,6 +79,8 @@ crearControles() {
   // Estado inicial de botones
   this.setChildEnabled("btnStart", false);
   this.setChildEnabled("btnTCX", false);
+     this.getChildById("btnPausa").hide();
+     this.getChildById("btnDetener").hide();
 }
 
 
@@ -99,6 +102,8 @@ return [
   { id: "btnHR",      top: 70, left: 140, width: 120, height: 30 },
   { id: "btnStart",   top: 70, left: 270, width: 120, height: 30 },
   { id: "btnTCX",     top: 70, left: 400, width: 120, height: 30 },
+  { id: "btnPausa",   top: 70, left: 270, width: 120, height: 30 },
+  { id: "btnDetener", top: 70, left: 400, width: 120, height: 30 },
   { id: "ergFile",    top: 70, left: 530, width: 100, height: 30 },
 
   // Fila 2: Encabezados (todos al mismo top = 120)
@@ -137,9 +142,11 @@ return [
   { id: "btnRodillo", top: 60, left: 5,  width: 159, height: 45 },
   { id: "btnHR",      top: 60, left: 165, width: 159, height: 45 },
   { id: "btnStart",   top: 60, left: 325, width: 100, height: 45 },
+  { id: "btnPausa",   top: 60, left: 325, width: 100, height: 45 },
 
   // Fila 2: 2 botones
   { id: "btnTCX",  top: 110, left: 5,  width: 159, height: 45 },
+  { id: "btnDetener",  top: 110, left: 5,  width: 159, height: 45 },
   { id: "ergFile", top: 110, left: 165, width: 159, height: 45 },
 
   // Fila 3: Encabezados (3)
@@ -180,32 +187,91 @@ return [
     }
   }
 
+
+  conectarRodillo() {
+    this.trainer.connect();
+  }
   conectaMonitorHR() {
      this.heartRateMonitor.connect();
 	 } 
 
   recibeMonitorHR(value) {
+    this.monitorHR=true;
+    this.validarEntreno();
      this.getChildById("hrValue").actualizarTexto(value+" Bpm")
      this.procesaTick();
    } 
 
-  recibePotencia(value) {
-     this.getChildById("wattsCell").actualizarTexto(value+" W")
-//     this.procesaTick();
-   } 
-  recibeVelocidadCad(velocidad, cadencia) {
-     this.getChildById("speedCell").actualizarTexto(velocidad+" Km/h")
-     this.getChildById("cadenceCell").actualizarTexto(cadencia+" rpm")
-//     this.procesaTick();
-   } 
+recibePotencia(value) {
+    this.getChildById("wattsCell").actualizarTexto(value + " W");
+    this.procesaTick();
+  }
+
+  recibeVelocidad(value) {
+    this.getChildById("speedCell").actualizarTexto(value + " km/h");
+  }
+
+  recibeCadencia(value) {
+    // si quieres mostrar cadencia, añade un label
+    this.getChildById("cadenceCell").actualizarTexto(value + "rpm");
+    //this.showAlert("cadenceCell: " + value + " rpm");
+  }
+
+  ajustarPotencia(potencia) {
+    
+    if (potencia < 0) potencia = 0;
+        this.trainer.setTargetPower(potencia); // ahora sí envía al rodillo
+  }
+
+
+
+  pauseActividad(){
+     this.pause=!this.pause;
+
+  } 
+
+
+    detenerActividad(){
+
+     this.pause=true;
+     this.getChildById("btnPausa").hide();
+     this.getChildById("btnDetener").hide();
+
+     this.getChildById("btnTCX").show();
+     this.getChildById("ergFile").show();
+     this.getChildById("btnStart").show();
+
+  } 
+
+
+
+  iniciActividad(){
+
+     const pot=this.timelineControl.workout.segments[0][2];
+     console.log("potencia inicial:"+pot);
+     this.getChildById("wattsObjCell").actualizarTexto(pot+" W")
+     this.ajustarPotencia(pot); 
+     
+     
+     this.timelineControl.reset();
+     this.getChildById("ergFile").hide();
+     this.getChildById("btnStart").hide();
+     this.getChildById("btnTCX").hide();
+
+     this.getChildById("btnPausa").show();
+     this.getChildById("btnDetener").show();
+     this.temporizador.init();
+     this.pause=false;
+
+  } 
 
 
   procesaTick() {
-    this.resize();
     if(!this.pause){
      this.timelineControl.tick();
      this.temporizador.tick();
      this.getChildById("timeCell").actualizarTexto(this.temporizador.getTimeTemporizador())
+     //console.log(this.getForm());
     }
 //     this.getChildById("ergFile").hide();
      //this.mainApp.showDialog("usuarioDialog");
@@ -213,15 +279,20 @@ return [
 
   cambiaSegmento(current, interval) {
     this.getChildById("wattsObjCell").actualizarTexto(interval+" W")
-
-    //aqui enviar potencia objetovo al rodillo
+    this.ajustarPotencia(interval); 
+    
 	 } 
 
    fnFinActividad() {
     this.showAlert("Actividad finalizada");
-    //const usu= new UsuarioDialogModal(this.mainApp, this.cerrarUsuarioDialogModal.bind(this)) ;
-    //usu.mostrar();
-    //aqui enviar potencia objetovo al rodillo
+    this.pause=true;
+    this.getChildById("btnPausa").hide();
+    this.getChildById("btnDetener").hide();
+    this.getChildById("ergFile").show();
+    this.getChildById("btnStart").show();
+    this.getChildById("btnTCX").show();
+
+
 	 } 
 
   cerrarUsuarioDialogModal(data) {
@@ -229,9 +300,9 @@ return [
 //     this.procesaTick();
    } 
 
-  	 validarEntreno() {
+  validarEntreno() {
+
 		 if(this.monitorHR){
-           
            this.setChildEnabled("btnStart", true);
 	 }
 

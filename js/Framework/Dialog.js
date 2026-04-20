@@ -67,7 +67,7 @@ getScale() {
   }
 
 
-/*    centrar() {
+/*    centrar() { //basica
   if (!this.focus) return;
 
   const info = this.seleccionarLayout();
@@ -94,7 +94,7 @@ getScale() {
 
 }
 */
-/*
+
 centrar() {//hibrido factor <1 reduce como imagen no por layout
   if (!this.focus) return;
 
@@ -123,146 +123,10 @@ centrar() {//hibrido factor <1 reduce como imagen no por layout
   this.elemento.style.top = `${top}px`;
   this.elemento.style.width = `${renderedWidth}px`;
   this.elemento.style.height = `${renderedHeight}px`;
-}*/
-
-/*
-
-centrar() {//reescala siempre por imagen despues de layout
-  if (!this.focus) return;
-
-  const info = this.seleccionarLayout();
-  let factor = this.calcularFactor(info.bounds);
-
-  // Layout base
-  const layoutBase = info.layout;
-
-  if (factor >= 1) {
-    // Escalado por coordenadas
-    const lay = this.escalarLayout(layoutBase, factor);
-    this.aplicarLayout(lay);
-
-    // Reset transform
-    this.elemento.style.transform = "";
-    this.elemento.style.transformOrigin = "";
-  } else {
-    // Escalado como imagen
-    this.aplicarLayout(layoutBase); // aplica layout base sin escalar
-    this.elemento.style.transform = `scale(${factor})`;
-    this.elemento.style.transformOrigin = "top left";
-  }
-
-  // 🔹 Ajuste final: ocupar toda la pantalla
-  const renderedWidth = info.bounds.width * factor;
-  const renderedHeight = info.bounds.height * factor;
-
-  const left = Math.max(0, (window.innerWidth - renderedWidth) / 2);
-  const top = Math.max(0, (window.innerHeight - renderedHeight) / 2);
-
-  this.elemento.style.left = `${left}px`;
-  this.elemento.style.top = `${top}px`;
-  this.elemento.style.width = `${renderedWidth}px`;
-  this.elemento.style.height = `${renderedHeight}px`;
-
-  // 🔹 Escalado adicional para llenar pantalla en ambos ejes
-  const scaleX = window.innerWidth / renderedWidth;
-  const scaleY = window.innerHeight / renderedHeight;
-  const finalScale = Math.min(scaleX, scaleY);
-
-  this.elemento.style.transform += ` scale(${finalScale})`;
-}*/
-
-centrar() {//estira hasta 20% extra por imagen
-  if (!this.focus) return;
-
-  const info = this.seleccionarLayout();
-  let factor = this.calcularFactor(info.bounds);
-
-  const layoutBase = info.layout;
-
-  if (factor >= 1) {
-    // Escalado por coordenadas
-    const lay = this.escalarLayout(layoutBase, factor);
-    this.aplicarLayout(lay);
-    this.elemento.style.transform = "";
-    this.elemento.style.transformOrigin = "";
-  } else {
-    // Escalado como imagen
-    this.aplicarLayout(layoutBase);
-    this.elemento.style.transform = `scale(${factor})`;
-    this.elemento.style.transformOrigin = "top left";
-  }
-
-  // Dimensiones renderizadas
-  const renderedWidth = info.bounds.width * factor;
-  const renderedHeight = info.bounds.height * factor;
-
-  const left = Math.max(0, (window.innerWidth - renderedWidth) / 2);
-  const top = Math.max(0, (window.innerHeight - renderedHeight) / 2);
-
-  this.elemento.style.left = `${left}px`;
-  this.elemento.style.top = `${top}px`;
-  this.elemento.style.width = `${renderedWidth}px`;
-  this.elemento.style.height = `${renderedHeight}px`;
-
-  // Escalado adicional para llenar pantalla
-  let scaleX = window.innerWidth / renderedWidth;
-  let scaleY = window.innerHeight / renderedHeight;
-
-  // 🔹 Limitar desproporción a 20%
-  const ratio = scaleX / scaleY;
-  if (ratio > 1.2) {
-    scaleX = scaleY * 1.2;
-  } else if (ratio < 0.8) {
-    scaleY = scaleX * 1.2;
-  }
-
-  this.elemento.style.transform += ` scale(${scaleX}, ${scaleY})`;
 }
 
 
-/*
-centrar() {//estira 100%
-  if (!this.focus) return;
 
-  const info = this.seleccionarLayout();
-  let factor = this.calcularFactor(info.bounds);
-
-  // Layout base
-  const layoutBase = info.layout;
-
-  if (factor >= 1) {
-    // Escalado por coordenadas
-    const lay = this.escalarLayout(layoutBase, factor);
-    this.aplicarLayout(lay);
-
-    this.elemento.style.transform = "";
-    this.elemento.style.transformOrigin = "";
-  } else {
-    // Escalado como imagen
-    this.aplicarLayout(layoutBase); // aplica layout base sin escalar
-    this.elemento.style.transform = `scale(${factor})`;
-    this.elemento.style.transformOrigin = "top left";
-  }
-
-  // 🔹 Ajuste final: ocupar toda la pantalla aunque se deforme
-  const renderedWidth = info.bounds.width * factor;
-  const renderedHeight = info.bounds.height * factor;
-
-  const left = Math.max(0, (window.innerWidth - renderedWidth) / 2);
-  const top = Math.max(0, (window.innerHeight - renderedHeight) / 2);
-
-  this.elemento.style.left = `${left}px`;
-  this.elemento.style.top = `${top}px`;
-  this.elemento.style.width = `${renderedWidth}px`;
-  this.elemento.style.height = `${renderedHeight}px`;
-
-  // Escalado independiente en X y Y para llenar pantalla
-  const scaleX = window.innerWidth / renderedWidth;
-  const scaleY = window.innerHeight / renderedHeight;
-
-  this.elemento.style.transform += ` scale(${scaleX}, ${scaleY})`;
-}
-*/
 
 
 
@@ -345,7 +209,7 @@ clearTimeout(this.resizeTimeout);
   }
 
   if (ctrl instanceof IntervalControl){
-    console.log("render de interval control");
+    //console.log("render de interval control");
     ctrl.render();
   }
 }
