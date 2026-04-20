@@ -9,11 +9,11 @@ class Dialog extends Window {
   crear() {
     const div = document.createElement("div");
     div.id = this.id;
-    div.className = "dialog shadow rounded";
+    //div.className = "dialog shadow rounded";
     div.style.position = "absolute";
     div.style.maxWidth = "100vw";
-    div.style.maxHeight = "90vh";
-    div.style.overflow = "auto";
+   // div.style.maxHeight = "90vh";
+    //div.style.overflow = "auto";
     document.getElementById("app").appendChild(div);
     this.elemento = div;
     window.addEventListener('resize', this.resize.bind(this));
