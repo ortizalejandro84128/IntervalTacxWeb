@@ -1,5 +1,5 @@
 class FileInput extends Boton {
-  constructor({ id, top, left, width, height, texto = "Load .Erg", accept = ".erg2", fn }) {
+  constructor({ id, top, left, width, height, texto = ".Erg", accept = ".erg2", fn }) {
     super({ id, top, left, width, height, texto, fn: null, color:'secondary' }); 
     this.accept = accept;
     this.onFileLoaded = fn;

@@ -131,7 +131,7 @@ class IntervalControl extends Window {
       labelMark.style.top = "8px";
       labelMark.style.left = ((k * step) / totalDuration) * totalWidth + "px";
       labelMark.style.transform = "translateX(-50%)";
-      labelMark.style.fontSize = (this.width/ 50)+"px";
+      labelMark.style.fontSize = (this.width/ 60)+"px";
 
       rule.appendChild(mark);
       rule.appendChild(labelMark);

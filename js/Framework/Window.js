@@ -18,10 +18,10 @@ agregarHijo(hijo) {
   }
 
   addChildLabel({ id, top, left, width, height, texto, fontSize = "16px", color = "black", fontWeight = "normal" }) {
-    const lbl = new Label({ id, top, left, width, height, texto });
+    const lbl = new Label({ id, top, left, width, height, texto,fontSize });
     // aplicar estilos adicionales
     if (lbl.elemento) {
-   //   lbl.elemento.style.fontSize = fontSize;
+      lbl.elemento.style.fontSize = fontSize;
       lbl.elemento.style.color = color;
       lbl.elemento.style.fontWeight = fontWeight;
     }

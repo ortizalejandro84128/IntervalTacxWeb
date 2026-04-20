@@ -16,7 +16,7 @@ class EntrenamientoDialog extends Dialog {
     this.monitorHR=false;
     this.currentHR=0;
     this.mainApp=mainApp;
-    this.factorPantalla=.9;
+    this.factorPantalla=.95;
 
     this.heartRateMonitor=new HeartRateMonitor(this, this.recibeMonitorHR.bind(this));
 
@@ -29,33 +29,34 @@ class EntrenamientoDialog extends Dialog {
 
 crearControles() {
   // Título
-  this.addChildLabel({ id: "lblTitulo", texto: "Control rodillo + HR", fontSize: "22px", fontWeight: "bold" });
+  this.addChildLabel({ id: "lblTitulo", texto: "Control rodillo + HR", fontSize: "30px", fontWeight: "bold" });
 
   // Botones
   this.addChildBoton({ id: "btnRodillo", texto: "Tacx", fn: this.procesaTick.bind(this) });
   this.addChildBoton({ id: "btnHR", texto: "HR", fn: this.conectaMonitorHR.bind(this) });
-  //this.addChildBoton({ id: "btnStart", color: "success", iconoSVG: ImagesSvgRepo.PLAY });
-  this.addChildBoton({ id: "btnStart", color: "success", texto: ">" });
-  this.addChildBoton({ id: "btnTCX", texto: "TCX" });
+  this.addChildBoton({ id: "btnStart", color: "success", iconoSVG: ImagesSvgRepo.PLAY });
+  //this.addChildBoton({ id: "btnStart", color: "success", texto: ">" });
+  //this.addChildBoton({ id: "btnTCX", texto: "TCX", iconoSVG:ImagesSvgRepo.DOWNLOAD});
+  this.addChildBoton({ id: "btnTCX", texto: "TCX"});
 
   // Input de archivo
   this.addChildFileInput({ id: "ergFile", accept: ".erg2", fn: this.onCargaErg.bind(this) });
 
   // Encabezados de la tabla
-  this.addChildLabel({ id: "lblTimeHead", texto: "Tiempo", fontSize: "8px", fontWeight: "bold" });
-  this.addChildLabel({ id: "lblHRHead", texto: "HR", fontSize: "8px", fontWeight: "bold" });
-  this.addChildLabel({ id: "lblWattsObjHead", texto: "Obj W", fontSize: "8px", fontWeight: "bold" });
-  this.addChildLabel({ id: "lblWattsHead", texto: "Pot W", fontSize: "8px", fontWeight: "bold" });
-  this.addChildLabel({ id: "lblCadenceHead", texto: "Cad", fontSize: "8px", fontWeight: "bold" });
-  this.addChildLabel({ id: "lblSpeedHead", texto: "Vel", fontSize: "8px", fontWeight: "bold" });
+  this.addChildLabel({ id: "lblTimeHead", texto: "Tiempo", fontSize: "20px", fontWeight: "bold" });
+  this.addChildLabel({ id: "lblHRHead", texto: "HR", fontSize: "20px", fontWeight: "bold" });
+  this.addChildLabel({ id: "lblWattsObjHead", texto: "Obj W", fontSize: "20px", fontWeight: "bold" });
+  this.addChildLabel({ id: "lblWattsHead", texto: "Pot W", fontSize: "20px", fontWeight: "bold" });
+  this.addChildLabel({ id: "lblCadenceHead", texto: "Cad", fontSize: "20px", fontWeight: "bold" });
+  this.addChildLabel({ id: "lblSpeedHead", texto: "Vel", fontSize: "20px", fontWeight: "bold" });
 
   // Valores dinámicos
-  this.addChildLabel({ id: "timeCell", texto: "--", fontSize: "9px", color: "red" });
-  this.addChildLabel({ id: "hrValue", texto: "--", fontSize: "9px", color: "green" });
-  this.addChildLabel({ id: "wattsObjCell", texto: "--", fontSize: "9px", color: "brown" });
-  this.addChildLabel({ id: "wattsCell", texto: "--", fontSize: "9px", color: "red" });
-  this.addChildLabel({ id: "cadenceCell", texto: "--", fontSize: "9px", color: "green" });
-  this.addChildLabel({ id: "speedCell", texto: "--", fontSize: "9px", color: "brown" });
+  this.addChildLabel({ id: "timeCell", texto: "--", fontSize: "21px", color: "red" });
+  this.addChildLabel({ id: "hrValue", texto: "--", fontSize: "23px", color: "green" });
+  this.addChildLabel({ id: "wattsObjCell", texto: "--", fontSize: "21px", color: "brown" });
+  this.addChildLabel({ id: "wattsCell", texto: "--", fontSize: "23px", color: "red" });
+  this.addChildLabel({ id: "cadenceCell", texto: "--", fontSize: "21px", color: "green" });
+  this.addChildLabel({ id: "speedCell", texto: "--", fontSize: "21px", color: "brown" });
 
   // Timeline
   const workoutDemo = {
@@ -109,22 +110,22 @@ aplicarLayoutHorizontal() {
 
 const layoutHorizontal = [
   // Fila 0: Encabezado/Título (centrado)
-  { id: "lblTitulo", top: 10, left: 200, width: 300, height: 30 },
+  { id: "lblTitulo", top: 10, left: 10, width: 600, height: 30 },
 
   // Fila 1: Botones (todos al mismo top = 60)
-  { id: "btnRodillo", top: 50, left: 10,  width: 120, height: 30 },
-  { id: "btnHR",      top: 50, left: 140, width: 120, height: 30 },
-  { id: "btnStart",   top: 50, left: 270, width: 120, height: 30 },
-  { id: "btnTCX",     top: 50, left: 400, width: 120, height: 30 },
-  { id: "ergFile",    top: 50, left: 530, width: 100, height: 30 },
+  { id: "btnRodillo", top: 70, left: 10,  width: 120, height: 30 },
+  { id: "btnHR",      top: 70, left: 140, width: 120, height: 30 },
+  { id: "btnStart",   top: 70, left: 270, width: 120, height: 30 },
+  { id: "btnTCX",     top: 70, left: 400, width: 120, height: 30 },
+  { id: "ergFile",    top: 70, left: 530, width: 100, height: 30 },
 
   // Fila 2: Encabezados (todos al mismo top = 120)
-  { id: "lblTimeHead",     top: 100, left: 10,  width: 100, height: 30 },
-  { id: "lblHRHead",       top: 100, left: 120, width: 100, height: 30 },
-  { id: "lblWattsObjHead", top: 100, left: 230, width: 100, height: 30 },
-  { id: "lblWattsHead",    top: 100, left: 340, width: 100, height: 30 },
-  { id: "lblCadenceHead",  top: 100, left: 450, width: 100, height: 30 },
-  { id: "lblSpeedHead",    top: 100, left: 560, width: 80,  height: 30 },
+  { id: "lblTimeHead",     top: 110, left: 10,  width: 100, height: 30 },
+  { id: "lblHRHead",       top: 110, left: 120, width: 100, height: 30 },
+  { id: "lblWattsObjHead", top: 110, left: 230, width: 100, height: 30 },
+  { id: "lblWattsHead",    top: 110, left: 340, width: 100, height: 30 },
+  { id: "lblCadenceHead",  top: 110, left: 450, width: 100, height: 30 },
+  { id: "lblSpeedHead",    top: 110, left: 560, width: 80,  height: 30 },
 
   // Fila 3: Datos dinámicos (todos al mismo top = 180)
   { id: "timeCell",     top: 140, left: 10,  width: 100, height: 30 },
@@ -144,45 +145,45 @@ const layoutHorizontal = [
 
 
 aplicarLayoutVertical() {
-  this.width = 490;
+  this.width = 460;
   this.height = 640;
 
 
 const layoutVertical = [
   // Fila 0: Encabezado/Título
-  { id: "lblTitulo", top: 10, left: 100, width: 300, height: 30 },
+  { id: "lblTitulo", top: 10, left: 10, width: 400, height: 30 },
 
   // Fila 1: 3 botones
-  { id: "btnRodillo", top: 60, left: 10,  width: 150, height: 30 },
-  { id: "btnHR",      top: 60, left: 170, width: 150, height: 30 },
-  { id: "btnStart",   top: 60, left: 330, width: 150, height: 30 },
+  { id: "btnRodillo", top: 60, left: 10,  width: 159, height: 45 },
+  { id: "btnHR",      top: 60, left: 170, width: 159, height: 45 },
+  { id: "btnStart",   top: 60, left: 330, width: 100, height: 45 },
 
   // Fila 2: 2 botones
-  { id: "btnTCX",  top: 100, left: 10,  width: 150, height: 30 },
-  { id: "ergFile", top: 100, left: 170, width: 150, height: 30 },
+  { id: "btnTCX",  top: 110, left: 10,  width: 159, height: 45 },
+  { id: "ergFile", top: 110, left: 170, width: 159, height: 45 },
 
   // Fila 3: Encabezados (3)
-  { id: "lblTimeHead",     top: 150, left: 10,  width: 150, height: 30 },
-  { id: "lblHRHead",       top: 150, left: 170, width: 150, height: 30 },
-  { id: "lblWattsObjHead", top: 150, left: 330, width: 150, height: 30 },
+  { id: "lblTimeHead",     top: 155, left: 10,  width: 150, height: 30 },
+  { id: "lblHRHead",       top: 155, left: 170, width: 150, height: 30 },
+  { id: "lblWattsObjHead", top: 155, left: 330, width: 100, height: 30 },
 
   // Fila 4: Datos dinámicos (3) justo debajo de los encabezados
   { id: "timeCell",     top: 190, left: 10,  width: 150, height: 30 },
   { id: "hrValue",      top: 190, left: 170, width: 150, height: 30 },
-  { id: "wattsObjCell", top: 190, left: 330, width: 150, height: 30 },
+  { id: "wattsObjCell", top: 190, left: 330, width: 100, height: 30 },
 
   // Fila 5: Encabezados (3)
   { id: "lblWattsHead",   top: 230, left: 10,  width: 150, height: 30 },
   { id: "lblCadenceHead", top: 230, left: 170, width: 150, height: 30 },
-  { id: "lblSpeedHead",   top: 230, left: 330, width: 150, height: 30 },
+  { id: "lblSpeedHead",   top: 230, left: 330, width: 100, height: 30 },
 
   // Fila 6: Datos dinámicos (3) justo debajo de los encabezados
   { id: "wattsCell",   top: 270, left: 10,  width: 150, height: 30 },
   { id: "cadenceCell", top: 270, left: 170, width: 150, height: 30 },
-  { id: "speedCell",   top: 270, left: 330, width: 150, height: 30 },
+  { id: "speedCell",   top: 270, left: 330, width: 100, height: 30 },
 
   // Fila 7: Timeline ocupa todo el ancho inferior
-  { id: "intervalDemo", top: 320, left: 10, width: 460, height: 300 }
+  { id: "intervalDemo", top: 320, left: 10, width: 430, height: 300 }
 ];
 
 

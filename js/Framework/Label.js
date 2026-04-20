@@ -1,6 +1,7 @@
 class Label extends Window {
-  constructor({id, top, left, width, height, texto}) {
+  constructor({id, top, left, width, height, texto, fontSize}) {
     super({id, top, left, width, height, texto});
+    this.fontSize=fontSize;
     this.crear();
   }
 
@@ -15,7 +16,7 @@ class Label extends Window {
     lbl.style.width = this.width + "px";
     lbl.style.height = this.height + "px";
     lbl.style.padding = "5px";
-    lbl.style.fontSize = (this.width / 6) + "px";
+    lbl.style.fontSize = (this.fontSize ) + "px";
     this.elemento = lbl;
   }
 

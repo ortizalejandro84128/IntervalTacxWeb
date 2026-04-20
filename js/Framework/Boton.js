@@ -17,7 +17,7 @@ class Boton extends Window {
     btn.style.height = this.height + "px";
 
     // Estilos base
-    btn.style.fontSize = (this.width / 6) + "px";
+    btn.style.fontSize = "30px";
     btn.style.fontWeight = "bold"; 
     btn.style.display = "flex";
     btn.style.alignItems = "center";
@@ -28,8 +28,8 @@ class Boton extends Window {
     if (this.iconoSVG) {
       const svgWrapper = document.createElement("span");
       svgWrapper.innerHTML = this.iconoSVG;
-      svgWrapper.style.width = "12px";
-      svgWrapper.style.height = "12px";
+      svgWrapper.style.width = "54px";
+      svgWrapper.style.height = "54px";
       btn.appendChild(svgWrapper);
     }
 
