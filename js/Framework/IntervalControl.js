@@ -30,6 +30,7 @@ class IntervalControl extends Window {
 
   setIntervalsFromWorkout(workout) {
     if (!workout || !workout.segments) return;
+    this.workout=workout;
 
     this.intervals = [];
     for (var i = 0; i < workout.segments.length; i++) {
@@ -67,7 +68,7 @@ class IntervalControl extends Window {
     // Etiqueta superior con el nombre del workout
     var title = document.createElement("div");
     title.className = "text-center fw-bold bg-primary text-white p-0";
-    title.textContent = this.workout.workoutName || "Workout";
+    title.textContent = this.workout.workoutName +"-"+ this.workout.dominantZone;
     title.style.fontSize = (this.width/ 30)+"px";
     this.elemento.appendChild(title);
 
