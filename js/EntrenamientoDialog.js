@@ -135,7 +135,7 @@ const layoutHorizontal = [
   { id: "speedCell",    top: 140, left: 560, width: 80,  height: 30 },
 
   // Fila 4: Timeline ocupa todo el ancho y el mayor espacio posible
-  { id: "intervalDemo", top: 180, left: 10, width: 620, height: 280 }
+  { id: "intervalDemo", top: 175, left: 10, width: 610, height: 280 }
 ];
 
     this.aplicarLayout(layoutHorizontal);

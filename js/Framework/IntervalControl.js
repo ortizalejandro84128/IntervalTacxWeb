@@ -126,12 +126,12 @@ class IntervalControl extends Window {
       mark.style.transform = "translateX(-50%)";
 
       var labelMark = document.createElement("div");
-      labelMark.textContent = k * 5+"min";
+      labelMark.textContent = k * 5+"m";
       labelMark.className = "position-absolute small";
       labelMark.style.top = "8px";
       labelMark.style.left = ((k * step) / totalDuration) * totalWidth + "px";
       labelMark.style.transform = "translateX(-50%)";
-      labelMark.style.fontSize = "5px";
+      labelMark.style.fontSize = (this.width/ 50)+"px";
 
       rule.appendChild(mark);
       rule.appendChild(labelMark);
