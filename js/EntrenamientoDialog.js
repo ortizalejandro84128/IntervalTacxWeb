@@ -62,7 +62,7 @@ crearControles() {
   const workoutDemo = {
     dominantZone: "endurance",
     segments: [[5, 50, "50"], [15, 65, "65"], [5, 105, "50"]],
-    workoutName: "Demo"
+    workoutName: "Entrenmiento Demo"
   };
 
   this.timelineControl = new IntervalControl({
@@ -82,33 +82,15 @@ crearControles() {
 
 
 
-escalarLayout(layout, factor) {
-  return layout.map(item => ({
-    id: item.id,
-    top: item.top * factor,
-    left: item.left * factor,
-    width: item.width * factor,
-    height: item.height * factor
-  }));
+
+
+
+getBoundsHorizontal(){
+  return {width:650, height:480}
 }
 
-aplicarLayout(layout) {
-  for (const item of layout) {
-    //const ctrl = this.getChildById(item.id);
-    //if (ctrl) {
-    //setBounds(id, top, left, width, height)
-      this.setBounds(item.id, item.top, item.left, item.width, item.height);
-    //}
-  }
-
-}
-
-
-aplicarLayoutHorizontal() {
-  this.width = 650;
-  this.height = 480;
-
-const layoutHorizontal = [
+getLayoutHorizontal(){
+return [
   // Fila 0: Encabezado/Título (centrado)
   { id: "lblTitulo", top: 10, left: 10, width: 600, height: 30 },
 
@@ -136,20 +118,18 @@ const layoutHorizontal = [
   { id: "speedCell",    top: 140, left: 560, width: 80,  height: 30 },
 
   // Fila 4: Timeline ocupa todo el ancho y el mayor espacio posible
-  { id: "intervalDemo", top: 175, left: 10, width: 630, height: 280 }
+  { id: "intervalDemo", top: 175, left: 10, width: 630, height: 260 }
 ];
 
-    this.aplicarLayout(layoutHorizontal);
 }
 
 
+getBoundsVertical(){
+     return {width:this.getBoundsHorizontal().height, height:this.getBoundsHorizontal().width}
+}
 
-aplicarLayoutVertical() {
-  this.width = 460;
-  this.height = 640;
-
-
-const layoutVertical = [
+getLayoutVertical(){
+return [
   // Fila 0: Encabezado/Título
   { id: "lblTitulo", top: 10, left: 5, width: 400, height: 30 },
 
@@ -183,52 +163,10 @@ const layoutVertical = [
   { id: "speedCell",   top: 270, left: 325, width: 100, height: 30 },
 
   // Fila 7: Timeline ocupa todo el ancho inferior
-  { id: "intervalDemo", top: 320, left: 5, width: 440, height: 300 }
+  { id: "intervalDemo", top: 320, left: 5, width: 440, height: 280 }
 ];
 
-
-  this.aplicarLayout(layoutVertical);
-
 }
-
-
-
-
-
-
-setBounds(id, top, left, width, height) {
-  const ctrl = this.getChildById(id);
-  if (!ctrl) return;
-
-  // Guardar coordenadas en el objeto
-  ctrl.top = top;
-  ctrl.left = left;
-  ctrl.width = width;
-  ctrl.height = height;
-
-  // Aplicar al DOM usando la referencia correcta
-  if (ctrl.elemento) {
-    ctrl.elemento.style.position = "absolute"; // importante
-    ctrl.elemento.style.top = top + "px";
-    ctrl.elemento.style.left = left + "px";
-    ctrl.elemento.style.width = width + "px";
-    ctrl.elemento.style.height = height + "px";
-  }
-
-  if (ctrl instanceof IntervalControl){
-    console.log("render de interval control");
-    ctrl.render();
-  }
-
-  
-}
-
-
-
-
-
-
-
 
 
   onCargaErg(fileName, contenido) {

@@ -68,7 +68,7 @@ class IntervalControl extends Window {
     var title = document.createElement("div");
     title.className = "text-center fw-bold bg-primary text-white p-0";
     title.textContent = this.workout.workoutName || "Workout";
-    title.style.fontSize = "8px";
+    title.style.fontSize = (this.width/ 30)+"px";
     this.elemento.appendChild(title);
 
     // Contenedor principal
