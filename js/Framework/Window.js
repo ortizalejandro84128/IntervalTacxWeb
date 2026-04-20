@@ -21,7 +21,7 @@ agregarHijo(hijo) {
     const lbl = new Label({ id, top, left, width, height, texto });
     // aplicar estilos adicionales
     if (lbl.elemento) {
-      lbl.elemento.style.fontSize = fontSize;
+   //   lbl.elemento.style.fontSize = fontSize;
       lbl.elemento.style.color = color;
       lbl.elemento.style.fontWeight = fontWeight;
     }

@@ -17,7 +17,7 @@ class Boton extends Window {
     btn.style.height = this.height + "px";
 
     // Estilos base
-    btn.style.fontSize = "7px"; 
+    btn.style.fontSize = (this.width / 6) + "px";
     btn.style.fontWeight = "bold"; 
     btn.style.display = "flex";
     btn.style.alignItems = "center";

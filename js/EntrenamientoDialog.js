@@ -29,17 +29,13 @@ class EntrenamientoDialog extends Dialog {
 
 crearControles() {
   // Título
-  this.addChildLabel({
-    id: "lblTitulo",
-    texto: "Control rodillo + HR",
-    fontSize: "8px",
-    fontWeight: "bold"
-  });
+  this.addChildLabel({ id: "lblTitulo", texto: "Control rodillo + HR", fontSize: "22px", fontWeight: "bold" });
 
   // Botones
   this.addChildBoton({ id: "btnRodillo", texto: "Tacx", fn: this.procesaTick.bind(this) });
   this.addChildBoton({ id: "btnHR", texto: "HR", fn: this.conectaMonitorHR.bind(this) });
-  this.addChildBoton({ id: "btnStart", color: "success", iconoSVG: ImagesSvgRepo.PLAY });
+  //this.addChildBoton({ id: "btnStart", color: "success", iconoSVG: ImagesSvgRepo.PLAY });
+  this.addChildBoton({ id: "btnStart", color: "success", texto: ">" });
   this.addChildBoton({ id: "btnTCX", texto: "TCX" });
 
   // Input de archivo
@@ -113,7 +109,7 @@ aplicarLayoutHorizontal() {
 
 const layoutHorizontal = [
   // Fila 0: Encabezado/Título (centrado)
-  { id: "lblTitulo", top: 10, left: 245, width: 150, height: 30 },
+  { id: "lblTitulo", top: 10, left: 200, width: 300, height: 30 },
 
   // Fila 1: Botones (todos al mismo top = 60)
   { id: "btnRodillo", top: 50, left: 10,  width: 120, height: 30 },
@@ -154,7 +150,7 @@ aplicarLayoutVertical() {
 
 const layoutVertical = [
   // Fila 0: Encabezado/Título
-  { id: "lblTitulo", top: 10, left: 165, width: 150, height: 30 },
+  { id: "lblTitulo", top: 10, left: 100, width: 300, height: 30 },
 
   // Fila 1: 3 botones
   { id: "btnRodillo", top: 60, left: 10,  width: 150, height: 30 },

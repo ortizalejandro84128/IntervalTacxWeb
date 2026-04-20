@@ -15,6 +15,7 @@ class Label extends Window {
     lbl.style.width = this.width + "px";
     lbl.style.height = this.height + "px";
     lbl.style.padding = "5px";
+    lbl.style.fontSize = (this.width / 6) + "px";
     this.elemento = lbl;
   }
 
@@ -23,7 +24,7 @@ class Label extends Window {
   }
 
   setTamaño(px) {
-    this.elemento.style.fontSize = px + "px";
+    //this.elemento.style.fontSize = px + "px";
   }
 
   setColor(color) {
