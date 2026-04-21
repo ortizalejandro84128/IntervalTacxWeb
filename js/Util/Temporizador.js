@@ -1,31 +1,48 @@
 class Temporizador {
   constructor() {
-    this.startTime = null;
-    this.elapsed = 0;
+    this.startTime = null;     // momento en que se inicia/reanuda
+    this.elapsed = 0;          // tiempo acumulado en ms
+    this.running = false;      // estado: corriendo o pausado
   }
 
   init() {
-    this.startTime = new Date();
+    this.startTime = Date.now();
     this.elapsed = 0;
+    this.running = true;
+  }
+
+  pause() {
+    if (this.running) {
+      this.elapsed += Date.now() - this.startTime;
+      this.running = false;
+    }
+  }
+
+  resume() {
+    if (!this.running) {
+      this.startTime = Date.now();
+      this.running = true;
+    }
   }
 
   tick() {
-    if (!this.startTime) return;
-    const now = new Date();
-    this.elapsed = now - this.startTime; // diferencia en ms
+    if (this.running) {
+      const now = Date.now();
+      this.totalElapsed = this.elapsed + (now - this.startTime);
+    } else {
+      this.totalElapsed = this.elapsed;
+    }
   }
 
   getTimeTemporizador() {
-    let ms = this.elapsed % 1000;
+    const ms = this.totalElapsed % 1000;
+    const decimas = Math.floor(ms / 100);
 
-    // Convertir a décimas de segundo (0–9)
-    let decimas = Math.floor(ms / 100);
-
-    let totalSeconds = Math.floor(this.elapsed / 1000);
-    let seconds = totalSeconds % 60;
-    let totalMinutes = Math.floor(totalSeconds / 60);
-    let minutes = totalMinutes % 60;
-    let hours = Math.floor(totalMinutes / 60);
+    const totalSeconds = Math.floor(this.totalElapsed / 1000);
+    const seconds = totalSeconds % 60;
+    const totalMinutes = Math.floor(totalSeconds / 60);
+    const minutes = totalMinutes % 60;
+    const hours = Math.floor(totalMinutes / 60);
 
     const pad = (num, size = 2) => num.toString().padStart(size, "0");
 

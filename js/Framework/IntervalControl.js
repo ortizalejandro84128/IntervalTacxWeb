@@ -14,7 +14,7 @@ class IntervalControl extends Window {
     this.started = false;
 
     // nuevo factor: 60 para minutos reales, 1 para pruebas rápidas
-    this.factor = factor || 1;
+    this.factor = factor || 60;
 
     // Contenedor principal con Bootstrap
     this.elemento = document.createElement("div");
@@ -93,12 +93,14 @@ class IntervalControl extends Window {
       container.style.height = relativeHeight + "px";
       container.style.background = ZonaUtils.getMutedColor(interval.zona);
       container.className = "position-relative";
+      container.title =  `${interval.duration}min-${(interval.power*this.ftp)/100}W`;
 
       var bar = document.createElement("div");
       bar.style.width = interval.progress + "%";
       bar.style.height = "100%";
       bar.style.background = ZonaUtils.getStrongColor(interval.zona);
       bar.className = "position-absolute start-0 bottom-0";
+      container.title = `${interval.duration}min-${(interval.power*this.ftp)/100}W`;
       interval._bar = bar;
 
       container.appendChild(bar);
@@ -127,7 +129,7 @@ class IntervalControl extends Window {
       mark.style.transform = "translateX(-50%)";
 
       var labelMark = document.createElement("div");
-      labelMark.textContent = k * 5+"m";
+      labelMark.textContent = k * 5+"";
       labelMark.className = "position-absolute small";
       labelMark.style.top = "8px";
       labelMark.style.left = ((k * step) / totalDuration) * totalWidth + "px";

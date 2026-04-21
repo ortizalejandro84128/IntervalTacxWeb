@@ -25,6 +25,7 @@ class EntrenamientoDialog extends Dialog {
     this.temporizador = new Temporizador();
     this.temporizador.init();
     this.pause=true;
+    this.entrenamiento=[];
   }
 
 crearControles() {
@@ -38,7 +39,7 @@ crearControles() {
   this.addChildBoton({ id: "btnPausa", color: "info", texto: "Pausa", fn:this.pauseActividad.bind(this)});
   this.addChildBoton({ id: "btnDetener", color: "danger", texto: "Stop", fn:this.detenerActividad.bind(this)});
   //this.addChildBoton({ id: "btnTCX", texto: "TCX", iconoSVG:ImagesSvgRepo.DOWNLOAD});
-  this.addChildBoton({ id: "btnTCX", texto: "TCX"});
+  this.addChildBoton({ id: "btnTCX", texto: "TCX", fn:this.descargaTCXFile.bind(this)});
 
   // Input de archivo
   this.addChildFileInput({ id: "ergFile", accept: ".erg2", fn: this.onCargaErg.bind(this) });
@@ -78,7 +79,7 @@ crearControles() {
 
   // Estado inicial de botones
   this.setChildEnabled("btnStart", false);
-  this.setChildEnabled("btnTCX", false);
+ // this.setChildEnabled("btnTCX", false);
      this.getChildById("btnPausa").hide();
      this.getChildById("btnDetener").hide();
 }
@@ -227,7 +228,11 @@ recibePotencia(value) {
 
   pauseActividad(){
      this.pause=!this.pause;
-
+  if(this.pause){
+      this.temporizador.pause();
+  } else {
+      this.temporizador.resume();
+  }
   } 
 
 
@@ -246,6 +251,8 @@ recibePotencia(value) {
 
 
   iniciActividad(){
+
+    this.entrenamiento=[];
 
      const pot=this.timelineControl.workout.segments[0][2];
      console.log("potencia inicial:"+pot);
@@ -271,6 +278,8 @@ recibePotencia(value) {
      this.timelineControl.tick();
      this.temporizador.tick();
      this.getChildById("timeCell").actualizarTexto(this.temporizador.getTimeTemporizador())
+
+     this.entrenamiento.push(this.getForm());
      //console.log(this.getForm());
     }
 //     this.getChildById("ergFile").hide();
@@ -283,8 +292,35 @@ recibePotencia(value) {
     
 	 } 
 
+   descargaTCXFile() {
+    //const tcxString = TcxExport.jsonToTcxStrava(this.entrenamiento);
+    const tcxString = TcxExport.jsonToTcxStrava(this.getData());
+
+    
+    const blob = new Blob([tcxString], { type: 'application/tcx+xml' });
+
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    
+    const fecha = new Date().toISOString().split('T')[0];
+    link.download = `${this.timelineControl.workout.workoutName}_${fecha}.tcx`;
+
+    document.body.appendChild(link);
+    link.click();
+    
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+}
+   
+
    fnFinActividad() {
-    this.showAlert("Actividad finalizada");
+
+    //     this.entrenamiento.push(this.getForm());
+     console.log(JSON.stringify(this.entrenamiento, null, 2));
+
+    this.showAlert("Actividad finalizada  duracion :" +this.temporizador.getTimeTemporizador());
     this.pause=true;
     this.getChildById("btnPausa").hide();
     this.getChildById("btnDetener").hide();
@@ -308,4 +344,182 @@ recibePotencia(value) {
 
 	 } 
 
+
+
+
+   getData(){
+  return [
+  {
+    "timeCell": "00:00:00.6",
+    "hrValue": "66 Bpm",
+    "wattsObjCell": "100 W",
+    "wattsCell": "120",
+    "cadenceCell": "80",
+    "speedCell": "27"
+  },
+  {
+    "timeCell": "00:00:01.6",
+    "hrValue": "66 Bpm",
+    "wattsObjCell": "100 W",
+    "wattsCell": "120",
+    "cadenceCell": "81",
+    "speedCell": "27"
+  },
+  {
+    "timeCell": "00:00:02.6",
+    "hrValue": "66 Bpm",
+    "wattsObjCell": "100 W",
+    "wattsCell": "85",
+    "cadenceCell": "80",
+    "speedCell": "25"  },
+  {
+    "timeCell": "00:00:03.6",
+    "hrValue": "66 Bpm",
+    "wattsObjCell": "100 W",
+    "wattsCell": "85",
+    "cadenceCell": "80",
+    "speedCell": "25"  },
+  {
+    "timeCell": "00:00:04.6",
+    "hrValue": "66 Bpm",
+    "wattsObjCell": "100 W",
+    "wattsCell": "85",
+    "cadenceCell": "80",
+    "speedCell": "25"  },
+  {
+    "timeCell": "00:00:05.6",
+    "hrValue": "66 Bpm",
+    "wattsObjCell": "130 W",
+    "wattsCell": "85",
+    "cadenceCell": "80",
+    "speedCell": "25"  },
+  {
+    "timeCell": "00:00:06.6",
+    "hrValue": "66 Bpm",
+    "wattsObjCell": "130 W",
+    "wattsCell": "85",
+    "cadenceCell": "80",
+    "speedCell": "25"  },
+  {
+    "timeCell": "00:00:07.6",
+    "hrValue": "68 Bpm",
+    "wattsObjCell": "130 W",
+    "wattsCell": "85",
+    "cadenceCell": "80",
+    "speedCell": "25"  },
+  {
+    "timeCell": "00:00:08.6",
+    "hrValue": "69 Bpm",
+    "wattsObjCell": "130 W",
+    "wattsCell": "85",
+    "cadenceCell": "80",
+    "speedCell": "25"  },
+  {
+    "timeCell": "00:00:09.6",
+    "hrValue": "70 Bpm",
+    "wattsObjCell": "130 W",
+    "wattsCell": "85",
+    "cadenceCell": "80",
+    "speedCell": "25"  },
+  {
+    "timeCell": "00:00:10.6",
+    "hrValue": "70 Bpm",
+    "wattsObjCell": "130 W",
+    "wattsCell": "85",
+    "cadenceCell": "80",
+    "speedCell": "25"  },
+  {
+    "timeCell": "00:00:11.6",
+    "hrValue": "71 Bpm",
+    "wattsObjCell": "130 W",
+    "wattsCell": "85",
+    "cadenceCell": "80",
+    "speedCell": "25"  },
+  {
+    "timeCell": "00:00:12.6",
+    "hrValue": "71 Bpm",
+    "wattsObjCell": "130 W",
+    "wattsCell": "85",
+    "cadenceCell": "80",
+    "speedCell": "25"  },
+  {
+    "timeCell": "00:00:13.6",
+    "hrValue": "71 Bpm",
+    "wattsObjCell": "130 W",
+    "wattsCell": "85",
+    "cadenceCell": "80",
+    "speedCell": "25"  },
+  {
+    "timeCell": "00:00:14.6",
+    "hrValue": "71 Bpm",
+    "wattsObjCell": "130 W",
+    "wattsCell": "85",
+    "cadenceCell": "80",
+    "speedCell": "25"  },
+  {
+    "timeCell": "00:00:15.6",
+    "hrValue": "71 Bpm",
+    "wattsObjCell": "130 W",
+    "wattsCell": "85",
+    "cadenceCell": "80",
+    "speedCell": "25"  },
+  {
+    "timeCell": "00:00:16.7",
+    "hrValue": "70 Bpm",
+    "wattsObjCell": "130 W",
+    "wattsCell": "85",
+    "cadenceCell": "80",
+    "speedCell": "25"  },
+  {
+    "timeCell": "00:00:18.2",
+    "hrValue": "70 Bpm",
+    "wattsObjCell": "130 W",
+    "wattsCell": "85",
+    "cadenceCell": "80",
+    "speedCell": "25"  },
+  {
+    "timeCell": "00:00:18.7",
+    "hrValue": "70 Bpm",
+    "wattsObjCell": "130 W",
+    "wattsCell": "85",
+    "cadenceCell": "80",
+    "speedCell": "25"  },
+  {
+    "timeCell": "00:00:19.7",
+    "hrValue": "71 Bpm",
+    "wattsObjCell": "130 W",
+    "wattsCell": "85",
+    "cadenceCell": "80",
+    "speedCell": "25"  },
+  {
+    "timeCell": "00:00:20.7",
+    "hrValue": "72 Bpm",
+    "wattsObjCell": "100 W",
+    "wattsCell": "85",
+    "cadenceCell": "80",
+    "speedCell": "25"  },
+  {
+    "timeCell": "00:00:21.7",
+    "hrValue": "73 Bpm",
+    "wattsObjCell": "100 W",
+    "wattsCell": "85",
+    "cadenceCell": "80",
+    "speedCell": "25"  },
+  {
+    "timeCell": "00:00:22.7",
+    "hrValue": "74 Bpm",
+    "wattsObjCell": "100 W",
+    "wattsCell": "85",
+    "cadenceCell": "80",
+    "speedCell": "25"  },
+  {
+    "timeCell": "00:00:23.7",
+    "hrValue": "74 Bpm",
+    "wattsObjCell": "100 W",
+    "wattsCell": "85",
+    "cadenceCell": "80",
+    "speedCell": "25"  }
+];
+
+   }
 }
