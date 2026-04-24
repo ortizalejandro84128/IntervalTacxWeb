@@ -90,7 +90,7 @@ crearControles() {
   this.agregarHijo(this.timelineControl);
 
   // Estado inicial de botones
-  this.setChildEnabled("btnStart", false);
+  //this.setChildEnabled("btnStart", false);
  // this.setChildEnabled("btnTCX", false);
      this.getChildById("btnPausa").hide();
      this.getChildById("btnDetener").hide();
@@ -228,6 +228,7 @@ fnCambiaFtp(ftp){
    } 
 
 recibePotencia(value) {
+  this.validarEntreno();
   this.rodillo=true;
     this.getChildById("wattsCell").actualizarTexto(value + " W");
     //this.procesaTick();
@@ -277,7 +278,7 @@ recibePotencia(value) {
 
 
   iniciActividad(){
-    //this.simulador.iniciar()
+    // this.simulador.iniciar()
 
     //this.contador=0;
     this.entrenamiento=[];
