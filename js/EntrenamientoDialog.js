@@ -18,7 +18,7 @@ class EntrenamientoDialog extends Dialog {
     this.mainApp=mainApp;
     this.lastRecordedTime = 0;
 
-    this.ftp=200;
+    this.ftp=180;
     this.workout = {
     dominantZone: "Endurance",
     segments: [[5, 50, "50"], [15, 65, "65"], [5, 105, "50"]],
@@ -46,7 +46,7 @@ class EntrenamientoDialog extends Dialog {
 
 crearControles() {
   // Título
-  this.addChildLabel({ id: "lblTitulo", texto: "Control rodillo + HR", fontSize: "30px", fontWeight: "bold" });
+  this.addChildLabel({ id: "lblTitulo", texto: "Entrenmiento TACX", fontSize: "32px", fontWeight: "bold", color: "var(--bs-body-color)" });
 
   // Botones
   this.addChildBoton({ id: "btnRodillo", texto: "Tacx", fn: this.conectarRodillo.bind(this) });
@@ -61,21 +61,21 @@ crearControles() {
   this.addChildFileInput({ id: "ergFile", accept: ".erg2", fn: this.onCargaErg.bind(this) });
 
   // Encabezados de la tabla
-  this.addChildLabel({ id: "lblTimeHead", texto: "Tiempo", fontSize: "20px", fontWeight: "bold" });
-  this.addChildLabel({ id: "lblHRHead", texto: "HR", fontSize: "20px", fontWeight: "bold" });
-  this.addChildLabel({ id: "lblWattsObjHead", texto: "Obj W", fontSize: "20px", fontWeight: "bold" });
-  this.addChildLabel({ id: "lblWattsHead", texto: "Pot W", fontSize: "20px", fontWeight: "bold" });
-  this.addChildLabel({ id: "lblCadenceHead", texto: "Cad", fontSize: "20px", fontWeight: "bold" });
-  this.addChildLabel({ id: "lblSpeedHead", texto: "Vel", fontSize: "20px", fontWeight: "bold" });
+// Encabezados: Usamos el color de texto estándar (que cambia de negro a blanco automáticamente)
+this.addChildLabel({ id: "lblTimeHead", texto: "Tiempo", fontSize: "24px", fontWeight: "bold", color: "var(--bs-body-color)" });
+this.addChildLabel({ id: "lblHRHead", texto: "HR", fontSize: "24px", fontWeight: "bold", color: "var(--bs-body-color)" });
+this.addChildLabel({ id: "lblWattsObjHead", texto: "Obj W", fontSize: "24px", fontWeight: "bold", color: "var(--bs-body-color)" });
+this.addChildLabel({ id: "lblWattsHead", texto: "Pot W", fontSize: "24px", fontWeight: "bold", color: "var(--bs-body-color)" });
+this.addChildLabel({ id: "lblCadenceHead", texto: "Cad", fontSize: "24px", fontWeight: "bold", color: "var(--bs-body-color)" });
+this.addChildLabel({ id: "lblSpeedHead", texto: "Vel", fontSize: "24px", fontWeight: "bold", color: "var(--bs-body-color)" });
 
-  // Valores dinámicos
-  this.addChildLabel({ id: "timeCell", texto: "--", fontSize: "21px", color: "red" ,align:"center" });
-  this.addChildLabel({ id: "hrValue", texto: "--", fontSize: "23px", color: "green",align:"center" });
-  this.addChildLabel({ id: "wattsObjCell", texto: "--", fontSize: "21px", color: "brown",align:"center" });
-  this.addChildLabel({ id: "wattsCell", texto: "--", fontSize: "23px", color: "red" ,align:"center"});
-  this.addChildLabel({ id: "cadenceCell", texto: "--", fontSize: "21px", color: "green",align:"center" });
-  this.addChildLabel({ id: "speedCell", texto: "--", fontSize: "21px", color: "brown",align:"center" });
-
+// Valores dinámicos: Usamos variables semánticas de Bootstrap
+this.addChildLabel({ id: "timeCell", texto: "--", fontSize: "24px", fontWeight: "bold", color: "var(--bs-danger)", align: "center" }); // Rojo
+this.addChildLabel({ id: "hrValue", texto: "--", fontSize: "24px", fontWeight: "bold", color: "var(--bs-success)", align: "center" }); // Verde
+this.addChildLabel({ id: "wattsObjCell", texto: "--", fontSize: "24px", fontWeight: "bold", color: "var(--bs-info)", align: "center" });   // Cian/Azul claro (sustituye al marrón para mejor contraste)
+this.addChildLabel({ id: "wattsCell", texto: "--", fontSize: "24px", fontWeight: "bold", color: "var(--bs-danger)", align: "center" });   // Rojo
+this.addChildLabel({ id: "cadenceCell", texto: "--", fontSize: "24px", fontWeight: "bold", color: "var(--bs-success)", align: "center" }); // Verde
+this.addChildLabel({ id: "speedCell", texto: "--", fontSize: "24px", fontWeight: "bold", color: "var(--bs-warning)", align: "center" });  // Naranja/Amarillo (mejor visibilidad en oscuro que el marrón)
   // Timeline
   
 
@@ -90,7 +90,7 @@ crearControles() {
   this.agregarHijo(this.timelineControl);
 
   // Estado inicial de botones
-  this.setChildEnabled("btnStart", false);
+     this.setChildEnabled("btnStart", false);
  // this.setChildEnabled("btnTCX", false);
      this.getChildById("btnPausa").hide();
      this.getChildById("btnDetener").hide();
@@ -111,13 +111,13 @@ return [
   { id: "lblTitulo", top: 10, left: 10, width: 600, height: 30 },
 
   // Fila 1: Botones (todos al mismo top = 60)
-  { id: "btnRodillo", top: 70, left: 10,  width: 120, height: 30 },
-  { id: "btnHR",      top: 70, left: 140, width: 120, height: 30 },
-  { id: "btnStart",   top: 70, left: 270, width: 120, height: 30 },
-  { id: "btnTCX",     top: 70, left: 400, width: 120, height: 30 },
-  { id: "btnPausa",   top: 70, left: 270, width: 120, height: 30 },
-  { id: "btnDetener", top: 70, left: 400, width: 120, height: 30 },
-  { id: "ergFile",    top: 70, left: 530, width: 100, height: 30 },
+  { id: "btnRodillo", top: 60, left: 10,  width: 120, height: 40 },
+  { id: "btnHR",      top: 60, left: 140, width: 120, height: 40 },
+  { id: "btnStart",   top: 60, left: 270, width: 120, height: 40 },
+  { id: "btnTCX",     top: 60, left: 400, width: 120, height: 40 },
+  { id: "btnPausa",   top: 60, left: 270, width: 120, height: 40 },
+  { id: "btnDetener", top: 60, left: 400, width: 120, height: 40 },
+  { id: "ergFile",    top: 60, left: 530, width: 100, height: 40 },
 
   // Fila 2: Encabezados (todos al mismo top = 120)
   { id: "lblTimeHead",     top: 110, left: 10,  width: 100, height: 30 },
@@ -133,7 +133,7 @@ return [
   { id: "wattsObjCell", top: 140, left: 230, width: 100, height: 30 },
   { id: "wattsCell",    top: 140, left: 340, width: 100, height: 30 },
   { id: "cadenceCell",  top: 140, left: 450, width: 100, height: 30 },
-  { id: "speedCell",    top: 140, left: 560, width: 80,  height: 30 },
+  { id: "speedCell",    top: 140, left: 560, width: 100,  height: 30 },
 
   // Fila 4: Timeline ocupa todo el ancho y el mayor espacio posible
   { id: "intervalDemo", top: 175, left: 10, width: 630, height: 280 }
@@ -146,48 +146,46 @@ getBoundsVertical(){
      return {width:this.getBoundsHorizontal().height, height:this.getBoundsHorizontal().width}
 }
 
-getLayoutVertical(){
-return [
-  // Fila 0: Encabezado/Título
-  { id: "lblTitulo", top: 10, left: 5, width: 400, height: 30 },
+getLayoutVertical() {
+  return [
+    // Fila 0: Encabezado/Título (Sin cambios)
+    { id: "lblTitulo", top: 10, left: 5, width: 400, height: 30 },
 
-  // Fila 1: 3 botones
-  { id: "btnRodillo", top: 60, left: 5,  width: 159, height: 45 },
-  { id: "btnHR",      top: 60, left: 165, width: 159, height: 45 },
-  { id: "btnStart",   top: 60, left: 325, width: 100, height: 45 },
-  { id: "btnPausa",   top: 60, left: 325, width: 100, height: 45 },
+    // Fila 1: 3 botones (Height aumentado a 60)
+    { id: "btnRodillo", top: 60, left: 5,   width: 159, height: 60 },
+    { id: "btnHR",      top: 60, left: 165, width: 159, height: 60 },
+    { id: "btnStart",   top: 60, left: 325, width: 100, height: 60 },
+    { id: "btnPausa",   top: 60, left: 325, width: 100, height: 60 },
 
-  // Fila 2: 2 botones
-  { id: "btnTCX",  top: 110, left: 5,  width: 159, height: 45 },
-  { id: "btnDetener",  top: 110, left: 5,  width: 159, height: 45 },
-  { id: "ergFile", top: 110, left: 165, width: 159, height: 45 },
+    // Fila 2: 2 botones (Height 60, empieza en Top 130 para dejar margen de 10px)
+    { id: "btnTCX",     top: 130, left: 5,   width: 159, height: 60 },
+    { id: "btnDetener", top: 130, left: 5,   width: 159, height: 60 },
+    { id: "ergFile",    top: 130, left: 165, width: 159, height: 60 },
 
-  // Fila 3: Encabezados (3)
-  { id: "lblTimeHead",     top: 155, left: 5,  width: 150, height: 30 },
-  { id: "lblHRHead",       top: 155, left: 165, width: 150, height: 30 },
-  { id: "lblWattsObjHead", top: 155, left: 325, width: 100, height: 30 },
+    // Fila 3: Encabezados (Empieza en 205: 130 + 60 + 15 de margen)
+    { id: "lblTimeHead",     top: 205, left: 5,   width: 150, height: 30 },
+    { id: "lblHRHead",       top: 205, left: 165, width: 150, height: 30 },
+    { id: "lblWattsObjHead", top: 205, left: 325, width: 100, height: 30 },
 
-  // Fila 4: Datos dinámicos (3) justo debajo de los encabezados
-  { id: "timeCell",     top: 190, left: 5,  width: 150, height: 30 },
-  { id: "hrValue",      top: 190, left: 165, width: 150, height: 30 },
-  { id: "wattsObjCell", top: 190, left: 325, width: 100, height: 30 },
+    // Fila 4: Datos dinámicos (Justo debajo: 205 + 30 + 5 de margen interno)
+    { id: "timeCell",     top: 240, left: 5,   width: 150, height: 30 },
+    { id: "hrValue",      top: 240, left: 165, width: 150, height: 30 },
+    { id: "wattsObjCell", top: 240, left: 325, width: 100, height: 30 },
 
-  // Fila 5: Encabezados (3)
-  { id: "lblWattsHead",   top: 230, left: 5,  width: 150, height: 30 },
-  { id: "lblCadenceHead", top: 230, left: 165, width: 150, height: 30 },
-  { id: "lblSpeedHead",   top: 230, left: 325, width: 100, height: 30 },
+    // Fila 5: Encabezados (Siguiente bloque: 240 + 30 + 15 de margen)
+    { id: "lblWattsHead",   top: 285, left: 5,   width: 150, height: 30 },
+    { id: "lblCadenceHead", top: 285, left: 165, width: 150, height: 30 },
+    { id: "lblSpeedHead",   top: 285, left: 325, width: 100, height: 30 },
 
-  // Fila 6: Datos dinámicos (3) justo debajo de los encabezados
-  { id: "wattsCell",   top: 270, left: 5,  width: 150, height: 30 },
-  { id: "cadenceCell", top: 270, left: 165, width: 150, height: 30 },
-  { id: "speedCell",   top: 270, left: 325, width: 100, height: 30 },
+    // Fila 6: Datos dinámicos (285 + 30 + 5)
+    { id: "wattsCell",   top: 320, left: 5,   width: 150, height: 30 },
+    { id: "cadenceCell", top: 320, left: 165, width: 150, height: 30 },
+    { id: "speedCell",   top: 320, left: 325, width: 150, height: 30 },
 
-  // Fila 7: Timeline ocupa todo el ancho inferior
-  { id: "intervalDemo", top: 320, left: 5, width: 440, height: 280 }
-];
-
+    // Fila 7: Timeline (Debajo de todo: 320 + 30 + 20 de margen para destacar el gráfico)
+    { id: "intervalDemo", top: 370, left: 5, width: 440, height: 350 }
+  ];
 }
-
 
   onCargaErg(fileName, contenido) {
     try {
