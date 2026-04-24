@@ -24,11 +24,12 @@
   <script src="js/Framework/FormValidator.js"></script>
   <script src="js/Framework/FileInput.js"></script>
   <script src="js/Framework/IntervalControl.js"></script>
-  <script src="js/Framework/ImagesSvgRepo.js"></script>
+  <script type="module" src="js/Framework/ImagesSvgRepo.js"></script>
 
   <script src="js/Util/ZonaUtils.js"></script>
   <script src="js/Util/Temporizador.js"></script>
   <script src="js/Util/TcxExport.js"></script>
+  <script src="js/Util/AppGuard.js"></script>
 
   
 
@@ -46,6 +47,10 @@
   <script src="js/Main.js"></script>
   
   <script>
+const appGuard=new AppGuard();
+appGuard.preventExit();      // Protege contra cierres y Backspace
+appGuard.keepScreenAwake();  //mantiene despierta la pantalla
+
   // Instanciar Main
 new Main();
 </script>

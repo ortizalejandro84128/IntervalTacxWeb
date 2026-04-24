@@ -47,62 +47,7 @@ crearInterfaz() {
       editable: true
     });
 
-    // Peso (float)
-    const lblPeso = new Label({
-      id: "lblPeso",
-      top: 120,
-      left: 20,
-      width: 100,
-      height: 30,
-      texto: "Peso:"
-    });
-    const editPeso = new EditBox({
-      id: "peso_VFLOAT",
-      top: 120,
-      left: 130,
-      width: 200,
-      height: 30,
-      texto: "",
-      editable: true
-    });
 
-    // Edad (int)
-    const lblEdad = new Label({
-      id: "lblEdad",
-      top: 170,
-      left: 20,
-      width: 100,
-      height: 30,
-      texto: "Edad:"
-    });
-    const editEdad = new EditBox({
-      id: "edad_VINT",
-      top: 170,
-      left: 130,
-      width: 200,
-      height: 30,
-      texto: "",
-      editable: true
-    });
-
-    // CDA (float)
-    const lblCda = new Label({
-      id: "lblCda",
-      top: 220,
-      left: 20,
-      width: 100,
-      height: 30,
-      texto: "CDA:"
-    });
-    const editCda = new EditBox({
-      id: "cda_VFLOAT",
-      top: 220,
-      left: 130,
-      width: 200,
-      height: 30,
-      texto: "",
-      editable: true
-    });
 
     // Botón para mostrar datos
     const btnMostrar = new Boton({
@@ -115,8 +60,9 @@ crearInterfaz() {
       //fn: this.cerrar.bind(this)
       fn: () => {
         const data = this.getForm();
-        this.fnCerrar(data);
-        this.cerrar();
+        //this.fnCerrar(data);
+        this.showAlert(JSON.stringify(this.getForm(),null,2));
+        //this.cerrar();
         
       }
     });
@@ -131,12 +77,6 @@ crearInterfaz() {
     this.agregarHijo(editNombre);
     this.agregarHijo(lblFtp);
     this.agregarHijo(editFtp);
-    this.agregarHijo(lblPeso);
-    this.agregarHijo(editPeso);
-    this.agregarHijo(lblEdad);
-    this.agregarHijo(editEdad);
-    this.agregarHijo(lblCda);
-    this.agregarHijo(editCda);
     this.agregarHijo(btnMostrar);
   }
 

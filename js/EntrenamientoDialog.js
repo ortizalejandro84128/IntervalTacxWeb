@@ -8,15 +8,22 @@ class EntrenamientoDialog extends Dialog {
 
     });
 
-    this.crearControles();
     //this.aplicarLayoutHorizontal();
     //this.aplicarLayoutVertical();
     
     
-    this.monitorHR=false;
+    
     this.rodillo=false;
     this.currentHR=0;
     this.mainApp=mainApp;
+    this.lastRecordedTime = 0;
+
+    this.ftp=200;
+    this.workout = {
+    dominantZone: "Endurance",
+    segments: [[5, 50, "50"], [15, 65, "65"], [5, 105, "50"]],
+    workoutName: "Entrenamiento Demo"
+  };
 
 
     this.heartRateMonitor=new HeartRateMonitor(this, this.recibeMonitorHR.bind(this));
@@ -26,6 +33,15 @@ class EntrenamientoDialog extends Dialog {
     this.temporizador.init();
     this.pause=true;
     this.entrenamiento=[];
+    this.timerGrabacion = setInterval(this.procesaTick.bind(this), 1000);
+    //this.contador=0;
+    this.fechaBase= new Date();
+    this.fechaIni= this.fechaBase.toISOString();
+    this.simulador= new SimuladorRodillo(this);
+
+    this.modal= new  UsuarioDialogModal(this, this.fnCerrarModal.bind(this));
+    this.crearControles();
+
   }
 
 crearControles() {
@@ -61,16 +77,12 @@ crearControles() {
   this.addChildLabel({ id: "speedCell", texto: "--", fontSize: "21px", color: "brown",align:"center" });
 
   // Timeline
-  const workoutDemo = {
-    dominantZone: "endurance",
-    segments: [[5, 50, "50"], [15, 65, "65"], [5, 105, "50"]],
-    workoutName: "Entrenmiento Demo"
-  };
+  
 
   this.timelineControl = new IntervalControl({
     id: "intervalDemo",
-    workout: workoutDemo,
-    ftp: 200,
+    workout: this.workout,
+    ftp: this.ftp,
     fnIniciaSegmento: this.cambiaSegmento.bind(this),
     fnFinActividad: this.fnFinActividad.bind(this)
   });
@@ -124,7 +136,7 @@ return [
   { id: "speedCell",    top: 140, left: 560, width: 80,  height: 30 },
 
   // Fila 4: Timeline ocupa todo el ancho y el mayor espacio posible
-  { id: "intervalDemo", top: 175, left: 10, width: 630, height: 260 }
+  { id: "intervalDemo", top: 175, left: 10, width: 630, height: 280 }
 ];
 
 }
@@ -179,8 +191,9 @@ return [
 
   onCargaErg(fileName, contenido) {
     try {
-      const jsonData = JSON.parse(contenido);
-      this.timelineControl.setIntervalsFromWorkout(jsonData);
+      
+      this.workout=JSON.parse(contenido);
+      this.timelineControl.setIntervalsFromWorkout(this.workout,this.ftp);
       this.timelineControl.reset();
       console.log("Se cargo erg OK");
     } catch (error) {
@@ -188,24 +201,36 @@ return [
     }
   }
 
-
+fnCerrarModal(){
+  this.showAlert("Cerrar modal" );
+}
   conectarRodillo() {
-    this.trainer.connect();
+   this.trainer.connect();
+   //this.modal.mostrar();
+  // this.fnCambiaFtp(this.ftp+50);
   }
+
+fnCambiaFtp(ftp){
+  this.ftp=ftp;
+  this.timelineControl.setIntervalsFromWorkout(this.workout, this.ftp);
+}
+
+
   conectaMonitorHR() {
      this.heartRateMonitor.connect();
 	 } 
 
   recibeMonitorHR(value) {
-    this.monitorHR=true;
+    
     this.validarEntreno();
      this.getChildById("hrValue").actualizarTexto(value+" Bpm")
-     this.procesaTick();
+    // this.procesaTick();
    } 
 
 recibePotencia(value) {
+  this.rodillo=true;
     this.getChildById("wattsCell").actualizarTexto(value + " W");
-    this.procesaTick();
+    //this.procesaTick();
   }
 
   recibeVelocidad(value) {
@@ -237,6 +262,7 @@ recibePotencia(value) {
 
 
     detenerActividad(){
+      this.simulador.detener();
 
      this.pause=true;
      this.getChildById("btnPausa").hide();
@@ -251,8 +277,12 @@ recibePotencia(value) {
 
 
   iniciActividad(){
+    //this.simulador.iniciar()
 
+    //this.contador=0;
     this.entrenamiento=[];
+    this.fechaBase= new Date();
+    this.fechaIni= this.fechaBase.toISOString();
 
      const pot=this.timelineControl.workout.segments[0][2];
      console.log("potencia inicial:"+pot);
@@ -274,16 +304,19 @@ recibePotencia(value) {
 
 
   procesaTick() {
+    //console.log("tick"+this.fechaBase.toISOString());
+
     if(!this.pause){
+     //this.contador=this.contador+1000;
+     const ms = this.fechaBase.getTime();
+     this.fechaBase.setTime(ms + 1000);
      this.timelineControl.tick();
      this.temporizador.tick();
      this.getChildById("timeCell").actualizarTexto(this.temporizador.getTimeTemporizador())
-
-     this.entrenamiento.push(this.getForm());
-     //console.log(this.getForm());
+     const data=this.getForm()
+     data.timeTick = this.fechaBase.toISOString();
+     this.entrenamiento.push(data);
     }
-//     this.getChildById("ergFile").hide();
-     //this.mainApp.showDialog("usuarioDialog");
 	 } 
 
   cambiaSegmento(current, interval) {
@@ -292,9 +325,11 @@ recibePotencia(value) {
     
 	 } 
 
-   descargaTCXFile() {
-    //const tcxString = TcxExport.jsonToTcxStrava(this.entrenamiento);
-    const tcxString = TcxExport.jsonToTcxStrava(this.getData());
+descargaTCXFile() {
+
+    
+    const tcxString = TcxExport.jsonToTcxStrava(this.entrenamiento);
+    //const tcxString = TcxExport.jsonToTcxStrava(this.getData());
 
     
     const blob = new Blob([tcxString], { type: 'application/tcx+xml' });
@@ -312,8 +347,10 @@ recibePotencia(value) {
     
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
+
 }
    
+
 
    fnFinActividad() {
 
@@ -338,7 +375,7 @@ recibePotencia(value) {
 
   validarEntreno() {
 
-		 if(this.monitorHR){
+		 if(this.rodillo){
            this.setChildEnabled("btnStart", true);
 	 }
 
@@ -346,180 +383,50 @@ recibePotencia(value) {
 
 
 
+  }
 
-   getData(){
-  return [
-  {
-    "timeCell": "00:00:00.6",
-    "hrValue": "66 Bpm",
-    "wattsObjCell": "100 W",
-    "wattsCell": "120",
-    "cadenceCell": "80",
-    "speedCell": "27"
-  },
-  {
-    "timeCell": "00:00:01.6",
-    "hrValue": "66 Bpm",
-    "wattsObjCell": "100 W",
-    "wattsCell": "120",
-    "cadenceCell": "81",
-    "speedCell": "27"
-  },
-  {
-    "timeCell": "00:00:02.6",
-    "hrValue": "66 Bpm",
-    "wattsObjCell": "100 W",
-    "wattsCell": "85",
-    "cadenceCell": "80",
-    "speedCell": "25"  },
-  {
-    "timeCell": "00:00:03.6",
-    "hrValue": "66 Bpm",
-    "wattsObjCell": "100 W",
-    "wattsCell": "85",
-    "cadenceCell": "80",
-    "speedCell": "25"  },
-  {
-    "timeCell": "00:00:04.6",
-    "hrValue": "66 Bpm",
-    "wattsObjCell": "100 W",
-    "wattsCell": "85",
-    "cadenceCell": "80",
-    "speedCell": "25"  },
-  {
-    "timeCell": "00:00:05.6",
-    "hrValue": "66 Bpm",
-    "wattsObjCell": "130 W",
-    "wattsCell": "85",
-    "cadenceCell": "80",
-    "speedCell": "25"  },
-  {
-    "timeCell": "00:00:06.6",
-    "hrValue": "66 Bpm",
-    "wattsObjCell": "130 W",
-    "wattsCell": "85",
-    "cadenceCell": "80",
-    "speedCell": "25"  },
-  {
-    "timeCell": "00:00:07.6",
-    "hrValue": "68 Bpm",
-    "wattsObjCell": "130 W",
-    "wattsCell": "85",
-    "cadenceCell": "80",
-    "speedCell": "25"  },
-  {
-    "timeCell": "00:00:08.6",
-    "hrValue": "69 Bpm",
-    "wattsObjCell": "130 W",
-    "wattsCell": "85",
-    "cadenceCell": "80",
-    "speedCell": "25"  },
-  {
-    "timeCell": "00:00:09.6",
-    "hrValue": "70 Bpm",
-    "wattsObjCell": "130 W",
-    "wattsCell": "85",
-    "cadenceCell": "80",
-    "speedCell": "25"  },
-  {
-    "timeCell": "00:00:10.6",
-    "hrValue": "70 Bpm",
-    "wattsObjCell": "130 W",
-    "wattsCell": "85",
-    "cadenceCell": "80",
-    "speedCell": "25"  },
-  {
-    "timeCell": "00:00:11.6",
-    "hrValue": "71 Bpm",
-    "wattsObjCell": "130 W",
-    "wattsCell": "85",
-    "cadenceCell": "80",
-    "speedCell": "25"  },
-  {
-    "timeCell": "00:00:12.6",
-    "hrValue": "71 Bpm",
-    "wattsObjCell": "130 W",
-    "wattsCell": "85",
-    "cadenceCell": "80",
-    "speedCell": "25"  },
-  {
-    "timeCell": "00:00:13.6",
-    "hrValue": "71 Bpm",
-    "wattsObjCell": "130 W",
-    "wattsCell": "85",
-    "cadenceCell": "80",
-    "speedCell": "25"  },
-  {
-    "timeCell": "00:00:14.6",
-    "hrValue": "71 Bpm",
-    "wattsObjCell": "130 W",
-    "wattsCell": "85",
-    "cadenceCell": "80",
-    "speedCell": "25"  },
-  {
-    "timeCell": "00:00:15.6",
-    "hrValue": "71 Bpm",
-    "wattsObjCell": "130 W",
-    "wattsCell": "85",
-    "cadenceCell": "80",
-    "speedCell": "25"  },
-  {
-    "timeCell": "00:00:16.7",
-    "hrValue": "70 Bpm",
-    "wattsObjCell": "130 W",
-    "wattsCell": "85",
-    "cadenceCell": "80",
-    "speedCell": "25"  },
-  {
-    "timeCell": "00:00:18.2",
-    "hrValue": "70 Bpm",
-    "wattsObjCell": "130 W",
-    "wattsCell": "85",
-    "cadenceCell": "80",
-    "speedCell": "25"  },
-  {
-    "timeCell": "00:00:18.7",
-    "hrValue": "70 Bpm",
-    "wattsObjCell": "130 W",
-    "wattsCell": "85",
-    "cadenceCell": "80",
-    "speedCell": "25"  },
-  {
-    "timeCell": "00:00:19.7",
-    "hrValue": "71 Bpm",
-    "wattsObjCell": "130 W",
-    "wattsCell": "85",
-    "cadenceCell": "80",
-    "speedCell": "25"  },
-  {
-    "timeCell": "00:00:20.7",
-    "hrValue": "72 Bpm",
-    "wattsObjCell": "100 W",
-    "wattsCell": "85",
-    "cadenceCell": "80",
-    "speedCell": "25"  },
-  {
-    "timeCell": "00:00:21.7",
-    "hrValue": "73 Bpm",
-    "wattsObjCell": "100 W",
-    "wattsCell": "85",
-    "cadenceCell": "80",
-    "speedCell": "25"  },
-  {
-    "timeCell": "00:00:22.7",
-    "hrValue": "74 Bpm",
-    "wattsObjCell": "100 W",
-    "wattsCell": "85",
-    "cadenceCell": "80",
-    "speedCell": "25"  },
-  {
-    "timeCell": "00:00:23.7",
-    "hrValue": "74 Bpm",
-    "wattsObjCell": "100 W",
-    "wattsCell": "85",
-    "cadenceCell": "80",
-    "speedCell": "25"  }
-];
 
-   }
+class SimuladorRodillo {
+  constructor(contextoApp) {
+    this.app = contextoApp;
+    this.timerSimulador = null;
+    
+    // Valores iniciales para empezar la transición
+    this.currentPotencia = 95;
+    this.currentVelocidad = 22.5;
+    this.currentCadencia = 85;
+
+    // Factor de suavizado (0.1 = lento/suave, 0.8 = rápido/brusco)
+    this.smoothFactor = 0.15; 
+  }
+
+  iniciar() {
+    console.log("Simulador suavizado iniciado... 🚴‍♂️");
+    this.timerSimulador = setInterval(() => {
+      
+      // 1. Definimos un "objetivo" aleatorio dentro de tus rangos
+      const targetPotencia = Math.random() * (100 - 90) + 90;
+      const targetVelocidad = Math.random() * (25 - 20) + 20;
+      const targetCadencia = Math.random() * (90 - 80) + 80;
+
+      // 2. Aplicamos la fórmula de suavizado: 
+      // ValorActual = ValorActual + (Target - ValorActual) * Factor
+      this.currentPotencia += (targetPotencia - this.currentPotencia) * this.smoothFactor;
+      this.currentVelocidad += (targetVelocidad - this.currentVelocidad) * this.smoothFactor;
+      this.currentCadencia += (targetCadencia - this.currentCadencia) * this.smoothFactor;
+
+      // 3. Enviamos los datos redondeados a la App
+      this.app.recibePotencia(Math.round(this.currentPotencia));
+      this.app.recibeVelocidad(this.currentVelocidad.toFixed(1));
+      this.app.recibeCadencia(Math.round(this.currentCadencia));
+
+    }, 400);
+  }
+
+  detener() {
+    if (this.timerSimulador) {
+      clearInterval(this.timerSimulador);
+      console.log("Simulador detenido.");
+    }
+  }
 }
