@@ -90,7 +90,7 @@ crearControles() {
   this.agregarHijo(this.timelineControl);
 
   // Estado inicial de botones
-  //this.setChildEnabled("btnStart", false);
+  this.setChildEnabled("btnStart", false);
  // this.setChildEnabled("btnTCX", false);
      this.getChildById("btnPausa").hide();
      this.getChildById("btnDetener").hide();
@@ -205,7 +205,8 @@ fnCerrarModal(){
   this.showAlert("Cerrar modal" );
 }
   conectarRodillo() {
-   this.trainer.connect();
+     this.simulador.iniciar()
+   //this.trainer.connect();
    //this.modal.mostrar();
   // this.fnCambiaFtp(this.ftp+50);
   }
@@ -263,7 +264,9 @@ recibePotencia(value) {
 
 
     detenerActividad(){
-      this.simulador.detener();
+    this.timelineControl.setEstatusActividad(false); 
+
+    this.simulador.detener();
 
      this.pause=true;
      this.getChildById("btnPausa").hide();
@@ -278,7 +281,9 @@ recibePotencia(value) {
 
 
   iniciActividad(){
-    // this.simulador.iniciar()
+    
+    this.timelineControl.reset();
+    this.timelineControl.setEstatusActividad(true); 
 
     //this.contador=0;
     this.entrenamiento=[];
@@ -291,7 +296,6 @@ recibePotencia(value) {
      this.ajustarPotencia(pot); 
      
      
-     this.timelineControl.reset();
      this.getChildById("ergFile").hide();
      this.getChildById("btnStart").hide();
      this.getChildById("btnTCX").hide();
@@ -356,9 +360,10 @@ descargaTCXFile() {
    fnFinActividad() {
 
     //     this.entrenamiento.push(this.getForm());
-     console.log(JSON.stringify(this.entrenamiento, null, 2));
+     //console.log(JSON.stringify(this.entrenamiento, null, 2));
 
     this.showAlert("Actividad finalizada  duracion :" +this.temporizador.getTimeTemporizador());
+    this.timelineControl.setEstatusActividad(false); 
     this.pause=true;
     this.getChildById("btnPausa").hide();
     this.getChildById("btnDetener").hide();

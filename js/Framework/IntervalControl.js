@@ -14,6 +14,7 @@ class IntervalControl extends Window {
     this.current = 0;
     this.elapsed = 0;
     this.started = false;
+    this.actividadIniciada = false; // Nueva bandera
     this.factor = factor || 60;
 
     this.elemento = document.createElement("div");
@@ -25,6 +26,12 @@ class IntervalControl extends Window {
     this.elemento.style.height = height + "px";
 
     this.setIntervalsFromWorkout(workout, this.ftp);
+  }
+
+  // Método para controlar el estado de edición
+  setEstatusActividad(iniciada) {
+    this.actividadIniciada = iniciada;
+    this.render(); // Re-renderizamos para bloquear/desbloquear visualmente
   }
 
   setIntervalsFromWorkout(workout, ftp) {
@@ -57,21 +64,25 @@ class IntervalControl extends Window {
 
     // 1. Título y Contenedor Superior
     var titleContainer = document.createElement("div");
-    // justify-content-between separa el texto (izq) del control (der)
     titleContainer.className = "fw-bold bg-primary text-white w-100 d-flex align-items-center justify-content-between";
     titleContainer.style.fontSize = (this.width / 35) + "px";
     titleContainer.style.padding = "4px 10px"; 
     
-    // Texto del entrenamiento (alineado a la izquierda por flujo natural)
     var titleText = document.createElement("span");
     titleText.textContent = this.workout.workoutName + " - " + this.workout.dominantZone;
     titleContainer.appendChild(titleText);
 
-    // --- CONTROLES FTP (A la derecha) ---
+    // --- CONTROLES FTP ---
     var overlayControls = document.createElement("div");
     overlayControls.className = "d-flex align-items-center bg-dark rounded shadow-sm overflow-hidden";
     overlayControls.style.height = "40px";
     overlayControls.style.zIndex = "20";
+    
+    // Bloqueo si la actividad inició
+    if (this.actividadIniciada) {
+      overlayControls.style.opacity = "0.5";
+      overlayControls.style.pointerEvents = "none"; // Deshabilita clics
+    }
 
     var btnMinus = document.createElement("button");
     btnMinus.textContent = "-";
@@ -86,7 +97,7 @@ class IntervalControl extends Window {
 
     var labelFtp = document.createElement("span");
     labelFtp.className = "text-white fw-bold px-2";
-    labelFtp.style.fontSize =  (this.width / 40) + "px";
+    labelFtp.style.fontSize = (this.width / 40) + "px";
     labelFtp.textContent = "FTP: " + this.ftp;
 
     var btnPlus = document.createElement("button");
@@ -107,12 +118,12 @@ class IntervalControl extends Window {
     titleContainer.appendChild(overlayControls);
     this.elemento.appendChild(titleContainer);
 
-    // 2. Contenedor principal (Gráfico + Regla)
+    // 2. Contenedor principal
     var mainContent = document.createElement("div");
     mainContent.className = "position-relative flex-grow-1 w-100";
     this.elemento.appendChild(mainContent);
 
-    // 3. Contenedor de intervalos (Gráfico)
+    // 3. Gráfico de intervalos
     var chartHeight = mainContent.offsetHeight || (this.height - 40); 
     var graphHeight = chartHeight - 25; 
 
@@ -148,7 +159,7 @@ class IntervalControl extends Window {
     }
     mainContent.appendChild(intervalsContainer);
 
-    // 4. Regla (Eje X)
+    // 4. Regla
     var rule = document.createElement("div");
     rule.className = "position-absolute border-top border-dark w-100";
     rule.style.bottom = "0";
@@ -220,7 +231,9 @@ class IntervalControl extends Window {
     this.current = 0;
     this.elapsed = 0;
     this.started = false;
+    this.actividadIniciada = false; // Reset de la bandera al reiniciar
     this.updateBars();
+    this.render(); // Asegurar que los controles se desbloqueen
   }
 
   isFinished() {
