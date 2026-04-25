@@ -199,15 +199,29 @@ class IntervalControl extends Window {
     }
   }
 
-  tick() {
-    if (!this.intervals.length) return;
-    if (this.current < this.intervals.length) {
-      var interval = this.intervals[this.current];
-      
-      if (this.elapsed === 0 && this.fnIniciaSegmento) {
-        this.fnIniciaSegmento(this.current, interval.watts);
+tick() {
+  if (!this.intervals.length) return;
+
+  if (this.current < this.intervals.length) {
+    var interval = this.intervals[this.current];
+
+    // Detectamos el inicio exacto del segmento
+    if (this.elapsed === 0) {
+      // 1. Obtener la potencia del intervalo anterior (si no hay, usamos la actual)
+      var potAnterior = 0;
+      if (this.current > 0) {
+        potAnterior = this.intervals[this.current - 1].watts;
+      } else {
+        // Si es el primer intervalo de todos, podrías empezar desde 50W o similar
+        potAnterior = 50;
       }
-      
+
+
+      // 3. Notificar a la app pasando la rampa en lugar de solo los watts
+      if (this.fnIniciaSegmento) {
+        this.fnIniciaSegmento(interval.watts, potAnterior,this.ftp);
+      }
+    }      
       this.started = true;
       this.elapsed++;
       interval.progress = Math.min((this.elapsed / interval.duration) * 100, 100);

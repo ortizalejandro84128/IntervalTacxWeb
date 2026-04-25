@@ -129,6 +129,10 @@ class TacxTrainer {
     const bytes = Array.from(write_value).map(b=>b.toString(16).padStart(2,"0")).join(" ");
     console.log("Target Power", `Enviado: ${power} W | Bytes: ${bytes}`);
 
+    if (!this.controlCharacteristic) {
+        // En lugar de un error, fallamos silenciosamente o avisamos de forma controlada
+        return; 
+    }
     await this.rxChar.writeValue(write_value);
   }
 

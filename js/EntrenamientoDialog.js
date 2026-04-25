@@ -16,8 +16,10 @@ class EntrenamientoDialog extends Dialog {
     this.rodillo=false;
     this.currentHR=0;
     this.mainApp=mainApp;
-    this.lastRecordedTime = 0;
+   // this.lastRecordedTime = 0;
 
+   this.cadenciaActual=60;
+    this.potenciaActual=[]; 
     this.ftp=180;
     this.workout = {
     dominantZone: "Endurance",
@@ -91,7 +93,8 @@ this.addChildLabel({ id: "speedCell", texto: "--", fontSize: "24px", fontWeight:
 
   // Estado inicial de botones
      this.setChildEnabled("btnStart", false);
- // this.setChildEnabled("btnTCX", false);
+     
+     this.getChildById("btnTCX").hide();
      this.getChildById("btnPausa").hide();
      this.getChildById("btnDetener").hide();
 }
@@ -102,7 +105,7 @@ this.addChildLabel({ id: "speedCell", texto: "--", fontSize: "24px", fontWeight:
 
 
 getBoundsHorizontal(){
-  return {width:650, height:480}
+  return {width:700, height:480}
 }
 
 getLayoutHorizontal(){
@@ -114,10 +117,10 @@ return [
   { id: "btnRodillo", top: 60, left: 10,  width: 120, height: 40 },
   { id: "btnHR",      top: 60, left: 140, width: 120, height: 40 },
   { id: "btnStart",   top: 60, left: 270, width: 120, height: 40 },
-  { id: "btnTCX",     top: 60, left: 400, width: 120, height: 40 },
+  { id: "ergFile",     top: 60, left: 400, width: 120, height: 40 },
   { id: "btnPausa",   top: 60, left: 270, width: 120, height: 40 },
   { id: "btnDetener", top: 60, left: 400, width: 120, height: 40 },
-  { id: "ergFile",    top: 60, left: 530, width: 100, height: 40 },
+  { id: "btnTCX",    top: 60, left: 530, width: 100, height: 40 },
 
   // Fila 2: Encabezados (todos al mismo top = 120)
   { id: "lblTimeHead",     top: 110, left: 10,  width: 100, height: 30 },
@@ -158,9 +161,9 @@ getLayoutVertical() {
     { id: "btnPausa",   top: 60, left: 325, width: 100, height: 60 },
 
     // Fila 2: 2 botones (Height 60, empieza en Top 130 para dejar margen de 10px)
-    { id: "btnTCX",     top: 130, left: 5,   width: 159, height: 60 },
+    { id: "ergFile",     top: 130, left: 5,   width: 159, height: 60 },
     { id: "btnDetener", top: 130, left: 5,   width: 159, height: 60 },
-    { id: "ergFile",    top: 130, left: 165, width: 159, height: 60 },
+    { id: "btnTCX",    top: 130, left: 165, width: 159, height: 60 },
 
     // Fila 3: Encabezados (Empieza en 205: 130 + 60 + 15 de margen)
     { id: "lblTimeHead",     top: 205, left: 5,   width: 150, height: 30 },
@@ -203,8 +206,8 @@ fnCerrarModal(){
   this.showAlert("Cerrar modal" );
 }
   conectarRodillo() {
-     this.simulador.iniciar()
-   //this.trainer.connect();
+    //this.simulador.iniciar()
+   this.trainer.connect();
    //this.modal.mostrar();
   // this.fnCambiaFtp(this.ftp+50);
   }
@@ -238,16 +241,22 @@ recibePotencia(value) {
   }
 
   recibeCadencia(value) {
-    // si quieres mostrar cadencia, añade un label
+    this.cadenciaActual=value;
     this.getChildById("cadenceCell").actualizarTexto(value + "rpm");
-    //this.showAlert("cadenceCell: " + value + " rpm");
   }
 
-  ajustarPotencia(potencia) {
-    
-    if (potencia < 0) potencia = 0;
-        this.trainer.setTargetPower(potencia); // ahora sí envía al rodillo
-  }
+
+ajustarPotencia(rampa) {
+    if (!rampa || rampa.length === 0) {
+        return;
+    }
+    const vatios = rampa.shift();
+
+    if (vatios > 0) {
+        this.trainer.setTargetPower(vatios);
+        this.getChildById("wattsObjCell").actualizarTexto(vatios+" W")
+    } 
+}
 
 
 
@@ -262,55 +271,42 @@ recibePotencia(value) {
 
 
     detenerActividad(){
+    this.ajustarPotencia([60]);
     this.timelineControl.setEstatusActividad(false); 
-
     this.simulador.detener();
+    this.pause=true;
 
-     this.pause=true;
      this.getChildById("btnPausa").hide();
      this.getChildById("btnDetener").hide();
-
      this.getChildById("btnTCX").show();
      this.getChildById("ergFile").show();
      this.getChildById("btnStart").show();
-
   } 
 
 
 
   iniciActividad(){
-    
+    this.ajustarPotencia([60]);
+
     this.timelineControl.reset();
     this.timelineControl.setEstatusActividad(true); 
-
-    //this.contador=0;
     this.entrenamiento=[];
     this.fechaBase= new Date();
     this.fechaIni= this.fechaBase.toISOString();
+    this.temporizador.init();
+    this.pause=false;
 
-     const pot=this.timelineControl.workout.segments[0][2];
-     console.log("potencia inicial:"+pot);
-     this.getChildById("wattsObjCell").actualizarTexto(pot+" W")
-     this.ajustarPotencia(pot); 
-     
-     
      this.getChildById("ergFile").hide();
      this.getChildById("btnStart").hide();
      this.getChildById("btnTCX").hide();
-
      this.getChildById("btnPausa").show();
      this.getChildById("btnDetener").show();
-     this.temporizador.init();
-     this.pause=false;
-
   } 
 
 
   procesaTick() {
-    //console.log("tick"+this.fechaBase.toISOString());
-
     if(!this.pause){
-     //this.contador=this.contador+1000;
+    this.ajustarPotencia(this.potenciaActual);
      const ms = this.fechaBase.getTime();
      this.fechaBase.setTime(ms + 1000);
      this.timelineControl.tick();
@@ -322,43 +318,28 @@ recibePotencia(value) {
     }
 	 } 
 
-  cambiaSegmento(current, interval) {
-    this.getChildById("wattsObjCell").actualizarTexto(interval+" W")
-    this.ajustarPotencia(interval); 
-    
+  cambiaSegmento(nuevaPot, potAnterior, ftp) {
+    this.potenciaActual = PowerUtils.generarCurvaPro(nuevaPot, potAnterior, this.cadenciaActual, ftp);
 	 } 
 
 descargaTCXFile() {
-
-    
     const tcxString = TcxExport.jsonToTcxStrava(this.entrenamiento);
-    //const tcxString = TcxExport.jsonToTcxStrava(this.getData());
-
-    
     const blob = new Blob([tcxString], { type: 'application/tcx+xml' });
-
     const url = window.URL.createObjectURL(blob);
-
     const link = document.createElement('a');
     link.href = url;
-    
     const fecha = new Date().toISOString().split('T')[0];
     link.download = `${this.timelineControl.workout.workoutName}_${fecha}.tcx`;
-
     document.body.appendChild(link);
     link.click();
-    
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
-
 }
    
 
 
    fnFinActividad() {
-
-    //     this.entrenamiento.push(this.getForm());
-     //console.log(JSON.stringify(this.entrenamiento, null, 2));
+    this.ajustarPotencia([60]);
 
     this.showAlert("Actividad finalizada  duracion :" +this.temporizador.getTimeTemporizador());
     this.timelineControl.setEstatusActividad(false); 
@@ -368,25 +349,18 @@ descargaTCXFile() {
     this.getChildById("ergFile").show();
     this.getChildById("btnStart").show();
     this.getChildById("btnTCX").show();
-
-
 	 } 
 
   cerrarUsuarioDialogModal(data) {
      this.showAlert (JSON.stringify(data, null, 2));
-//     this.procesaTick();
    } 
 
   validarEntreno() {
-
 		 if(this.rodillo){
            this.setChildEnabled("btnStart", true);
-	 }
+	     }
 
 	 } 
-
-
-
   }
 
 

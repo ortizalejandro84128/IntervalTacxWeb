@@ -24,6 +24,10 @@ class Label extends Window {
     this.elemento.textContent = nuevoTexto;
   }
 
+  getTexto(){
+    return this.elemento.textContent;
+  }
+
   setTamaño(px) {
     //this.elemento.style.fontSize = px + "px";
   }
