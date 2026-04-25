@@ -8,19 +8,14 @@ class EntrenamientoDialog extends Dialog {
 
     });
 
-    //this.aplicarLayoutHorizontal();
-    //this.aplicarLayoutVertical();
-    
-    
-    
     this.rodillo=false;
     this.currentHR=0;
     this.mainApp=mainApp;
-   // this.lastRecordedTime = 0;
-
-   this.cadenciaActual=60;
+   
+    this.cadenciaActual=60;
     this.potenciaActual=[]; 
-    this.ftp=180;
+    //this.ftp=180;
+    
     this.workout = {
     dominantZone: "Endurance",
     segments: [[5, 50, "50"], [15, 65, "65"], [5, 105, "50"]],
@@ -84,7 +79,7 @@ this.addChildLabel({ id: "speedCell", texto: "--", fontSize: "24px", fontWeight:
   this.timelineControl = new IntervalControl({
     id: "intervalDemo",
     workout: this.workout,
-    ftp: this.ftp,
+    //ftp: this.ftp,
     fnIniciaSegmento: this.cambiaSegmento.bind(this),
     fnFinActividad: this.fnFinActividad.bind(this)
   });
@@ -192,9 +187,8 @@ getLayoutVertical() {
 
   onCargaErg(fileName, contenido) {
     try {
-      
       this.workout=JSON.parse(contenido);
-      this.timelineControl.setIntervalsFromWorkout(this.workout,this.ftp);
+      this.timelineControl.setIntervalsFromWorkout(this.workout);
       this.timelineControl.reset();
       console.log("Se cargo erg OK");
     } catch (error) {
@@ -208,32 +202,21 @@ fnCerrarModal(){
   conectarRodillo() {
     //this.simulador.iniciar()
    this.trainer.connect();
-   //this.modal.mostrar();
-  // this.fnCambiaFtp(this.ftp+50);
   }
-
-fnCambiaFtp(ftp){
-  this.ftp=ftp;
-  this.timelineControl.setIntervalsFromWorkout(this.workout, this.ftp);
-}
-
 
   conectaMonitorHR() {
      this.heartRateMonitor.connect();
 	 } 
 
   recibeMonitorHR(value) {
-    
     this.validarEntreno();
-     this.getChildById("hrValue").actualizarTexto(value+" Bpm")
-    // this.procesaTick();
+    this.getChildById("hrValue").actualizarTexto(value+" Bpm")
    } 
 
 recibePotencia(value) {
-  this.validarEntreno();
-  this.rodillo=true;
-    this.getChildById("wattsCell").actualizarTexto(value + " W");
-    //this.procesaTick();
+   this.validarEntreno();
+   this.rodillo=true;
+   this.getChildById("wattsCell").actualizarTexto(value + " W");
   }
 
   recibeVelocidad(value) {
@@ -258,8 +241,6 @@ ajustarPotencia(rampa) {
     } 
 }
 
-
-
   pauseActividad(){
      this.pause=!this.pause;
   if(this.pause){
@@ -269,8 +250,7 @@ ajustarPotencia(rampa) {
   }
   } 
 
-
-    detenerActividad(){
+  detenerActividad(){
     this.ajustarPotencia([60]);
     this.timelineControl.setEstatusActividad(false); 
     this.simulador.detener();

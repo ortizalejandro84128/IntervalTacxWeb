@@ -1,12 +1,12 @@
 class IntervalControl extends Window {
-  constructor({ id, top, left, width, height, app, workout, ftp, fnIniciaSegmento, fnFinActividad, factor }) {
+  constructor({ id, top, left, width, height, app, workout,  fnIniciaSegmento, fnFinActividad, factor }) {
     super({ id, top, left, width, height });
 
     this.width = width;
     this.height = height;
     this.app = app;
     this.workout = workout;
-    this.ftp = parseInt(ftp) || 200;
+    this.ftp =  localStorage.getItem("user_ftp") || 180;
     this.fnIniciaSegmento = fnIniciaSegmento || null;
     this.fnFinActividad = fnFinActividad || null;
 
@@ -37,7 +37,7 @@ class IntervalControl extends Window {
   setIntervalsFromWorkout(workout, ftp) {
     if (!workout || !workout.segments) return;
     this.workout = workout;
-    this.ftp = parseInt(ftp) || 200;
+    this.ftp = parseInt(ftp) ||this.ftp;
     this.intervals = [];
 
     for (var i = 0; i < workout.segments.length; i++) {
@@ -92,6 +92,7 @@ class IntervalControl extends Window {
     btnMinus.style.borderRadius = "0";
     btnMinus.onclick = (e) => {
       e.stopPropagation();
+      localStorage.setItem("user_ftp", this.ftp-5);
       this.setIntervalsFromWorkout(this.workout, this.ftp - 5);
     };
 
@@ -108,6 +109,7 @@ class IntervalControl extends Window {
     btnPlus.style.borderRadius = "0";
     btnPlus.onclick = (e) => {
       e.stopPropagation();
+      localStorage.setItem("user_ftp", this.ftp+5);
       this.setIntervalsFromWorkout(this.workout, this.ftp + 5);
     };
 
