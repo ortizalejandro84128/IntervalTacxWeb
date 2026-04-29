@@ -40,17 +40,6 @@ class EntrenamientosModal extends DialogModal {
     // 2. Renderizar el primer set de entrenamientos
     this.renderGrid();
 
-    // 3. Botón de cancelar fijo en el footer
-    const btnCerrar = new Boton({
-      id: "btnCerrarGeneral",
-      top: 680,
-      left: 375,
-      width: 150,
-      height: 40,
-      texto: "Cancelar",
-      fn: () => this.cerrar()
-    });
-    this.agregarHijo(btnCerrar);
   }
 
   cambiarTipo(nuevoTipo) {
@@ -77,46 +66,53 @@ class EntrenamientosModal extends DialogModal {
     this.gridContainer = [];
   }
 
-  renderGrid() {
-    const margin = 20;
-    const offsetTop = 60; // Espacio para los botones de tipo
-    const cardWidth = 260;
-    const cardHeight = 280;
-    const gap = 20;
+ renderGrid() {
+    const margin = 50; // Aumentado para centrar mejor el bloque de 2 columnas
+    const offsetTop = 60; 
+    const cardWidth = 380;  // Más ancho al haber solo 2 columnas
+    const cardHeight = 200; // Un poco más bajo para que quepan 3 filas cómodamente
+    const gapX = 40;        // Espacio horizontal entre columnas
+    const gapY = 20;        // Espacio vertical entre filas
 
-    for (let i = 1; i <= 6; i++) {
+    for (let i = 1; i <= 12; i++) {
       const wk = this.generator.generate(i);
-      const col = (i - 1) % 3;
-      const fila = Math.floor((i - 1) / 3);
-      const x = margin + (col * (cardWidth + gap));
-      const y = offsetTop + (fila * (cardHeight + gap));
+      
+      // Lógica para 2 columnas:
+      // i=1 -> col 0, fila 0 | i=2 -> col 1, fila 0
+      // i=3 -> col 0, fila 1 | i=4 -> col 1, fila 1
+      // i=5 -> col 0, fila 2 | i=6 -> col 1, fila 2
+      const col = (i - 1) % 2; 
+      const fila = Math.floor((i - 1) / 2);
+      
+      const x = margin + (col * (cardWidth + gapX));
+      const y = offsetTop + (fila * (cardHeight + gapY));
 
       // Título
       const lblTitulo = new Label({
         id: `lblWk_${i}`,
-        top: y + 10, left: x + 10, width: cardWidth - 20, height: 25,
+        top: y + 5, left: x + 10, width: cardWidth - 20, height: 25,
         texto: wk.workoutName, fontSize: 13, bold: true
       });
 
       // Info
       const lblInfo = new Label({
         id: `lblInfo_${i}`,
-        top: y + 35, left: x + 10, width: cardWidth - 20, height: 40,
+        top: y + 30, left: x + 10, width: cardWidth - 20, height: 20,
         texto: `Duración: ${wk.totalDuration} min | Int: ${wk.intensity}%`,
         fontSize: 11
       });
 
-      // Miniatura de Barras
+      // Miniatura de Barras (ajustada en altura para el nuevo diseño)
       const timelineControl = new WorkoutMini({
         id: `mini_${i}`,
-        top: y + 75, left: x + 10, width: cardWidth - 20, height: 120,
+        top: y + 55, left: x + 10, width: cardWidth - 20, height: 80,
         workout: wk,
       });
 
       // Botón de Selección
       const btnSeleccionar = new Boton({
         id: `btnSel_${i}`,
-        top: y + 210, left: x + 10, width: cardWidth - 20, height: 40,
+        top: y + 145, left: x + 10, width: cardWidth - 20, height: 35,
         texto: "Semana " + i,
         fn: () => {
           if (this.fnCerrar) {
@@ -126,12 +122,13 @@ class EntrenamientosModal extends DialogModal {
         }
       });
 
-      // Guardamos referencias para poder borrarlos luego
+      // Registro de componentes
       const comps = [lblTitulo, lblInfo, timelineControl, btnSeleccionar];
       comps.forEach(c => {
         this.agregarHijo(c);
         this.gridContainer.push(c);
       });
     }
-  }
+}
+
 }
