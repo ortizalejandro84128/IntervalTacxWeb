@@ -18,7 +18,7 @@ class EntrenamientoDialog extends Dialog {
     
     this.workout = {
     dominantZone: "Endurance",
-    segments: [[5, 50, "50"], [15, 65, "65"], [5, 105, "50"]],
+    segments: [[5, 50, 50], [15, 65, 65], [5, 105, 105]],
     workoutName: "Entrenamiento Demo"
   };
 
@@ -36,10 +36,14 @@ class EntrenamientoDialog extends Dialog {
     this.fechaIni= this.fechaBase.toISOString();
     this.simulador= new SimuladorRodillo(this);
 
-    this.modal= new  UsuarioDialogModal(this, this.fnCerrarModal.bind(this));
+    this.notificationManager= new NotificationManager();
+    //this.modal= new  UsuarioDialogModal(this, this.fnCerrarModal.bind(this));
+    this.modal= new  EntrenamientosModal(this, "Umbral",this.onCargaErg.bind(this));
     this.crearControles();
 
   }
+
+
 
 crearControles() {
   // Título
@@ -55,7 +59,8 @@ crearControles() {
   this.addChildBoton({ id: "btnTCX", texto: "TCX", fn:this.descargaTCXFile.bind(this)});
 
   // Input de archivo
-  this.addChildFileInput({ id: "ergFile", accept: ".erg2", fn: this.onCargaErg.bind(this) });
+ // this.addChildFileInput({ id: "ergFile", accept: ".erg2", fn: this.onCargaErg.bind(this) });
+ this.addChildBoton({ id: "ergFile", texto: "ERG", fn: this.onSeleccionaEntrenamiento.bind(this) });
 
   // Encabezados de la tabla
 // Encabezados: Usamos el color de texto estándar (que cambia de negro a blanco automáticamente)
@@ -185,22 +190,32 @@ getLayoutVertical() {
   ];
 }
 
+    onSeleccionaEntrenamiento() {
+      this.modal.mostrar();
+  }
+  
+
   onCargaErg(fileName, contenido) {
+    
     try {
-      this.workout=JSON.parse(contenido);
+      if (typeof contenido === 'string') {
+          this.workout=JSON.parse(contenido);
+        }else{
+          this.workout=contenido;
+        }        
+      
       this.timelineControl.setIntervalsFromWorkout(this.workout);
       this.timelineControl.reset();
-      console.log("Se cargo erg OK");
+      console.log(JSON.stringify(this.workout));
     } catch (error) {
       console.error("Error al parsear el archivo como JSON:", error);
     }
   }
 
-fnCerrarModal(){
-  this.showAlert("Cerrar modal" );
-}
+
   conectarRodillo() {
-    //this.simulador.iniciar()
+   
+    // this.simulador.iniciar()
    this.trainer.connect();
   }
 
@@ -281,6 +296,7 @@ ajustarPotencia(rampa) {
      this.getChildById("btnTCX").hide();
      this.getChildById("btnPausa").show();
      this.getChildById("btnDetener").show();
+     this.notificationManager.show(ICONS.START, "¡Iniciando!");
   } 
 
 
@@ -298,10 +314,19 @@ ajustarPotencia(rampa) {
     }
 	 } 
 
-  cambiaSegmento(nuevaPot, potAnterior, ftp) {
-    this.potenciaActual = PowerUtils.generarCurvaPro(nuevaPot, potAnterior, this.cadenciaActual, ftp);
-	 } 
-
+cambiaSegmento(potInicial, potAnterior, ftp, potFinal, duracion, label) {
+    // Generamos el segmento
+    const nuevoSegmento = PowerUtils.generaSiguienteSegmento(        duracion,         potAnterior,         potInicial,         potFinal,         ftp,         this.cadenciaActual    );
+    var labelB="";
+    if(potInicial!=potFinal){
+        labelB=duracion+"Min "+potInicial+"->"+potFinal+"W"
+    }else{
+        labelB=duracion+"Min "+potInicial+"W"
+    }
+    this.notificationManager.show(ICONS.NEXT, label+"<br><br>"+labelB);
+    const nuevoArr = [0, 0, ...nuevoSegmento];
+    this.potenciaActual = nuevoArr;
+}
 descargaTCXFile() {
     const tcxString = TcxExport.jsonToTcxStrava(this.entrenamiento);
     const blob = new Blob([tcxString], { type: 'application/tcx+xml' });
