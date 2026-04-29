@@ -1,6 +1,6 @@
 class EntrenamientosModal extends DialogModal {
   constructor(mainApp, tipoInicial, fnCerrar) {
-    super({ id: "entrenamientosDialogModal", width: 900, height: 750, titulo: "Seleccionar Entrenamiento" });
+    super({ id: "entrenamientosDialogModal", width: 900, height: 1200, titulo: "Seleccionar Entrenamiento" });
     this.mainApp = mainApp;
     this.fnCerrar = fnCerrar;
     
