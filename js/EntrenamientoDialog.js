@@ -109,7 +109,9 @@ getBoundsHorizontal(){
 }
 
 getLayoutHorizontal(){
-return [
+
+
+let pos= [
   // Fila 0: Encabezado/Título (centrado)
   { id: "lblTitulo", top: 10, left: 10, width: 600, height: 30 },
 
@@ -142,6 +144,10 @@ return [
   { id: "intervalDemo", top: 175, left: 10, width: 630, height: 280 }
 ];
 
+let bounds=this.getBoundsHorizontal();
+return this.procesarLayoutEquitativo(bounds.width,bounds.height,pos);
+
+
 }
 
 
@@ -150,7 +156,7 @@ getBoundsVertical(){
 }
 
 getLayoutVertical() {
-  return [
+  let pos= [
     // Fila 0: Encabezado/Título (Sin cambios)
     { id: "lblTitulo", top: 10, left: 5, width: 400, height: 30 },
 
@@ -188,6 +194,10 @@ getLayoutVertical() {
     // Fila 7: Timeline (Debajo de todo: 320 + 30 + 20 de margen para destacar el gráfico)
     { id: "intervalDemo", top: 370, left: 5, width: 440, height: 350 }
   ];
+
+  let bounds=this.getBoundsVertical();
+return this.procesarLayoutEquitativo(bounds.width,bounds.height,pos);
+
 }
 
     onSeleccionaEntrenamiento() {

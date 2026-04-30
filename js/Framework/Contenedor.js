@@ -16,18 +16,5 @@ class Contenedor extends Window {
     this.elemento = div;
   }
 
-  async cargarHTML(url) {
-    try {
-      const resp = await fetch(url);
-      const html = await resp.text();
-      this.elemento.innerHTML = html;
-      if (this.padre) this.padre.recibirMensaje(`Contenedor ${this.id} cargó contenido desde ${url}`);
-    } catch (err) {
-      this.elemento.innerHTML = "<p class='text-danger'>Error al cargar contenido</p>";
-    }
-  }
 
-  enviarMensajeAlPadre(mensaje) {
-    if (this.padre) this.padre.recibirMensaje(mensaje);
-  }
 }

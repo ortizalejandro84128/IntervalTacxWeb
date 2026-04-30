@@ -29,6 +29,7 @@ const scripts = [
   'js/UsuarioDialogModal.js',
   'js/EntrenamientoDialog.js',
   'js/EntrenamientosModal.js',
+  'js/EditaLayoutDialog.js',
   'js/Main.js'
 
 ];

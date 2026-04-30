@@ -36,6 +36,13 @@ agregarHijo(hijo) {
     return edit;
   }
 
+  addChildContenedor({ id, top, left, width, height, texto }) {
+    const contenedor = new Contenedor({ id, top, left, width, height, texto });
+    this.agregarHijo(contenedor);
+    return contenedor;
+  }
+
+
   addChildBoton({ id, top, left, width, height, texto, fn, color ,iconoSVG}) {
     const btn = new Boton({ id, top, left, width, height, texto, fn , color,iconoSVG});
     this.agregarHijo(btn);

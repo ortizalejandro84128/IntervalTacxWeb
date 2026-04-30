@@ -227,6 +227,105 @@ clearTimeout(this.resizeTimeout);
 }
 
 
+
+
+
+
+
+/**
+ * Procesa un layout y devuelve uno nuevo con elementos alineados y distribuidos.
+ * @param {number} anchoContenedor - Ancho total del área de diseño.
+ * @param {number} altoContenedor - Alto total del área de diseño.
+ * @param {Array} arregloHijos - Arreglo de objetos {id, top, left, width, height}.
+ * @param {number} toleranciaVertical - Rango en px para agrupar elementos en una misma fila.
+ * @returns {Array} Nuevo arreglo con los datos procesados.
+ */
+ procesarLayoutEquitativo(anchoContenedor, altoContenedor, arregloHijos, toleranciaVertical = 15) {
+    if (!arregloHijos || arregloHijos.length === 0) return [];
+
+    const margenLateral = 10;
+    const margenInterno = 5;
+
+    // 1. Agrupar por Coordenadas Exactas (Gemelos: misma X y misma Y)
+    const gruposPosicion = new Map();
+    arregloHijos.forEach(h => {
+        const key = `${Math.round(h.top)}|${Math.round(h.left)}`;
+        if (!gruposPosicion.has(key)) {
+            gruposPosicion.set(key, []);
+        }
+        gruposPosicion.get(key).push({ ...h });
+    });
+
+    const representantes = [];
+    gruposPosicion.forEach(gemelos => {
+        representantes.push({
+            principal: gemelos[0],
+            todos: gemelos
+        });
+    });
+
+    // 2. Agrupar por Filas usando la TOLERANCIA proporcionada
+    // Ordenamos por top para procesar de arriba hacia abajo
+    representantes.sort((a, b) => a.principal.top - b.principal.top);
+
+    let filas = [];
+    representantes.forEach(rep => {
+        const hTop = rep.principal.top;
+        const hHeight = rep.principal.height;
+        
+        // Buscamos si este representante entra en alguna fila existente según la tolerancia
+        let filaEncontrada = filas.find(f => Math.abs(f.top - hTop) <= toleranciaVertical);
+
+        if (filaEncontrada) {
+            filaEncontrada.items.push(rep);
+            // La fila crece en altura si un elemento es más alto que el resto
+            filaEncontrada.maxHeight = Math.max(filaEncontrada.maxHeight, hHeight);
+        } else {
+            filas.push({ 
+                top: hTop, 
+                maxHeight: hHeight, 
+                items: [rep] 
+            });
+        }
+    });
+
+    // 3. Generar el nuevo arreglo con posiciones calculadas
+    const resultadoFinal = [];
+    let currentY = margenInterno; 
+
+    filas.forEach((fila) => {
+        const items = fila.items;
+        const nElem = items.length;
+
+        // Ordenamos horizontalmente los grupos de la fila
+        items.sort((a, b) => a.principal.left - b.principal.left);
+
+        const huecosHorizontales = (margenLateral * 2) + (margenInterno * (nElem - 1));
+        const anchoUtil = anchoContenedor - huecosHorizontales;
+        const anchoIndividual = Math.floor(anchoUtil / nElem);
+
+        items.forEach((rep, index) => {
+            const nuevaX = margenLateral + (index * (anchoIndividual + margenInterno));
+            
+            // Aplicamos los valores calculados a todos los miembros del grupo (gemelos)
+            rep.todos.forEach(h => {
+                h.left = nuevaX;
+                h.width = anchoIndividual;
+                h.top = currentY;
+                // Mantenemos su alto original o podrías forzar h.height = fila.maxHeight;
+                resultadoFinal.push(h);
+            });
+        });
+
+        // Saltamos a la siguiente fila sumando el alto de la actual + margen
+        currentY += fila.maxHeight + margenInterno;
+    });
+
+    return resultadoFinal;
+}
+
+
+
  }
 
 
