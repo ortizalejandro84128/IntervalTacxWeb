@@ -1,64 +1,6 @@
 class UmbralGenerator {
-  /*  constructor() {
-        this.WARMUP = 12;
-        this.PREP = 2;
-        this.COOLDOWN_BASE = 5;
-        this.LIMIT_MAX = 45;
-        this.BASE_INTENSITY = 95;
-    }
 
-    generate(week) {
-        // 1. Definir si es semana de descarga (cada tercera semana: 3 y 6)
-        const isDescarga = week % 3 === 0;
-
-        // 2. Determinar duración e intensidad base (Carga vs Descarga)
-        let workDuration, intensity;
-
-        if (!isDescarga) {
-            // Semanas 1, 2, 4, 5 (Carga Progresiva)
-            // Mapeo: S1:9min, S2:10min, S4:11min, S5:12min
-            const loadIndex = week - Math.floor(week / 3); 
-            workDuration = 8 + loadIndex;
-            intensity = this.BASE_INTENSITY + (loadIndex - 1);
-        } else {
-            // Semanas 3 y 6 (Descarga: 60% del tiempo de la carga anterior)
-            const prevLoadIndex = (week - 1) - Math.floor((week - 1) / 3);
-            const prevWorkDuration = 8 + prevLoadIndex;
-            workDuration = Math.round(prevWorkDuration * 0.6);
-            intensity = this.BASE_INTENSITY + (prevLoadIndex - 1);
-        }
-
-        // 3. Recuperación Ratio 4:1 (Mínimo 2 min)
-        const recovery = Math.max(2, Math.round(workDuration / 4));
-
-        // 4. Ajuste de tiempos fijos y relleno (40 o 45 min)
-        const tiempoSinEnfriar = this.WARMUP + this.PREP + (workDuration * 2) + recovery;
-        const targetTotal = (tiempoSinEnfriar + this.COOLDOWN_BASE > 40) ? 45 : 40;
-        const finalCooldown = targetTotal - tiempoSinEnfriar;
-
-        const formato = `2x${workDuration}min @${intensity}%`;
-        const tipo = isDescarga ? "Descarga" : "Carga";
-
-        const finalSegments= [
-                [this.WARMUP, 50, 80, "Calentamiento"],
-                [this.PREP, 50, 50, "Preparación"],
-                [workDuration, intensity, intensity, "Bloque Umbral 1/2"],
-                [recovery, 50, 50, "Recuperación Activa"],
-                [workDuration, intensity, intensity, "Bloque Umbral 2/2"],
-                [finalCooldown, 65, 50, "Enfriamiento"]
-            ]
-        const totalDuration = finalSegments.reduce((acc, s) => acc + s[0], 0);
-
-        return {
-            workoutName: `Umbral - S${week} (${formato})`,
-            dominantZone: "Umbral",
-            totalDuration: totalDuration, // Aquí se envía al render
-            intensity:intensity,
-            segments:finalSegments
-        };
-    }*/
-
-  constructor(semanas = 6, nivel=12) {
+  constructor(nivel=12,semanas = 6 ) {
     this.semanas = semanas;
     this.baseIntensidad = 90;
     this.baseZona = nivel; 
@@ -67,7 +9,9 @@ class UmbralGenerator {
 	this.factorDescarga=0.7;
   }
 
-  generate(semana) {
+  generate(semana, nivel) {
+    this.baseZona = nivel;
+
     const semanasDescargaPasadas = Math.floor((semana - 1) / 3);
     const semanasCargaEfectivas = (semana - 1) - semanasDescargaPasadas;
     const esDescarga = semana % 3 === 0;
@@ -126,8 +70,8 @@ class UmbralGenerator {
       dominantZone: "Umbral",
       totalDuration,
       intensity: intensidad,
-      segments,
-	  tss: TSSCalculator.calcularDesdeSegmentos(segments)
+      segments
+	  
     };
   }
 

@@ -1,6 +1,8 @@
 class NivelUtil{
 
    static calcularFactorNivel(peso, ftp) {
+
+    //console.log("calcularFactorNivel peso:"+peso+" ftp:"+ftp);
     const wkg = ftp / peso;
     if (wkg < 1.5) return 8;
     if (wkg < 2.0) return 10;

@@ -30,7 +30,7 @@ static calcularDesdeSegmentos(segments) {
   // TSS = (Horas * IF^2 * 100)
   const tssTotal = (tiempoTotalMin / 60) * Math.pow(npFactor, 2) * 100;
 
-  return Math.round(tssTotal * 10) / 10;
+  return Math.round( Math.round(tssTotal * 10) / 10);
 }
 
 }

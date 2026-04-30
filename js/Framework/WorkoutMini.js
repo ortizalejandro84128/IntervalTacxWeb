@@ -22,6 +22,13 @@ class WorkoutMini extends Window {
     this.elemento.innerHTML = "";
     if (!this.workout || !this.workout.segments) return;
 
+const segmentsArray = this.workout.segments.map(seg => {
+    // seg[0]: duracion, seg[1]: pctIni, seg[2]: pctFin, seg[3]: nombre
+    const nombre = seg[3] ? `,"${seg[3]}"` : "";
+    return `  [${seg[0]},${seg[1]},${seg[2]}${nombre}]`;
+  }).join("\n");
+
+  this.elemento.title = `segments:[\n${segmentsArray}\n]`;
     const segments = this.workout.segments;
     const totalDuration = segments.reduce((acc, seg) => acc + seg[0], 0);
     

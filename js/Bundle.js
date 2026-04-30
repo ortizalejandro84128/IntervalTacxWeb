@@ -28,7 +28,6 @@ const scripts = [
   'js/UsuarioDialog.js',
   'js/UsuarioDialogModal.js',
   'js/EntrenamientoDialog.js',
-  'js/DialogPotencia.js',
   'js/EntrenamientosModal.js',
   'js/Main.js'
 

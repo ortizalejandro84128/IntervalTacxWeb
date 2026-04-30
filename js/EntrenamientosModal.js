@@ -1,14 +1,14 @@
 class EntrenamientosModal extends DialogModal {
   constructor(mainApp, tipoInicial, fnCerrar) {
-    super({ id: "entrenamientosDialogModal", width: 900, height: 1200, titulo: "Seleccionar Entrenamiento" });
+    super({ id: "entrenamientosDialogModal", width: 900, height: 900, titulo: "Seleccionar Entrenamiento" });
     this.mainApp = mainApp;
     this.fnCerrar = fnCerrar;
     
     // Mapeo de generadores
     this.generadores = {
-      "VO2": new Vo2Generator(),
-      "Umbral": new UmbralGenerator(),
-      "Sat": new WeekendGenerator()
+      "VO2": new Vo2Generator(this.nivel),
+      "Umbral": new UmbralGenerator(this.nivel),
+      "Sat": new WeekendGenerator(this.nivel)
     };
 
     // Estado inicial
@@ -21,6 +21,18 @@ class EntrenamientosModal extends DialogModal {
     this.crearInterfaz();
   }
 
+
+  getNivel(){
+     let ftp =  localStorage.getItem("user_ftp") || 180;
+     let nivel=10;
+      if(ftp>=180){
+          nivel=NivelUtil.calcularFactorNivel(72,ftp);
+      }else{
+          nivel=NivelUtil.calcularFactorNivel(55,ftp);
+      }
+    //  console.log("Nivel:"+nivel);
+     return nivel;
+  }
   crearInterfaz() {
     // 1. Crear Botones de Selección de Tipo (Tabs)
     const tipos = ["VO2", "Umbral", "Sat"];
@@ -43,17 +55,24 @@ class EntrenamientosModal extends DialogModal {
   }
 
   cambiarTipo(nuevoTipo) {
-    if (this.tipoSeleccionado === nuevoTipo) return;
     
     this.tipoSeleccionado = nuevoTipo;
     this.generator = this.generadores[nuevoTipo];
     
-    // Limpiar componentes anteriores del grid
-    this.limpiarGrid();
-    // Dibujar nuevos
-    this.renderGrid();
+    this.refresh();
   }
 
+
+    refresh() {
+      this.title.innerText = this.texto+"- Nivel: "+this.getNivel();
+      // Limpiar componentes anteriores del grid
+      this.limpiarGrid();
+      // Dibujar nuevos
+      this.renderGrid();
+    }
+
+
+  
   limpiarGrid() {
     // Eliminamos del DOM y del array de hijos los elementos previos
     this.gridContainer.forEach(componente => {
@@ -73,10 +92,11 @@ class EntrenamientosModal extends DialogModal {
     const cardHeight = 200; // Un poco más bajo para que quepan 3 filas cómodamente
     const gapX = 40;        // Espacio horizontal entre columnas
     const gapY = 20;        // Espacio vertical entre filas
-
-    for (let i = 1; i <= 12; i++) {
-      const wk = this.generator.generate(i);
-      
+    
+    
+    for (let i = 1; i <= 6; i++) {
+      const wk = this.generator.generate(i, this.getNivel());
+    //console.log(JSON.stringify(wk));  
       // Lógica para 2 columnas:
       // i=1 -> col 0, fila 0 | i=2 -> col 1, fila 0
       // i=3 -> col 0, fila 1 | i=4 -> col 1, fila 1
@@ -97,7 +117,7 @@ class EntrenamientosModal extends DialogModal {
       // Info
       const lblInfo = new Label({
         id: `lblInfo_${i}`,
-        top: y + 30, left: x + 10, width: cardWidth - 20, height: 20,
+        top: y + 40, left: x + 10, width: cardWidth - 20, height: 20,
         texto: `Duración: ${wk.totalDuration} min | Int: ${wk.intensity}%`,
         fontSize: 11
       });
@@ -105,15 +125,15 @@ class EntrenamientosModal extends DialogModal {
       // Miniatura de Barras (ajustada en altura para el nuevo diseño)
       const timelineControl = new WorkoutMini({
         id: `mini_${i}`,
-        top: y + 55, left: x + 10, width: cardWidth - 20, height: 80,
+        top: y + 60, left: x + 10, width: cardWidth - 20, height: 80,
         workout: wk,
       });
 
-      // Botón de Selección
+      const tss= TSSCalculator.calcularDesdeSegmentos(wk.segments)// Botón de Selección
       const btnSeleccionar = new Boton({
         id: `btnSel_${i}`,
         top: y + 145, left: x + 10, width: cardWidth - 20, height: 35,
-        texto: "Semana " + i,
+        texto: "W" + i+" - Tss: "+tss,
         fn: () => {
           if (this.fnCerrar) {
             this.fnCerrar("file", wk);

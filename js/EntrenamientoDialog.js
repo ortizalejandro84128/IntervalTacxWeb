@@ -191,6 +191,7 @@ getLayoutVertical() {
 }
 
     onSeleccionaEntrenamiento() {
+      this.modal.refresh(); 
       this.modal.mostrar();
   }
   

@@ -13,8 +13,8 @@ class Main {
 //    const dialogA = new DialogA();
 //    const dialogB = new DialogB();
 //    const dialogC = new DialogC();
-    const usuarioDialog = new DialogPotencia(this);
-    this.dialogs["usuarioDialog"]=usuarioDialog;
+//    const usuarioDialog = new DialogPotencia(this);
+//    this.dialogs["usuarioDialog"]=usuarioDialog;
 
     const enrtenamientoDialog = new EntrenamientoDialog(this);
     this.dialogs["enrtenamientoDialog"]=enrtenamientoDialog;

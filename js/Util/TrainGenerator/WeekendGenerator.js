@@ -1,91 +1,127 @@
 class WeekendGenerator {
-    constructor() {
-        this.LIMIT_TARGET = 90; // 1.5 horas (90 min)
-        this.Z2_RECOVERY_LIMIT = 60; // 1 hora para descarga
+    constructor(nivel=14) {
+        this.nivel = nivel
+        this.tiempoTrabajoBase = this.nivel * 2; 
+        this.PROGRESION = 1.15; // +15% conservador
     }
 
-    generate(week) {
+    generate(week, nivel) {
+        this.nivel = nivel;
+        this.tiempoTrabajoBase = this.nivel * 2; 
         const isDescarga = week % 3 === 0;
-        let segments = [];
-        let dominantZone = "";
-        let workoutName = "";
-
+        
         if (isDescarga) {
-            // --- SEMANAS 3 Y 6: ZONA 2 (1 HORA) ---
-            dominantZone = "Resistencia (Z2)";
-            workoutName = `Sábado S${week} - Fondo Z2 Recuperación`;
-            segments = [
-                [10, 50, 60, "Calentamiento Progresivo"],
-                [40, 65, 65, "Rodaje Estable Z2"],
-                [10, 60, 50, "Vuelta a la calma"]
-            ];
-        } else {
-            // Alternamos: S1 y S4 Sweet Spot | S2 y S5 Under-Over
-            // Usamos un booleano para determinar el tipo
-            const isSweetSpot = (week === 1 || week === 4);
-
-            if (isSweetSpot) {
-                // --- SEMANAS 1 Y 4: SWEET SPOT (2x20 o 2x25) ---
-                dominantZone = "Sweet Spot";
-                const blockTime = (week === 1) ? 20 : 25; 
-                workoutName = `Sábado S${week} - Sweet Spot Largo (2x${blockTime}min)`;
-                
-                segments = [
-                    [10, 50, 50, "Warm up"],
-                    [10, 65, 65, "Prep"],
-                    [blockTime, 90, 90, "SS Bloque 1"],
-                    [5, 60, 60, "Recuperación"],
-                    [blockTime, 90, 90, "SS Bloque 2"],
-                    [15, 75, 75, "Z2 Post-esfuerzo"],
-                    [this.LIMIT_TARGET - (20 + 20 + blockTime * 2 + 5), 65, 55, "Enfriamiento"]
-                ];
-            } else {
-                // --- SEMANAS 2 Y 5: UNDER-OVER (3 bloques de 12 min) ---
-                dominantZone = "Under-Over";
-                workoutName = `Sábado S${week} - Under-Overs (3x12min)`;
-                
-                const intensityOver = (week === 2) ? 105 : 107;
-                const intensityUnder = 90;
-
-                segments = [
-                    [4, 50, 50, "Warm up"],
-                    [4, 60, 60, "Prep 1"],
-                    [4, 70, 70, "Prep 2"],
-                    [4, 85, 85, "Activación"],
-                    [4, 50, 50, "Pausa"]
-                ];
-
-                // Generamos 3 bloques de 12 min (cada bloque son 3 repeticiones de 2/2)
-                for (let i = 1; i <= 3; i++) {
-                    // 3 repeticiones de 2' Over / 2' Under = 12 min por bloque
-                    for (let r = 1; r <= 3; r++) {
-                        segments.push([2, intensityOver, intensityOver, `Bloque ${i} - Over`]);
-                        segments.push([2, intensityUnder, intensityUnder, `Bloque ${i} - Under`]);
-                    }
-                    if (i < 3) segments.push([3, 60, 60, "Recuperación Inter-bloque"]);
-                }
-
-                // Relleno final hasta los 90 min
-                const currentTotal = segments.reduce((acc, s) => acc + s[0], 0);
-                const remaining = this.LIMIT_TARGET - currentTotal;
-                
-                if (remaining > 15) {
-                    segments.push([Math.floor(remaining * 0.6), 75, 75, "Resistencia Final"]);
-                    segments.push([Math.ceil(remaining * 0.4), 60, 50, "Enfriamiento"]);
-                } else {
-                    segments.push([remaining, 60, 50, "Enfriamiento"]);
-                }
-            }
+            return this._generarZona2(week);
         }
 
-        const totalDuration = segments.reduce((acc, s) => acc + s[0], 0);
+        if (week === 1 || week === 4) {
+            return this._generarSweetSpot(week);
+        } else {
+            return this._generarUnderOver(week);
+        }
+    }
 
+    _generarSweetSpot(week) {
+        let totalTrabajo = this.tiempoTrabajoBase;
+        if (week === 4) totalTrabajo = Math.round(totalTrabajo * this.PROGRESION);
+
+        const blockTime = Math.floor(totalTrabajo / 2);
+        
+        const segments = [
+            [10, 50, 50, "Calentamiento"],
+            [10, 65, 65, "Activación Aeróbica"],
+            [blockTime, 90, 90, `SS Bloque 1 (${blockTime}m)`],
+            [5, 60, 60, "Recuperación"],
+            [blockTime, 90, 90, `SS Bloque 2 (${blockTime}m)`],
+            [15, 75, 75, "Z2 Post-esfuerzo"],
+            [5, 65, 55, "Enfriamiento"]
+        ];
+
+        // Intensidad fija para Sweet Spot: 90
+        return this._formatearResultado(`Sábado S${week} - Sweet Spot 2x${blockTime}`, "Sweet Spot", segments, 90);
+    }
+
+// Método específico para Under-Over (Semanas 2 y 5)
+    _generarUnderOver(week) {
+    const isProgression = (week === 5);
+    
+    // Matriz extendida: [ [Reps_B1, Reps_B2]_Semana2, [Reps_B1, Reps_B2]_Semana5 ]
+    const configuracionUO = {
+        8:  [[3, 3], [3, 4]], 
+        10: [[3, 3], [3, 4]], 
+        12: [[3, 4], [4, 5]], 
+        14: [[3, 4], [4, 4]], // Ejemplo Nivel 14: S2(4+4=24min) / S5(5+5=30min)
+        16: [[5, 5], [6, 5]], 
+        18: [[6, 6], [7, 6]], 
+        20: [[7, 7], [8, 8]]  
+    };
+
+    const [configS2, configS5] = configuracionUO[this.nivel];
+    const repsPorBloque = isProgression ? configS5 : configS2;
+
+    // Calculamos el tiempo total de trabajo efectivo (cada rep = 3 min)
+    const totalReps = repsPorBloque.reduce((acc, r) => acc + r, 0);
+    //const totalTrabajoUO = totalReps * 3; 
+
+    // Bloque Sweet Spot fijo a la mitad del trabajo U/O
+    const tiempoSSFinal = Math.ceil( this.tiempoTrabajoBase / 2*1.2);
+
+    return this._formatearSesionMixta(week, repsPorBloque, tiempoSSFinal);
+}
+
+_formatearSesionMixta(week, repsPorBloque, tiempoSS) {
+    const segments = [
+        [10, 50, 50, "Calentamiento"],
+        [5, 70, 85, "Activación"],
+        [4, 50, 50, "Pausa"]
+    ];
+
+    // 1. BLOQUES UNDER-OVER PARAMETRIZADOS
+    repsPorBloque.forEach((numReps, index) => {
+        const bloqueNum = index + 1;
+        for (let r = 1; r <= numReps; r++) {
+            segments.push([1, 105, 105, `B${bloqueNum} - Over 1'`]);
+            segments.push([2, 95, 95, `B${bloqueNum} - Under 2'`]);
+        }
+        
+        // Pausa de recuperación entre bloques (y antes del SS)
+        segments.push([4, 60, 60, "Recuperación"]);
+    });
+
+    // 2. BLOQUE FINAL DE SWEET SPOT
+    segments.push([tiempoSS, 85, 85, `Final Sweet Spot (${tiempoSS} min)`]);
+
+    // 3. VUELTA A LA CALMA
+    segments.push([8, 70, 70, "Rodaje Final"], [5, 60, 50, "Enfriamiento"]);
+
+    return {
+        workoutName: `Sábado S${week} - Mixto U/O + SS (Nivel ${this.nivel})`,
+        intensity: 95,
+        totalDuration: segments.reduce((acc, s) => acc + s[0], 0),
+        segments: segments
+    };
+}
+    
+    _generarZona2(week) {
+        const duracionZ2 = 30+this.nivel;
+        const segments = [
+            [10, 50, 60, "Calentamiento Progresivo"],
+            [duracionZ2, 65, 65, "Rodaje Estable Z2"],
+            [10, 60, 50, "Vuelta a la calma"]
+        ];
+
+        // Intensidad fija para Z2: 65
+        return this._formatearResultado(`Sábado S${week} - Recuperación Activa`, "Resistencia (Z2)", segments, 65);
+    }
+
+    _formatearResultado(name, zone, segments, intensity) {
         return {
-            workoutName: workoutName,
-            dominantZone: dominantZone,
-            totalDuration: totalDuration,
-            intensity: isDescarga ? 65 : (week % 3 === 1 ? 90 : 100), // Intensidad representativa
-            segments: segments
+            workoutName: name,
+            dominantZone: zone,
+            totalDuration: segments.reduce((acc, s) => acc + s[0], 0),
+            intensity: intensity, // <--- Nueva propiedad añadida
+            segments: segments,
+            nivelFactor: this.nivel
         };
     }
 }

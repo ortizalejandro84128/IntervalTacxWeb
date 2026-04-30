@@ -44,6 +44,7 @@ class DialogModal extends Window {
     title.className = "modal-title";
     title.innerText = this.texto;
     header.appendChild(title);
+    this.title=title;
 
     this.bodyContainer = document.createElement("div");
     this.bodyContainer.className = "modal-body";
