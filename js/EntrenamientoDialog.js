@@ -105,7 +105,7 @@ this.addChildLabel({ id: "speedCell", texto: "--", fontSize: "24px", fontWeight:
 
 
 getBoundsHorizontal(){
-  return {width:700, height:480}
+  return {width:800, height:520}
 }
 
 getLayoutHorizontal(){
@@ -152,7 +152,7 @@ return this.procesarLayoutEquitativo(bounds.width,bounds.height,pos);
 
 
 getBoundsVertical(){
-     return {width:this.getBoundsHorizontal().height, height:this.getBoundsHorizontal().width}
+     return {width:600, height:900}
 }
 
 getLayoutVertical() {
