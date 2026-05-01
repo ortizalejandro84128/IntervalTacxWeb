@@ -1,7 +1,7 @@
 class EntrenamientosModal extends DialogModal {
   constructor(mainApp, tipoInicial, fnCerrar) {
-    // Dimensiones base 600x900
-    super({ id: "entrenamientosDialogModal", width: 600, height: 900, titulo: "Seleccionar Entrenamiento" });
+    // Ajustado a 500x900
+    super({ id: "entrenamientosDialogModal", width: 500, height: 900, titulo: "Seleccionar Entrenamiento" });
     this.mainApp = mainApp;
     this.fnCerrar = fnCerrar;
     
@@ -25,15 +25,15 @@ class EntrenamientosModal extends DialogModal {
   }
 
   crearInterfaz() {
-    const anchoModal = 600;
-    const anchoComponente = anchoModal * 0.85; // 510px
-    const margenIzquierdo = (anchoModal - anchoComponente) / 2; // Centrado (45px)
+    const anchoModal = 500;
+    const anchoComponente = anchoModal * 0.85; // 425px
+    const margenIzquierdo = (anchoModal - anchoComponente) / 2; // 37.5px
 
-    // 0. Botón de Cerrar (X) en la esquina superior derecha
+    // 0. Botón de Cerrar (X)
     const btnCerrarX = new Boton({
       id: "btnCerrarModal",
       top: 10,
-      left: anchoModal - 80,
+      left: anchoModal - 60, // Ajustado para el nuevo ancho
       width: 35,
       height: 35,
       texto: "X",
@@ -41,7 +41,7 @@ class EntrenamientosModal extends DialogModal {
     });
     this.agregarHijo(btnCerrarX);
 
-    // 1. Tabs de Selección (Centrados proporcionalmente)
+    // 1. Tabs de Selección
     const tipos = ["VO2", "Umbral", "Sat"];
     const anchoTab = anchoComponente / tipos.length;
     
@@ -62,12 +62,12 @@ class EntrenamientosModal extends DialogModal {
   }
 
   renderGrid() {
-    const anchoModal = 600;
-    const anchoCard = anchoModal * 0.85; 
+    const anchoModal = 500;
+    const anchoCard = anchoModal * 0.85; // 425px
     const x = (anchoModal - anchoCard) / 2;
     
     const offsetTop = 110; 
-    const cardHeight = 220; // Altura para una columna cómoda
+    const cardHeight = 220; 
     const gapY = 20;
     
     for (let i = 1; i <= 6; i++) {
@@ -78,30 +78,30 @@ class EntrenamientosModal extends DialogModal {
       // Título
       const lblTitulo = new Label({
         id: `lblWk_${i}`,
-        top: y + 10, left: x + 15, width: anchoCard - 30, height: 25,
-        texto: wk.workoutName, fontSize: 15, bold: true
+        top: y + 10, left: x + 10, width: anchoCard - 20, height: 25,
+        texto: wk.workoutName, fontSize: 14, bold: true
       });
 
       // Info Duración y TSS
       const lblInfo = new Label({
         id: `lblInfo_${i}`,
-        top: y + 40, left: x + 15, width: anchoCard - 30, height: 20,
-        texto: `Duración: ${wk.totalDuration} min | TSS Estimado: ${tss}`,
-        fontSize: 12
+        top: y + 35, left: x + 10, width: anchoCard - 20, height: 20,
+        texto: `Duración: ${wk.totalDuration} min | TSS: ${tss}`,
+        fontSize: 11
       });
 
-      // Gráfica de entrenamiento (WorkoutMini)
+      // Gráfica (WorkoutMini)
       const timelineControl = new WorkoutMini({
         id: `mini_${i}`,
-        top: y + 65, left: x + 15, width: anchoCard - 30, height: 90,
+        top: y + 60, left: x + 10, width: anchoCard - 20, height: 95,
         workout: wk,
       });
 
-      // Botón de Selección
+      // Botón de Selección con texto solicitado
       const btnSeleccionar = new Boton({
         id: `btnSel_${i}`,
-        top: y + 165, left: x + (anchoCard * 0.1), width: anchoCard * 0.8, height: 40,
-        texto: "" + i+" Tss:"+tss,
+        top: y + 165, left: x + (anchoCard * 0.05), width: anchoCard * 0.9, height: 40,
+        texto: `${i} Tss: ${tss}`,
         fn: () => {
           if (this.fnCerrar) this.fnCerrar("file", wk);
           this.cerrar();
