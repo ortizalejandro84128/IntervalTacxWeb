@@ -15,11 +15,8 @@ class Dialog extends Window {
   div.style.top = this.top + "px";
   div.style.left = this.left + "px";
 
-  // Añadir borde: 2px, sólido y color azul (por ejemplo)
   div.style.border = "2px solid #007bff";
   
-  // Opcional: Redondear las esquinas
-  div.style.borderRadius = "5px";
   document.getElementById("app").appendChild(div);
 
 
@@ -116,7 +113,8 @@ centrar() {//hibrido factor <1 reduce como imagen no por layout
     this.elemento.style.transformOrigin = "top left";
   } else {
     // Escalado por coordenadas para ampliación
-    const lay = this.escalarLayout(info.layout, factor);
+    const lay = this.escalarLayout(info.layout, 1);
+    //const lay = this.escalarLayout(info.layout, factor);
     this.aplicarLayout(lay);
     this.elemento.style.transform = "";
   }
@@ -239,98 +237,192 @@ clearTimeout(this.resizeTimeout);
 
 
 
-
-/**
- * Procesa un layout y devuelve uno nuevo con elementos alineados y distribuidos.
- * @param {number} anchoContenedor - Ancho total del área de diseño.
- * @param {number} altoContenedor - Alto total del área de diseño.
- * @param {Array} arregloHijos - Arreglo de objetos {id, top, left, width, height}.
- * @param {number} toleranciaVertical - Rango en px para agrupar elementos en una misma fila.
- * @returns {Array} Nuevo arreglo con los datos procesados.
- */
- procesarLayoutEquitativo(anchoContenedor, altoContenedor, arregloHijos, toleranciaVertical = 15) {
+/*
+procesarLayoutEquitativo(anchoContenedor, altoContenedor, arregloHijos, toleranciaVertical = 15) {
     if (!arregloHijos || arregloHijos.length === 0) return [];
 
     const margenLateral = 10;
     const margenInterno = 6;
+    const margenInferiorFinal = 10;
 
-    // 1. Agrupar por Coordenadas Exactas (Gemelos: misma X y misma Y)
+    // 1. Agrupar Gemelos
     const gruposPosicion = new Map();
     arregloHijos.forEach(h => {
         const key = `${Math.round(h.top)}|${Math.round(h.left)}`;
-        if (!gruposPosicion.has(key)) {
-            gruposPosicion.set(key, []);
-        }
+        if (!gruposPosicion.has(key)) gruposPosicion.set(key, []);
         gruposPosicion.get(key).push({ ...h });
     });
 
     const representantes = [];
     gruposPosicion.forEach(gemelos => {
-        representantes.push({
-            principal: gemelos[0],
-            todos: gemelos
-        });
+        representantes.push({ principal: gemelos[0], todos: gemelos });
     });
 
-    // 2. Agrupar por Filas usando la TOLERANCIA proporcionada
-    // Ordenamos por top para procesar de arriba hacia abajo
+    // 2. Agrupar Filas
+    representantes.sort((a, b) => a.principal.top - b.principal.top);
+    let filas = [];
+    representantes.forEach(rep => {
+        const hTop = rep.principal.top;
+        let filaEncontrada = filas.find(f => Math.abs(f.top - hTop) <= toleranciaVertical);
+        if (filaEncontrada) {
+            filaEncontrada.items.push(rep);
+            filaEncontrada.maxHeight = Math.max(filaEncontrada.maxHeight, rep.principal.height);
+        } else {
+            filas.push({ top: hTop, maxHeight: rep.principal.height, items: [rep] });
+        }
+    });
+
+    // 3. Generar Layout con ajuste de precisión
+    const resultadoFinal = [];
+    let currentY = margenInterno;
+
+    filas.forEach((fila, idxFila) => {
+        const esUltimaFila = (idxFila === filas.length - 1);
+        const nElem = fila.items.length;
+        fila.items.sort((a, b) => a.principal.left - b.principal.left);
+
+        const huecosHorizontales = (margenLateral * 2) + (margenInterno * (nElem - 1));
+        const anchoUtil = anchoContenedor - huecosHorizontales;
+        
+        // Calculamos el ancho exacto y el residuo (sobrante de px por división no exacta)
+        const anchoIndividual = Math.floor(anchoUtil / nElem);
+        const residuoTotal = anchoUtil % nElem; 
+
+        let altoFilaEfectivo = fila.maxHeight;
+        if (esUltimaFila) {
+            const espacioRestante = altoContenedor - currentY - margenInferiorFinal;
+            altoFilaEfectivo = Math.max(fila.maxHeight, espacioRestante);
+        }
+
+        fila.items.forEach((rep, idxItem) => {
+            // Repartimos el residuo entre los primeros elementos para que el final cuadre perfecto
+            const ajusteResiduo = (idxItem < residuoTotal) ? 1 : 0;
+            const anchoConAjuste = anchoIndividual + ajusteResiduo;
+            
+            // Cálculo de X acumulando los anchos previos + márgenes
+            // (Usamos un offset calculado para evitar errores de redondeo)
+            const previoAnchoYMargen = fila.items.slice(0, idxItem).reduce((acc, curr, i) => {
+                const adj = (i < residuoTotal) ? 1 : 0;
+                return acc + anchoIndividual + adj + margenInterno;
+            }, margenLateral);
+
+            rep.todos.forEach(h => {
+                h.left = previoAnchoYMargen;
+                h.width = anchoConAjuste;
+                h.top = currentY;
+                h.height = altoFilaEfectivo;
+                resultadoFinal.push(h);
+            });
+        });
+
+        currentY += altoFilaEfectivo + margenInterno;
+    });
+
+    return resultadoFinal;
+}
+*/
+
+
+
+
+
+
+
+/**
+ * Procesa un layout distribuyendo el alto de las filas por porcentajes.
+ * @param {number} anchoContenedor
+ * @param {number} altoContenedor
+ * @param {Array} arregloHijos
+ * @param {Array<number>} porcentajesFilas - Ej: [10, 20, 20, 50] (debe sumar 100)
+ * @param {number} toleranciaVertical
+ */
+procesarLayoutPorcentual(anchoContenedor, altoContenedor, arregloHijos, porcentajesFilas, toleranciaVertical = 15) {
+    if (!arregloHijos || arregloHijos.length === 0) return [];
+
+    const margenLateral = 10;
+    const margenInterno = 6;
+
+    // 1. Agrupar Gemelos y Filas (Igual que antes)
+    const gruposPosicion = new Map();
+    arregloHijos.forEach(h => {
+        const key = `${Math.round(h.top)}|${Math.round(h.left)}`;
+        if (!gruposPosicion.has(key)) gruposPosicion.set(key, []);
+        gruposPosicion.get(key).push({ ...h });
+    });
+
+    const representantes = [];
+    gruposPosicion.forEach(gemelos => representantes.push({ principal: gemelos[0], todos: gemelos }));
     representantes.sort((a, b) => a.principal.top - b.principal.top);
 
     let filas = [];
     representantes.forEach(rep => {
         const hTop = rep.principal.top;
-        const hHeight = rep.principal.height;
-        
-        // Buscamos si este representante entra en alguna fila existente según la tolerancia
         let filaEncontrada = filas.find(f => Math.abs(f.top - hTop) <= toleranciaVertical);
-
         if (filaEncontrada) {
             filaEncontrada.items.push(rep);
-            // La fila crece en altura si un elemento es más alto que el resto
-            filaEncontrada.maxHeight = Math.max(filaEncontrada.maxHeight, hHeight);
         } else {
-            filas.push({ 
-                top: hTop, 
-                maxHeight: hHeight, 
-                items: [rep] 
-            });
+            filas.push({ top: hTop, items: [rep] });
         }
     });
 
-    // 3. Generar el nuevo arreglo con posiciones calculadas
+    // 2. Cálculo de Espacio Vertical Disponible
+    // Restamos todos los márgenes internos del alto total para saber cuánto espacio real queda
+    const totalMargenesVerticales = margenInterno * (filas.length + 1);
+    const altoUtilVertical = altoContenedor - totalMargenesVerticales;
+
+    // 3. Generar Layout
     const resultadoFinal = [];
-    let currentY = margenInterno; 
+    let currentY = margenInterno;
 
-    filas.forEach((fila) => {
-        const items = fila.items;
-        const nElem = items.length;
+    filas.forEach((fila, idxFila) => {
+        // Obtenemos el porcentaje para esta fila. Si no existe en el array, usamos lo que sobre o un valor residual.
+        const porc = porcentajesFilas[idxFila] || 0;
+        const altoFilaEfectivo = Math.floor((altoUtilVertical * porc) / 100);
 
-        // Ordenamos horizontalmente los grupos de la fila
-        items.sort((a, b) => a.principal.left - b.principal.left);
+        const nElem = fila.items.length;
+        fila.items.sort((a, b) => a.principal.left - b.principal.left);
 
         const huecosHorizontales = (margenLateral * 2) + (margenInterno * (nElem - 1));
-        const anchoUtil = anchoContenedor - huecosHorizontales;
-        const anchoIndividual = Math.floor(anchoUtil / nElem);
+        const anchoUtilHoriz = anchoContenedor - huecosHorizontales;
+        
+        const anchoIndividual = Math.floor(anchoUtilHoriz / nElem);
+        const residuoHoriz = anchoUtilHoriz % nElem;
 
-        items.forEach((rep, index) => {
-            const nuevaX = margenLateral + (index * (anchoIndividual + margenInterno));
+        fila.items.forEach((rep, idxItem) => {
+            const ajusteResiduo = (idxItem < residuoHoriz) ? 1 : 0;
+            const anchoConAjuste = anchoIndividual + ajusteResiduo;
             
-            // Aplicamos los valores calculados a todos los miembros del grupo (gemelos)
+            const previoX = fila.items.slice(0, idxItem).reduce((acc, curr, i) => {
+                const adj = (i < residuoHoriz) ? 1 : 0;
+                return acc + anchoIndividual + adj + margenInterno;
+            }, margenLateral);
+
             rep.todos.forEach(h => {
-                h.left = nuevaX;
-                h.width = anchoIndividual;
+                h.left = previoX;
+                h.width = anchoConAjuste;
                 h.top = currentY;
-                // Mantenemos su alto original o podrías forzar h.height = fila.maxHeight;
+                h.height = altoFilaEfectivo; // El alto ahora es proporcional
                 resultadoFinal.push(h);
             });
         });
 
-        // Saltamos a la siguiente fila sumando el alto de la actual + margen
-        currentY += fila.maxHeight + margenInterno;
+        currentY += altoFilaEfectivo + margenInterno;
     });
 
     return resultadoFinal;
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

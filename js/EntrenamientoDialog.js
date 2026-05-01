@@ -46,7 +46,7 @@ class EntrenamientoDialog extends Dialog {
 
 
 crearControles() {
-
+ this.addChildBoton({ id: "btnTitulo", texto: "Titulo", color:"info" });
   // Botones
   this.addChildBoton({ id: "btnRodillo", texto: "Tacx", fn: this.conectarRodillo.bind(this) });
   this.addChildBoton({ id: "btnHR", texto: "HR", fn: this.conectaMonitorHR.bind(this) });
@@ -103,13 +103,20 @@ this.addChildLabel({ id: "speedCell", texto: "--", fontSize: "24px", fontWeight:
 
 
 getBoundsHorizontal(){
-  return {width:800, height:500}
+
+  const availableWidth = window.innerWidth;
+  const availableHeight = window.innerHeight;
+
+  return {width:availableWidth, height:availableHeight}
 }
 
 getLayoutHorizontal(){
 
 
 let pos= [
+
+  
+    { id: "btnTitulo", top: 0, left: 10,  width: 120, height: 40 },
 
   // Fila 1: Botones (todos al mismo top = 60)
   { id: "btnRodillo", top: 60, left: 10,  width: 120, height: 40 },
@@ -140,19 +147,26 @@ let pos= [
   { id: "intervalDemo", top: 175, left: 10, width: 630, height: 360 }
 ];
 
+let filaPct= [9, 9, 9, 12,58];
+
 let bounds=this.getBoundsHorizontal();
-return this.procesarLayoutEquitativo(bounds.width,bounds.height,pos);
+return this.procesarLayoutPorcentual(bounds.width,bounds.height,pos,filaPct);
 
 
 }
 
 
 getBoundsVertical(){
-     return {width:460, height:750}
+    const availableWidth = window.innerWidth;
+  const availableHeight = window.innerHeight;
+
+     return {width:availableWidth, height:availableHeight}
 }
 
 getLayoutVertical() {
   let pos= [
+        { id: "btnTitulo", top: 0, left: 10,  width: 120, height: 40 },
+
 
     // Fila 1: 3 botones (Height aumentado a 60)
     { id: "btnRodillo", top: 60, left: 5,   width: 159, height: 60 },
@@ -189,8 +203,9 @@ getLayoutVertical() {
     { id: "intervalDemo", top: 370, left: 5, width: 440, height: 450 }
   ];
 
+  let filaPct= [8, 8, 8, 8,10,8,10,40];
   let bounds=this.getBoundsVertical();
-return this.procesarLayoutEquitativo(bounds.width,bounds.height,pos);
+return this.procesarLayoutPorcentual(bounds.width,bounds.height,pos,filaPct);
 
 }
 
