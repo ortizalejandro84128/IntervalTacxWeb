@@ -182,7 +182,7 @@ escalarLayout(layout, factor) {
 
 aplicarLayout(layout) {
 
- // console.table(layout);
+ //cd t console.table(layout);
   for (const item of layout) {
       this.setBounds(item.id, item.top, item.left, item.width, item.height, item.fontSize);
   }

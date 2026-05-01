@@ -101,7 +101,7 @@ render() {
     
     var overlayControls = document.createElement("div");
     overlayControls.className = "d-flex align-items-center bg-dark rounded shadow-sm overflow-hidden";
-    overlayControls.style.height = this.fontSize +"px";
+    overlayControls.style.height = 40 +"px";
     overlayControls.style.zIndex = "20";
     
     if (this.actividadIniciada) {
@@ -262,7 +262,7 @@ render() {
         labelMark.style.top = "5px";
         labelMark.style.left = leftPos + "px";
         labelMark.style.transform = "translateX(-50%)";
-        labelMark.style.fontSize = (this.width / 60) + "px";
+        labelMark.style.fontSize = this.fontSize*.7 + "px";
 
         rule.appendChild(mark);
         rule.appendChild(labelMark);

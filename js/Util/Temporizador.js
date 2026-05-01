@@ -46,6 +46,6 @@ class Temporizador {
 
     const pad = (num, size = 2) => num.toString().padStart(size, "0");
 
-    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${decimas}`;
+    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
   }
 }

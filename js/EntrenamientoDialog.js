@@ -46,7 +46,7 @@ class EntrenamientoDialog extends Dialog {
 
 
 crearControles() {
- this.addChildBoton({ id: "btnTitulo", texto: "Titulo", color:"info" });
+ //this.addChildBoton({ id: "btnTitulo", texto: "Simulador ERG, Con Rodillo TACX FLOW", color:"info" });
   // Botones
   this.addChildBoton({ id: "btnRodillo", texto: "Tacx", fn: this.conectarRodillo.bind(this) });
   this.addChildBoton({ id: "btnHR", texto: "HR", fn: this.conectaMonitorHR.bind(this) });
@@ -116,7 +116,7 @@ getLayoutHorizontal(){
 let pos= [
 
   
-    { id: "btnTitulo", top: 0, left: 10,  width: 120, height: 40 },
+   // { id: "btnTitulo", top: 0, left: 10,  width: 120, height: 40 },
 
   // Fila 1: Botones (todos al mismo top = 60)
   { id: "btnRodillo", top: 60, left: 10,  width: 120, height: 40 },
@@ -147,7 +147,7 @@ let pos= [
   { id: "intervalDemo", top: 175, left: 10, width: 630, height: 360 }
 ];
 
-let filaPct= [9, 9, 9, 12,58];
+let filaPct= [ 10, 9, 12,66];
 
 let bounds=this.getBoundsHorizontal();
 return this.procesarLayoutPorcentual(bounds.width,bounds.height,pos,filaPct);
@@ -165,7 +165,7 @@ getBoundsVertical(){
 
 getLayoutVertical() {
   let pos= [
-        { id: "btnTitulo", top: 0, left: 10,  width: 120, height: 40 },
+    //    { id: "btnTitulo", top: 0, left: 10,  width: 120, height: 40 },
 
 
     // Fila 1: 3 botones (Height aumentado a 60)
@@ -181,21 +181,21 @@ getLayoutVertical() {
 
     // Fila 3: Encabezados (Empieza en 205: 130 + 60 + 15 de margen)
     { id: "lblTimeHead",     top: 205, left: 5,   width: 150, height: 30 },
-    { id: "lblHRHead",       top: 205, left: 165, width: 150, height: 30 },
+    { id: "lblWattsHead",       top: 205, left: 165, width: 150, height: 30 },
     { id: "lblWattsObjHead", top: 205, left: 325, width: 100, height: 30 },
 
     // Fila 4: Datos dinámicos (Justo debajo: 205 + 30 + 5 de margen interno)
     { id: "timeCell",     top: 240, left: 5,   width: 150, height: 30 },
-    { id: "hrValue",      top: 240, left: 165, width: 150, height: 30 },
+    { id: "wattsCell",      top: 240, left: 165, width: 150, height: 30 },
     { id: "wattsObjCell", top: 240, left: 325, width: 100, height: 30 },
 
     // Fila 5: Encabezados (Siguiente bloque: 240 + 30 + 15 de margen)
-    { id: "lblWattsHead",   top: 285, left: 5,   width: 150, height: 30 },
+    { id: "lblHRHead",   top: 285, left: 5,   width: 150, height: 30 },
     { id: "lblCadenceHead", top: 285, left: 165, width: 150, height: 30 },
     { id: "lblSpeedHead",   top: 285, left: 325, width: 100, height: 30 },
 
     // Fila 6: Datos dinámicos (285 + 30 + 5)
-    { id: "wattsCell",   top: 320, left: 5,   width: 150, height: 30 },
+    { id: "hrValue",   top: 320, left: 5,   width: 150, height: 30 },
     { id: "cadenceCell", top: 320, left: 165, width: 150, height: 30 },
     { id: "speedCell",   top: 320, left: 325, width: 150, height: 30 },
 
@@ -203,7 +203,7 @@ getLayoutVertical() {
     { id: "intervalDemo", top: 370, left: 5, width: 440, height: 450 }
   ];
 
-  let filaPct= [8, 8, 8, 8,10,8,10,40];
+  let filaPct= [ 10, 8, 7,10,7,10,48];
   let bounds=this.getBoundsVertical();
 return this.procesarLayoutPorcentual(bounds.width,bounds.height,pos,filaPct);
 
@@ -245,17 +245,17 @@ return this.procesarLayoutPorcentual(bounds.width,bounds.height,pos,filaPct);
 
   recibeMonitorHR(value) {
     this.validarEntreno();
-    this.getChildById("hrValue").actualizarTexto(value+" Bpm")
+    this.getChildById("hrValue").actualizarTexto(value)
    } 
 
 recibePotencia(value) {
    this.validarEntreno();
    this.rodillo=true;
-   this.getChildById("wattsCell").actualizarTexto(value + " W");
+   this.getChildById("wattsCell").actualizarTexto(value + "W");
   }
 
   recibeVelocidad(value) {
-    this.getChildById("speedCell").actualizarTexto(value + " km/h");
+    this.getChildById("speedCell").actualizarTexto(value );
   }
 
   recibeCadencia(value) {
