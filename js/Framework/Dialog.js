@@ -15,7 +15,7 @@ class Dialog extends Window {
   div.style.top = this.top + "px";
   div.style.left = this.left + "px";
 
-  div.style.border = "2px solid #007bff";
+  //div.style.border = "2px solid #007bff";
   
   document.getElementById("app").appendChild(div);
 
