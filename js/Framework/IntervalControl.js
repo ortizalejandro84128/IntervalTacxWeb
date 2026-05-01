@@ -85,7 +85,7 @@ render() {
     // 1. Título y Contenedor Superior
     var titleContainer = document.createElement("div");
     titleContainer.className = "fw-bold bg-primary text-white w-100 d-flex align-items-center justify-content-between";
-    titleContainer.style.fontSize = (this.width / 35) + "px";
+    titleContainer.style.fontSize = (this.width / 40) + "px";
     titleContainer.style.padding = "4px 10px"; 
     
     
@@ -122,7 +122,7 @@ render() {
 
     var labelFtp = document.createElement("span");
     labelFtp.className = "text-white fw-bold px-2";
-    labelFtp.style.fontSize = (this.width / 40) + "px";
+    labelFtp.style.fontSize = (this.width / 50) + "px";
     labelFtp.textContent = "FTP: " + this.ftp;
 
     var btnPlus = document.createElement("button");
