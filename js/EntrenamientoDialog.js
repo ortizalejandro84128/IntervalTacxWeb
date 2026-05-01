@@ -46,8 +46,6 @@ class EntrenamientoDialog extends Dialog {
 
 
 crearControles() {
-  // Título
-  this.addChildLabel({ id: "lblTitulo", texto: "Entrenmiento TACX", fontSize: "32px", fontWeight: "bold", color: "var(--bs-body-color)" });
 
   // Botones
   this.addChildBoton({ id: "btnRodillo", texto: "Tacx", fn: this.conectarRodillo.bind(this) });
@@ -112,8 +110,6 @@ getLayoutHorizontal(){
 
 
 let pos= [
-  // Fila 0: Encabezado/Título (centrado)
-  { id: "lblTitulo", top: 10, left: 10, width: 600, height: 30 },
 
   // Fila 1: Botones (todos al mismo top = 60)
   { id: "btnRodillo", top: 60, left: 10,  width: 120, height: 40 },
@@ -141,7 +137,7 @@ let pos= [
   { id: "speedCell",    top: 140, left: 560, width: 100,  height: 30 },
 
   // Fila 4: Timeline ocupa todo el ancho y el mayor espacio posible
-  { id: "intervalDemo", top: 175, left: 10, width: 630, height: 280 }
+  { id: "intervalDemo", top: 175, left: 10, width: 630, height: 360 }
 ];
 
 let bounds=this.getBoundsHorizontal();
@@ -157,8 +153,6 @@ getBoundsVertical(){
 
 getLayoutVertical() {
   let pos= [
-    // Fila 0: Encabezado/Título (Sin cambios)
-    { id: "lblTitulo", top: 10, left: 5, width: 400, height: 30 },
 
     // Fila 1: 3 botones (Height aumentado a 60)
     { id: "btnRodillo", top: 60, left: 5,   width: 159, height: 60 },
@@ -192,7 +186,7 @@ getLayoutVertical() {
     { id: "speedCell",   top: 320, left: 325, width: 150, height: 30 },
 
     // Fila 7: Timeline (Debajo de todo: 320 + 30 + 20 de margen para destacar el gráfico)
-    { id: "intervalDemo", top: 370, left: 5, width: 440, height: 350 }
+    { id: "intervalDemo", top: 370, left: 5, width: 440, height: 450 }
   ];
 
   let bounds=this.getBoundsVertical();

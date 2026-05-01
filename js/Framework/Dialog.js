@@ -14,7 +14,15 @@ class Dialog extends Window {
   div.style.height = this.height + "px";
   div.style.top = this.top + "px";
   div.style.left = this.left + "px";
+
+  // Añadir borde: 2px, sólido y color azul (por ejemplo)
+  div.style.border = "2px solid #007bff";
+  
+  // Opcional: Redondear las esquinas
+  div.style.borderRadius = "5px";
   document.getElementById("app").appendChild(div);
+
+
   this.elemento = div;
 
   window.addEventListener("resize", this.resize.bind(this));
@@ -244,7 +252,7 @@ clearTimeout(this.resizeTimeout);
     if (!arregloHijos || arregloHijos.length === 0) return [];
 
     const margenLateral = 10;
-    const margenInterno = 5;
+    const margenInterno = 6;
 
     // 1. Agrupar por Coordenadas Exactas (Gemelos: misma X y misma Y)
     const gruposPosicion = new Map();
