@@ -104,4 +104,6 @@ class DialogModal extends Window {
     this.backdrop.style.display = "none";
     this.elemento.style.display = "none";
   }
+
+  
 }

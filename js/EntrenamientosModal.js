@@ -1,154 +1,139 @@
 class EntrenamientosModal extends DialogModal {
   constructor(mainApp, tipoInicial, fnCerrar) {
-    super({ id: "entrenamientosDialogModal", width: 900, height: 900, titulo: "Seleccionar Entrenamiento" });
+    // Dimensiones base 600x900
+    super({ id: "entrenamientosDialogModal", width: 600, height: 900, titulo: "Seleccionar Entrenamiento" });
     this.mainApp = mainApp;
     this.fnCerrar = fnCerrar;
     
-    // Mapeo de generadores
     this.generadores = {
-      "VO2": new Vo2Generator(this.nivel),
-      "Umbral": new UmbralGenerator(this.nivel),
-      "Sat": new WeekendGenerator(this.nivel)
+      "VO2": new Vo2Generator(this.getNivel()),
+      "Umbral": new UmbralGenerator(this.getNivel()),
+      "Sat": new WeekendGenerator(this.getNivel())
     };
 
-    // Estado inicial
     this.tipoSeleccionado = tipoInicial || "VO2";
     this.generator = this.generadores[this.tipoSeleccionado];
-    
-    // Contenedor para las tarjetas (para poder limpiarlo fácilmente)
     this.gridContainer = []; 
 
     this.crearInterfaz();
   }
 
-
-  getNivel(){
-     let ftp =  localStorage.getItem("user_ftp") || 180;
-     let nivel=10;
-      if(ftp>=180){
-          nivel=NivelUtil.calcularFactorNivel(72,ftp);
-      }else{
-          nivel=NivelUtil.calcularFactorNivel(55,ftp);
-      }
-    //  console.log("Nivel:"+nivel);
-     return nivel;
+  getNivel() {
+    let ftp = localStorage.getItem("user_ftp") || 180;
+    let base = ftp >= 180 ? 72 : 55;
+    return NivelUtil.calcularFactorNivel(base, ftp);
   }
+
   crearInterfaz() {
-    // 1. Crear Botones de Selección de Tipo (Tabs)
+    const anchoModal = 600;
+    const anchoComponente = anchoModal * 0.85; // 510px
+    const margenIzquierdo = (anchoModal - anchoComponente) / 2; // Centrado (45px)
+
+    // 0. Botón de Cerrar (X) en la esquina superior derecha
+    const btnCerrarX = new Boton({
+      id: "btnCerrarModal",
+      top: 10,
+      left: anchoModal - 80,
+      width: 35,
+      height: 35,
+      texto: "X",
+      fn: () => this.cerrar()
+    });
+    this.agregarHijo(btnCerrarX);
+
+    // 1. Tabs de Selección (Centrados proporcionalmente)
     const tipos = ["VO2", "Umbral", "Sat"];
+    const anchoTab = anchoComponente / tipos.length;
+    
     tipos.forEach((tipo, index) => {
       const btnTab = new Boton({
         id: `btnTab_${tipo}`,
-        top: 10,
-        left: 20 + (index * 110),
-        width: 100,
-        height: 35,
+        top: 55,
+        left: margenIzquierdo + (index * anchoTab),
+        width: anchoTab - 5,
+        height: 40,
         texto: tipo,
         fn: () => this.cambiarTipo(tipo)
       });
       this.agregarHijo(btnTab);
     });
 
-    // 2. Renderizar el primer set de entrenamientos
     this.renderGrid();
-
   }
 
-  cambiarTipo(nuevoTipo) {
+  renderGrid() {
+    const anchoModal = 600;
+    const anchoCard = anchoModal * 0.85; 
+    const x = (anchoModal - anchoCard) / 2;
     
-    this.tipoSeleccionado = nuevoTipo;
-    this.generator = this.generadores[nuevoTipo];
-    
-    this.refresh();
-  }
-
-
-    refresh() {
-      this.title.innerText = this.texto+"- Nivel: "+this.getNivel();
-      // Limpiar componentes anteriores del grid
-      this.limpiarGrid();
-      // Dibujar nuevos
-      this.renderGrid();
-    }
-
-
-  
-  limpiarGrid() {
-    // Eliminamos del DOM y del array de hijos los elementos previos
-    this.gridContainer.forEach(componente => {
-      if (componente.elemento && componente.elemento.parentNode) {
-        componente.elemento.parentNode.removeChild(componente.elemento);
-      }
-      // Filtramos el array de hijos del DialogModal para quitar el componente
-      this.hijos = this.hijos.filter(h => h !== componente);
-    });
-    this.gridContainer = [];
-  }
-
- renderGrid() {
-    const margin = 50; // Aumentado para centrar mejor el bloque de 2 columnas
-    const offsetTop = 60; 
-    const cardWidth = 380;  // Más ancho al haber solo 2 columnas
-    const cardHeight = 200; // Un poco más bajo para que quepan 3 filas cómodamente
-    const gapX = 40;        // Espacio horizontal entre columnas
-    const gapY = 20;        // Espacio vertical entre filas
-    
+    const offsetTop = 110; 
+    const cardHeight = 220; // Altura para una columna cómoda
+    const gapY = 20;
     
     for (let i = 1; i <= 6; i++) {
       const wk = this.generator.generate(i, this.getNivel());
-    //console.log(JSON.stringify(wk));  
-      // Lógica para 2 columnas:
-      // i=1 -> col 0, fila 0 | i=2 -> col 1, fila 0
-      // i=3 -> col 0, fila 1 | i=4 -> col 1, fila 1
-      // i=5 -> col 0, fila 2 | i=6 -> col 1, fila 2
-      const col = (i - 1) % 2; 
-      const fila = Math.floor((i - 1) / 2);
-      
-      const x = margin + (col * (cardWidth + gapX));
-      const y = offsetTop + (fila * (cardHeight + gapY));
+      const tss = TSSCalculator.calcularDesdeSegmentos(wk.segments);
+      const y = offsetTop + ((i - 1) * (cardHeight + gapY));
 
       // Título
       const lblTitulo = new Label({
         id: `lblWk_${i}`,
-        top: y + 5, left: x + 10, width: cardWidth - 20, height: 25,
-        texto: wk.workoutName, fontSize: 13, bold: true
+        top: y + 10, left: x + 15, width: anchoCard - 30, height: 25,
+        texto: wk.workoutName, fontSize: 15, bold: true
       });
 
-      // Info
+      // Info Duración y TSS
       const lblInfo = new Label({
         id: `lblInfo_${i}`,
-        top: y + 40, left: x + 10, width: cardWidth - 20, height: 20,
-        texto: `Duración: ${wk.totalDuration} min | Int: ${wk.intensity}%`,
-        fontSize: 11
+        top: y + 40, left: x + 15, width: anchoCard - 30, height: 20,
+        texto: `Duración: ${wk.totalDuration} min | TSS Estimado: ${tss}`,
+        fontSize: 12
       });
 
-      // Miniatura de Barras (ajustada en altura para el nuevo diseño)
+      // Gráfica de entrenamiento (WorkoutMini)
       const timelineControl = new WorkoutMini({
         id: `mini_${i}`,
-        top: y + 60, left: x + 10, width: cardWidth - 20, height: 80,
+        top: y + 65, left: x + 15, width: anchoCard - 30, height: 90,
         workout: wk,
       });
 
-      const tss= TSSCalculator.calcularDesdeSegmentos(wk.segments)// Botón de Selección
+      // Botón de Selección
       const btnSeleccionar = new Boton({
         id: `btnSel_${i}`,
-        top: y + 145, left: x + 10, width: cardWidth - 20, height: 35,
-        texto: "W" + i+" - Tss: "+tss,
+        top: y + 165, left: x + (anchoCard * 0.1), width: anchoCard * 0.8, height: 40,
+        texto: "" + i+" Tss:"+tss,
         fn: () => {
-          if (this.fnCerrar) {
-            this.fnCerrar("file", wk);
-          }
+          if (this.fnCerrar) this.fnCerrar("file", wk);
           this.cerrar();
         }
       });
 
-      // Registro de componentes
       const comps = [lblTitulo, lblInfo, timelineControl, btnSeleccionar];
       comps.forEach(c => {
         this.agregarHijo(c);
         this.gridContainer.push(c);
       });
     }
-}
+  }
 
+  cambiarTipo(nuevoTipo) {
+    this.tipoSeleccionado = nuevoTipo;
+    this.generator = this.generadores[nuevoTipo];
+    this.refresh();
+  }
+
+  refresh() {
+    this.limpiarGrid();
+    this.renderGrid();
+  }
+
+  limpiarGrid() {
+    this.gridContainer.forEach(componente => {
+      if (componente.elemento && componente.elemento.parentNode) {
+        componente.elemento.parentNode.removeChild(componente.elemento);
+      }
+      this.hijos = this.hijos.filter(h => h !== componente);
+    });
+    this.gridContainer = [];
+  }
 }
