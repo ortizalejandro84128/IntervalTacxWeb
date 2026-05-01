@@ -25,6 +25,8 @@ class IntervalControl extends Window {
     this.elemento.style.width = width + "px";
     this.elemento.style.height = height + "px";
 
+    this.fontSize=50;
+
     this.setIntervalsFromWorkout(workout, this.ftp);
   }
 
@@ -85,7 +87,7 @@ render() {
     // 1. Título y Contenedor Superior
     var titleContainer = document.createElement("div");
     titleContainer.className = "fw-bold bg-primary text-white w-100 d-flex align-items-center justify-content-between";
-    titleContainer.style.fontSize = (this.width / 40) + "px";
+    titleContainer.style.fontSize = this.fontSize + "px";
     titleContainer.style.padding = "4px 10px"; 
     
     
@@ -99,7 +101,7 @@ render() {
     
     var overlayControls = document.createElement("div");
     overlayControls.className = "d-flex align-items-center bg-dark rounded shadow-sm overflow-hidden";
-    overlayControls.style.height = "40px";
+    overlayControls.style.height = this.fontSize +"px";
     overlayControls.style.zIndex = "20";
     
     if (this.actividadIniciada) {
@@ -122,8 +124,8 @@ render() {
 
     var labelFtp = document.createElement("span");
     labelFtp.className = "text-white fw-bold px-2";
-    labelFtp.style.fontSize = (this.width / 50) + "px";
-    labelFtp.textContent = "FTP: " + this.ftp;
+    labelFtp.style.fontSize = this.fontSize*.8+ "px";
+    labelFtp.textContent = "Ftp:" + this.ftp;
 
     var btnPlus = document.createElement("button");
     btnPlus.textContent = "+";

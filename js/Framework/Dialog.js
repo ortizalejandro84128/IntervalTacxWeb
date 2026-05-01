@@ -181,8 +181,10 @@ escalarLayout(layout, factor) {
 }
 
 aplicarLayout(layout) {
+
+ // console.table(layout);
   for (const item of layout) {
-      this.setBounds(item.id, item.top, item.left, item.width, item.height);
+      this.setBounds(item.id, item.top, item.left, item.width, item.height, item.fontSize);
   }
 }
 
@@ -197,7 +199,7 @@ clearTimeout(this.resizeTimeout);
       }
 
 
-  setBounds(id, top, left, width, height) {
+  setBounds(id, top, left, width, height, fontSize) {
   const ctrl = this.getChildById(id);
   if (!ctrl) return;
   // Guardar coordenadas en el objeto
@@ -212,9 +214,11 @@ clearTimeout(this.resizeTimeout);
     ctrl.elemento.style.left = left + "px";
     ctrl.elemento.style.width = width + "px";
     ctrl.elemento.style.height = height + "px";
+    ctrl.elemento.style.fontSize=fontSize+"px";
   }
 
   if (ctrl instanceof IntervalControl){
+    ctrl.fontSize= fontSize/10;
     //console.log("render de interval control");
     ctrl.render();
   }
@@ -336,7 +340,7 @@ procesarLayoutEquitativo(anchoContenedor, altoContenedor, arregloHijos, toleranc
  * @param {Array<number>} porcentajesFilas - Ej: [10, 20, 20, 50] (debe sumar 100)
  * @param {number} toleranciaVertical
  */
-procesarLayoutPorcentual(anchoContenedor, altoContenedor, arregloHijos, porcentajesFilas, toleranciaVertical = 15) {
+/*procesarLayoutPorcentual(anchoContenedor, altoContenedor, arregloHijos, porcentajesFilas, toleranciaVertical = 15) {
     if (!arregloHijos || arregloHijos.length === 0) return [];
 
     const margenLateral = 10;
@@ -402,6 +406,89 @@ procesarLayoutPorcentual(anchoContenedor, altoContenedor, arregloHijos, porcenta
                 h.width = anchoConAjuste;
                 h.top = currentY;
                 h.height = altoFilaEfectivo; // El alto ahora es proporcional
+                resultadoFinal.push(h);
+            });
+        });
+
+        currentY += altoFilaEfectivo + margenInterno;
+    });
+
+    return resultadoFinal;
+}*/
+
+/**
+ * Procesa un layout distribuyendo el alto de las filas por porcentajes
+ * y asigna un fontSize dinámico basado en el alto resultante.
+ */
+procesarLayoutPorcentual(anchoContenedor, altoContenedor, arregloHijos, porcentajesFilas, toleranciaVertical = 15) {
+    if (!arregloHijos || arregloHijos.length === 0) return [];
+
+    const margenLateral = 10;
+    const margenInterno = 6;
+
+    // 1. Agrupar Gemelos y Filas
+    const gruposPosicion = new Map();
+    arregloHijos.forEach(h => {
+        const key = `${Math.round(h.top)}|${Math.round(h.left)}`;
+        if (!gruposPosicion.has(key)) gruposPosicion.set(key, []);
+        gruposPosicion.get(key).push({ ...h });
+    });
+
+    const representantes = [];
+    gruposPosicion.forEach(gemelos => representantes.push({ principal: gemelos[0], todos: gemelos }));
+    representantes.sort((a, b) => a.principal.top - b.principal.top);
+
+    let filas = [];
+    representantes.forEach(rep => {
+        const hTop = rep.principal.top;
+        let filaEncontrada = filas.find(f => Math.abs(f.top - hTop) <= toleranciaVertical);
+        if (filaEncontrada) {
+            filaEncontrada.items.push(rep);
+        } else {
+            filas.push({ top: hTop, items: [rep] });
+        }
+    });
+
+    // 2. Cálculo de Espacio Vertical Disponible
+    const totalMargenesVerticales = margenInterno * (filas.length + 1);
+    const altoUtilVertical = altoContenedor - totalMargenesVerticales;
+
+    // 3. Generar Layout
+    const resultadoFinal = [];
+    let currentY = margenInterno;
+
+    filas.forEach((fila, idxFila) => {
+        const porc = porcentajesFilas[idxFila] || 0;
+        const altoFilaEfectivo = Math.floor((altoUtilVertical * porc) / 100);
+
+        const nElem = fila.items.length;
+        fila.items.sort((a, b) => a.principal.left - b.principal.left);
+
+        const huecosHorizontales = (margenLateral * 2) + (margenInterno * (nElem - 1));
+        const anchoUtilHoriz = anchoContenedor - huecosHorizontales;
+        
+        const anchoIndividual = Math.floor(anchoUtilHoriz / nElem);
+        const residuoHoriz = anchoUtilHoriz % nElem;
+
+        fila.items.forEach((rep, idxItem) => {
+            const ajusteResiduo = (idxItem < residuoHoriz) ? 1 : 0;
+            const anchoConAjuste = anchoIndividual + ajusteResiduo;
+            
+            const previoX = fila.items.slice(0, idxItem).reduce((acc, curr, i) => {
+                const adj = (i < residuoHoriz) ? 1 : 0;
+                return acc + anchoIndividual + adj + margenInterno;
+            }, margenLateral);
+
+            rep.todos.forEach(h => {
+                h.left = previoX;
+                h.width = anchoConAjuste;
+                h.top = currentY;
+                h.height = altoFilaEfectivo; 
+                
+                // --- NUEVA LÓGICA DE FONT SIZE ---
+                // Calculamos el 50% del alto asignado a la fila
+                h.fontSize = Math.floor(altoFilaEfectivo * 0.5); 
+                
                 resultadoFinal.push(h);
             });
         });
