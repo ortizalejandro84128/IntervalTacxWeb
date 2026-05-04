@@ -36,7 +36,7 @@ class EntrenamientoDialog extends Dialog {
 
 
     this.heartRateMonitor=new HeartRateMonitor(this, this.recibeMonitorHR.bind(this));
-    this.trainer = new TacxTrainer(this); 
+    this.trainer = new TacxTrainer(this, testMode); 
 
     this.temporizador = new Temporizador();
     this.temporizador.init();

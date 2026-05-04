@@ -1,10 +1,11 @@
-class TacxTrainer {
-  constructor(owner) {
+/*class TacxTrainer {
+  constructor(owner, testMode) {
     this.device = null;
     this.server = null;
     this.rxChar = null;
     this.txChar = null;
     this.owner = owner; // referencia al DialogPotencia
+    this.testMode=testMode;
 
     this.tacx_uart_rx_id = '6e40fec3-b5a3-f393-e0a9-e50e24dcca9e';
     this.tacx_uart_tx_id = '6e40fec2-b5a3-f393-e0a9-e50e24dcca9e';
@@ -22,6 +23,7 @@ class TacxTrainer {
   }
 
   async connect() {
+    if(!this.testMode){
     console.log("Conexión", "Intentando conexión al rodillo...");
     this.device = await navigator.bluetooth.requestDevice({
       filters: [{ services: [
@@ -56,6 +58,7 @@ class TacxTrainer {
     cpMeasurement.addEventListener('characteristicvaluechanged', e => this._handleCP(e));
 
     console.log("Conexión", "Rodillo conectado");
+  }
   }
 
   async disconnect() {
@@ -120,6 +123,7 @@ class TacxTrainer {
   }
 
   async setTargetPower(power) {
+    if(!this.testMode){
     let write_value = new Uint8Array([0xA4,0x09,0x4F,0x05,0x31,0xFF,0xFF,0xFF,0xFF,0xFF]);
     let targetBytes = Math.floor(power/0.25);
     write_value = Uint8Array.from([...write_value, targetBytes & 0xFF, (targetBytes >> 8) & 0xFF]);
@@ -129,11 +133,8 @@ class TacxTrainer {
     const bytes = Array.from(write_value).map(b=>b.toString(16).padStart(2,"0")).join(" ");
     console.log("Target Power", `Enviado: ${power} W | Bytes: ${bytes}`);
 
-   /* if (!this.controlCharacteristic) {
-        // En lugar de un error, fallamos silenciosamente o avisamos de forma controlada
-        return; 
-    }*/
     await this.rxChar.writeValue(write_value);
+    }
   }
 
 
@@ -176,5 +177,204 @@ console.log("Respuesta FE-C", detail);
       if (v < 0) v = 0.1;
     }
     return v * 3.6;
+  }
+}*/
+
+class TacxTrainer {
+  constructor(owner, testMode) {
+    this.device = null;
+    this.server = null;
+    this.owner = owner; 
+    this.testMode = testMode;
+
+    // --- PROTOCOLOS DE CONTROL ---
+    this.tacx_service_id = '6e40fec1-b5a3-f393-e0a9-e50e24dcca9e';
+    this.tacx_uart_rx_id = '6e40fec3-b5a3-f393-e0a9-e50e24dcca9e';
+    this.tacx_uart_tx_id = '6e40fec2-b5a3-f393-e0a9-e50e24dcca9e';
+    this.ftms_service_id = '00001826-0000-1000-8000-00805f9b34fb';
+    this.ftms_cp_id = '00002ad9-0000-1000-8000-00805f9b34fb';
+    this.cp_service_id = '00001818-0000-1000-8000-00805f9b34fb';
+    this.cp_control_id = '00002a66-0000-1000-8000-00805f9b34fb';
+    this.csc_service_id = '00001816-0000-1000-8000-00805f9b34fb';
+
+    this.rxChar = null;         
+    this.ftmsControlChar = null; 
+    this.cpControlChar = null;   
+    
+    this.protocoloActivo = null; 
+    
+    // Estado de sensores para cadencia
+    this.lastCrankRevs = null;
+    this.lastCrankEvent = null;
+    this.userWeight = 85; // Peso ciclista + bici (ajustable)
+  }
+
+  async connect() {
+    if (this.testMode) return;
+    try {
+      this.device = await navigator.bluetooth.requestDevice({
+        filters: [{ services: [this.tacx_service_id, this.ftms_service_id, this.cp_service_id, this.csc_service_id] }]
+      });
+      this.server = await this.device.gatt.connect();
+      
+      await this._negotiateControlProtocol();
+      await this._connectDataSensors();
+
+      this._emit("showAlert", `Conectado via ${this.protocoloActivo}`);
+    } catch (error) {
+      console.error("BT Error", error);
+      this._emit("showAlert", "Error al conectar");
+    }
+  }
+
+  async _negotiateControlProtocol() {
+    try {
+      const tacxService = await this.server.getPrimaryService(this.tacx_service_id);
+      this.rxChar = await tacxService.getCharacteristic(this.tacx_uart_rx_id);
+      const txChar = await tacxService.getCharacteristic(this.tacx_uart_tx_id);
+      await txChar.startNotifications();
+      txChar.addEventListener('characteristicvaluechanged', e => this._handleFEC(e));
+      this.protocoloActivo = 'FEC';
+      return;
+    } catch (e) {}
+
+    try {
+      const ftmsService = await this.server.getPrimaryService(this.ftms_service_id);
+      this.ftmsControlChar = await ftmsService.getCharacteristic(this.ftms_cp_id);
+      await this.ftmsControlChar.startNotifications();
+      await this.ftmsControlChar.writeValue(new Uint8Array([0x00])); 
+      this.protocoloActivo = 'FTMS';
+      return;
+    } catch (e) {}
+
+    try {
+      const cpService = await this.server.getPrimaryService(this.cp_service_id);
+      this.cpControlChar = await cpService.getCharacteristic(this.cp_control_id);
+      this.protocoloActivo = 'CPS';
+      return;
+    } catch (e) {}
+
+    this.protocoloActivo = 'SOLO_LECTURA';
+  }
+
+  async _connectDataSensors() {
+    try {
+      const cpService = await this.server.getPrimaryService(this.cp_service_id);
+      const cpChar = await cpService.getCharacteristic('00002a63-0000-1000-8000-00805f9b34fb');
+      await cpChar.startNotifications();
+      cpChar.addEventListener('characteristicvaluechanged', e => this._handleCP(e));
+    } catch (e) {}
+
+    try {
+      const cscService = await this.server.getPrimaryService(this.csc_service_id);
+      const cscChar = await cscService.getCharacteristic('00002a5b-0000-1000-8000-00805f9b34fb');
+      await cscChar.startNotifications();
+      cscChar.addEventListener('characteristicvaluechanged', e => this._handleCSC(e));
+    } catch (e) {}
+  }
+
+  async setTargetPower(power) {
+    if (this.testMode || !this.protocoloActivo) return;
+    try {
+      const p = Math.max(0, Math.min(2000, power));
+      if (this.protocoloActivo === 'FEC') {
+        let header = [0xA4, 0x09, 0x4F, 0x05, 0x31, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF];
+        let target = Math.floor(p / 0.25);
+        let payload = Uint8Array.from([...header, target & 0xFF, (target >> 8) & 0xFF]);
+        let checksum = payload.slice(1).reduce((a, b) => a + b, 0) & 0xFF;
+        await this.rxChar.writeValue(Uint8Array.from([...payload, checksum]));
+      } else if (this.protocoloActivo === 'FTMS' || this.protocoloActivo === 'CPS') {
+        const data = new Uint8Array([0x05, p & 0xFF, (p >> 8) & 0xFF]);
+        const char = (this.protocoloActivo === 'FTMS') ? this.ftmsControlChar : this.cpControlChar;
+        await char.writeValue(data);
+      }
+    } catch (e) { console.warn("Error enviando potencia"); }
+  }
+
+  // --- HANDLERS DE DATOS ---
+
+  _handleCP(event) {
+    const data = new DataView(event.target.value.buffer);
+    const flags = data.getUint16(0, true);
+    const power = data.getInt16(2, true);
+    
+    // 1. Notificar Potencia
+    this.owner.recibePotencia(power);
+
+    // 2. CALCULAR VELOCIDAD SIEMPRE DESDE POTENCIA
+    this._updateVirtualSpeed(power);
+
+    // 3. Cadencia desde CP (si está disponible)
+    let offset = 4;
+    if (flags & 0x04) offset += 1;
+    if (flags & 0x10) offset += 2;
+    if (flags & 0x20) offset += 6;
+    if (flags & 0x40) {
+      this._processCrank(data.getUint16(offset, true), data.getUint16(offset + 2, true));
+    }
+  }
+
+  _handleFEC(event) {
+    const data = new Uint8Array(event.target.value.buffer);
+    if (data[0] !== 0xA4 || data[4] !== 25) return;
+    
+    const power = data[9] + ((data[10] & 0x0F) << 8);
+    if (power !== 4095) {
+        this.owner.recibePotencia(power);
+        this._updateVirtualSpeed(power); // VELOCIDAD DESDE POTENCIA
+    }
+    const cadence = data[6];
+    if (cadence !== 255) this.owner.recibeCadencia(cadence);
+  }
+
+  _handleCSC(event) {
+    const data = new DataView(event.target.value.buffer);
+    const flags = data.getUint8(0);
+    // Ignoramos Wheel Revs (velocidad de rueda real) por diseño
+    if (flags & 0x02) { 
+      let index = (flags & 0x01) ? 7 : 1;
+      this._processCrank(data.getUint16(index, true), data.getUint16(index + 2, true));
+    }
+  }
+
+  _updateVirtualSpeed(power) {
+    const speedKmh = this.estimateSpeed(power, this.userWeight);
+    this.owner.recibeVelocidad(speedKmh.toFixed(1));
+  }
+
+  _processCrank(revs, time) {
+    if (this.lastCrankRevs !== null) {
+      let deltaT = (time - this.lastCrankEvent + 65536) % 65536;
+      deltaT /= 1024;
+      if (deltaT > 0) {
+        const deltaR = (revs - this.lastCrankRevs + 65536) % 65536;
+        const rpm = (deltaR / deltaT) * 60;
+        if (rpm < 220) this.owner.recibeCadencia(rpm.toFixed(0));
+      }
+    }
+    this.lastCrankRevs = revs;
+    this.lastCrankEvent = time;
+  }
+
+  estimateSpeed(power, mass, cda = 0.33, crr = 0.004, rho = 1.225, g = 9.81) {
+    if (power < 5) return 0;
+    let v = 7; 
+    for (let i = 0; i < 8; i++) {
+      let f = (0.5 * rho * cda * v * v) + (crr * mass * g);
+      v = v - ((f * v) - power) / (3 * 0.5 * rho * cda * v * v + crr * mass * g);
+      if (v < 0.1) v = 0.1;
+    }
+    return v * 3.6;
+  }
+
+  _emit(type, value) {
+    if (this.owner && typeof this.owner[type] === "function") this.owner[type](value);
+  }
+
+  async disconnect() {
+    if (this.device && this.device.gatt.connected) {
+      await this.device.gatt.disconnect();
+      this._emit("showAlert", "Desconectado");
+    }
   }
 }
