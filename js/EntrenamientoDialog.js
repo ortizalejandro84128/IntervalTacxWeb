@@ -331,7 +331,6 @@ ajustarPotencia(rampa) {
 
   iniciActividad(){
 
-
     
     this.ajustarPotencia([60]);
 
@@ -348,6 +347,7 @@ ajustarPotencia(rampa) {
      this.getChildById("btnTCX").hide();
      this.getChildById("btnPausa").show();
      this.getChildById("btnDetener").show();
+     //TemporizadorRegresivo.playProfessionalBeep(3200, 0.8);
      this.notificationManager.show(ICONS.START, "¡Iniciando!");
   } 
 
@@ -368,6 +368,8 @@ ajustarPotencia(rampa) {
 
 cambiaSegmento(potInicial, potAnterior, ftp, potFinal, duracion, label) {
     // Generamos el segmento
+    
+    
     const nuevoSegmento = PowerUtils.generaSiguienteSegmento(        duracion,         potAnterior,         potInicial,         potFinal,         ftp,         this.cadenciaActual    );
     var labelB="";
     if(potInicial!=potFinal){
@@ -375,6 +377,7 @@ cambiaSegmento(potInicial, potAnterior, ftp, potFinal, duracion, label) {
     }else{
         labelB=duracion+"Min "+potInicial+"W"
     }
+    TemporizadorRegresivo.playProfessionalBeep(3200, 0.8);
     this.notificationManager.show(ICONS.NEXT, label+"<br><br>"+labelB);
     const nuevoArr = [...nuevoSegmento];
     this.potenciaActual = nuevoArr;
@@ -396,6 +399,10 @@ descargaTCXFile() {
 
 
    fnFinActividad() {
+    TemporizadorRegresivo.playProfessionalBeep(3200, 0.8);
+    this.notificationManager.show(ICONS.FINISH , 'Actividad Finalizada');
+
+
     this.ajustarPotencia([60]);
     this.simulador.detener();
 
