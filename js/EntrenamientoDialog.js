@@ -458,6 +458,7 @@ class SimuladorRodillo {
       this.app.recibePotencia(Math.round(this.currentPotencia));
       this.app.recibeVelocidad(this.currentVelocidad.toFixed(1));
       this.app.recibeCadencia(Math.round(this.currentCadencia));
+      this.app.recibeMonitorHR(Math.round(this.currentCadencia+10));
 
     }, 400);
   }

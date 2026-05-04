@@ -11,17 +11,9 @@ class Main {
   }
 
   inicializar() {
-//    const dialogA = new DialogA();
-//    const dialogB = new DialogB();
-//    const dialogC = new DialogC();
 
     const enrtenamientoDialog = new EntrenamientoDialog(this,this.simulador);
     this.dialogs["enrtenamientoDialog"]=enrtenamientoDialog;
-
-    const dialog = new EditaLayoutDialog(this,enrtenamientoDialog);
-    this.dialogs["dialog"]=dialog;
-  
-
 
     this.showDialog("enrtenamientoDialog");
 
