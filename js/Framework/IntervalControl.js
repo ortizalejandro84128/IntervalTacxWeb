@@ -92,7 +92,7 @@ render() {
     
     
     var titleText = document.createElement("span");
-    titleText.textContent = this.workout.workoutName + " - " + this.workout.dominantZone;
+    titleText.textContent = this.workout.workoutName 
     titleContainer.appendChild(titleText);
 
     // --- CONTROLES FTP ---

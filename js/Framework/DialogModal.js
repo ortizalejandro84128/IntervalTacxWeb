@@ -2,6 +2,7 @@ class DialogModal extends Window {
   constructor({ id, width = 500, height = 300, titulo }) {
     super({ id, top: 0, left: 0, width, height, texto: titulo });
     this.hijos = [];
+    this.scaleMax=1.8;
     this.crear();
   }
 
@@ -82,7 +83,7 @@ class DialogModal extends Window {
     const margen = 20;
     const sW = (window.innerWidth - margen) / this.width;
     const sH = (window.innerHeight - margen) / this.height;
-    return Math.min(1.5, sW, sH);
+    return Math.min(this.scaleMax, sW, sH);
   }
 
   applyScaleModal() {

@@ -1,5 +1,5 @@
 class EntrenamientoDialog extends Dialog {
-  constructor(mainApp) {
+  constructor(mainApp,testMode=false) {
     super({
       id: "entrenamientoDialog",
       width: 450,
@@ -8,19 +8,31 @@ class EntrenamientoDialog extends Dialog {
 
     });
 
+    this.testMode=testMode
     this.rodillo=false;
     this.currentHR=0;
     this.mainApp=mainApp;
    
     this.cadenciaActual=60;
     this.potenciaActual=[]; 
+    this.potObjetivo=50; 
     //this.ftp=180;
     
+    if(this.testMode){
+    this.workout = {
+    dominantZone: "Endurance",
+    segments: [[1, 50, 50], [1, 65, 65], [1, 105, 105]],
+    workoutName: "Entrenamiento Demo"
+    };
+
+    } else{
     this.workout = {
     dominantZone: "Endurance",
     segments: [[5, 50, 50], [15, 65, 65], [5, 105, 105]],
     workoutName: "Entrenamiento Demo"
   };
+
+    }
 
 
     this.heartRateMonitor=new HeartRateMonitor(this, this.recibeMonitorHR.bind(this));
@@ -30,17 +42,20 @@ class EntrenamientoDialog extends Dialog {
     this.temporizador.init();
     this.pause=true;
     this.entrenamiento=[];
+
+    if(this.testMode){
+    this.timerGrabacion = setInterval(this.procesaTick.bind(this), 50);
+    }else{
     this.timerGrabacion = setInterval(this.procesaTick.bind(this), 1000);
-    //this.contador=0;
+    }
     this.fechaBase= new Date();
     this.fechaIni= this.fechaBase.toISOString();
     this.simulador= new SimuladorRodillo(this);
 
     this.notificationManager= new NotificationManager();
-    //this.modal= new  UsuarioDialogModal(this, this.fnCerrarModal.bind(this));
-    this.modal= new  EntrenamientosModal(this, "Umbral",this.onCargaErg.bind(this));
+    
+    this.baseEntrenoModal= new  BaseEntrenoModal(this, "Umbral",this.onCargaErg.bind(this));
     this.crearControles();
-
   }
 
 
@@ -210,8 +225,11 @@ return this.procesarLayoutPorcentual(bounds.width,bounds.height,pos,filaPct);
 }
 
     onSeleccionaEntrenamiento() {
-      this.modal.refresh(); 
-      this.modal.mostrar();
+      this.baseEntrenoModal.refresh(); 
+      this.baseEntrenoModal.mostrar();
+
+
+
   }
   
 
@@ -234,9 +252,12 @@ return this.procesarLayoutPorcentual(bounds.width,bounds.height,pos,filaPct);
 
 
   conectarRodillo() {
+   if (this.testMode){
+      this.simulador.iniciar()
+   }else{
+      this.trainer.connect();
+   }
    
-    // this.simulador.iniciar()
-   this.trainer.connect();
   }
 
   conectaMonitorHR() {
@@ -251,7 +272,7 @@ return this.procesarLayoutPorcentual(bounds.width,bounds.height,pos,filaPct);
 recibePotencia(value) {
    this.validarEntreno();
    this.rodillo=true;
-   this.getChildById("wattsCell").actualizarTexto(value + "W");
+   this.getChildById("wattsCell").actualizarTexto(value + "w");
   }
 
   recibeVelocidad(value) {
@@ -272,7 +293,8 @@ ajustarPotencia(rampa) {
 
     if (vatios > 0) {
         this.trainer.setTargetPower(vatios);
-        this.getChildById("wattsObjCell").actualizarTexto(vatios+" W")
+        this.getChildById("wattsObjCell").actualizarTexto(vatios+"w")
+        this.potObjetivo=vatios;
     } 
 }
 
@@ -365,8 +387,12 @@ descargaTCXFile() {
 
    fnFinActividad() {
     this.ajustarPotencia([60]);
+    this.simulador.detener();
 
-    this.showAlert("Actividad finalizada  duracion :" +this.temporizador.getTimeTemporizador());
+//    this.showAlert("Actividad finalizada  duracion :" +this.temporizador.getTimeTemporizador());
+    this.resumenModal=new ResumenEntrenamientoModal(this,this.timelineControl.workout,this.entrenamiento);
+    this.resumenModal.mostrar();
+
     this.timelineControl.setEstatusActividad(false); 
     this.pause=true;
     this.getChildById("btnPausa").hide();
@@ -414,7 +440,7 @@ class SimuladorRodillo {
 
       // 2. Aplicamos la fórmula de suavizado: 
       // ValorActual = ValorActual + (Target - ValorActual) * Factor
-      this.currentPotencia += (targetPotencia - this.currentPotencia) * this.smoothFactor;
+      this.currentPotencia += (this.app.potObjetivo+30 - this.currentPotencia) * this.smoothFactor;
       this.currentVelocidad += (targetVelocidad - this.currentVelocidad) * this.smoothFactor;
       this.currentCadencia += (targetCadencia - this.currentCadencia) * this.smoothFactor;
 

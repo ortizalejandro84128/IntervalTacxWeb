@@ -1,10 +1,11 @@
 class Boton extends Window {
-  constructor({id, top, left, width, height, texto = "", fn, color = "primary", iconoSVG = null}) {
+  constructor({id, top, left, width, height, texto = "", fn, color = "primary", iconoSVG = null, fontSize}) {
     super({id, top, left, width, height, texto});
     this.fn = fn;
     this.color = color; 
     this.iconoSVG = iconoSVG; // nuevo parámetro para SVG
     this.crear();
+    this.fontSize=fontSize||30;
   }
 
   crear() {
@@ -17,7 +18,7 @@ class Boton extends Window {
     btn.style.height = this.height + "px";
 
     // Estilos base
-    btn.style.fontSize = "30px";
+    btn.style.fontSize = this.fontSize+"px";
     btn.style.fontWeight = "bold"; 
     btn.style.display = "flex";
     btn.style.alignItems = "center";

@@ -14,6 +14,7 @@ const scripts = [
   'js/Framework/WorkoutMini.js',
   'js/Framework/ImagesSvgRepo.js',
   'js/Util/ZonaUtils.js',
+  'js/Util/TelemetriaStats',
   'js/Util/Temporizador.js',
   'js/Util/TcxExport.js',
   'js/Util/AppGuard.js',
@@ -28,8 +29,9 @@ const scripts = [
   'js/UsuarioDialog.js',
   'js/UsuarioDialogModal.js',
   'js/EntrenamientoDialog.js',
-  'js/EntrenamientosModal.js',
+  'js/BaseEntrenoModal.js',
   'js/EditaLayoutDialog.js',
+  'js/ResumenEntrenamientoModal.js',
   'js/Main.js'
 
 ];

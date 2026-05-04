@@ -14,7 +14,7 @@ class Main {
 //    const dialogB = new DialogB();
 //    const dialogC = new DialogC();
 
-    const enrtenamientoDialog = new EntrenamientoDialog(this);
+    const enrtenamientoDialog = new EntrenamientoDialog(this,true);
     this.dialogs["enrtenamientoDialog"]=enrtenamientoDialog;
 
     const dialog = new EditaLayoutDialog(this,enrtenamientoDialog);

@@ -45,7 +45,11 @@ class Temporizador {
     const hours = Math.floor(totalMinutes / 60);
 
     const pad = (num, size = 2) => num.toString().padStart(size, "0");
+        if (hours>0){
+            return `${hours}:${pad(minutes)}:${pad(seconds)}`;
+        }else {
+            return `${pad(minutes)}:${pad(seconds)}`;
+        }
 
-    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
   }
 }
