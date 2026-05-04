@@ -38,6 +38,6 @@ const scripts = [
 ];
 
 scripts.forEach(src => {
-    console.log(src);
+    //console.log(src);
 document.write(`<script src="${src}"></script>`);
 });

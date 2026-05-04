@@ -44,7 +44,7 @@ class EntrenamientoDialog extends Dialog {
     this.entrenamiento=[];
 
     if(this.testMode){
-    this.timerGrabacion = setInterval(this.procesaTick.bind(this), 50);
+    this.timerGrabacion = setInterval(this.procesaTick.bind(this), 500);
     }else{
     this.timerGrabacion = setInterval(this.procesaTick.bind(this), 1000);
     }
@@ -376,7 +376,7 @@ cambiaSegmento(potInicial, potAnterior, ftp, potFinal, duracion, label) {
         labelB=duracion+"Min "+potInicial+"W"
     }
     this.notificationManager.show(ICONS.NEXT, label+"<br><br>"+labelB);
-    const nuevoArr = [0, 0, ...nuevoSegmento];
+    const nuevoArr = [...nuevoSegmento];
     this.potenciaActual = nuevoArr;
 }
 descargaTCXFile() {
