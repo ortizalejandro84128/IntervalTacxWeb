@@ -223,7 +223,7 @@ class TacxTrainer {
       this._emit("showAlert", `Conectado via ${this.protocoloActivo}`);
     } catch (error) {
       console.error("BT Error", error);
-      this._emit("showAlert", "Error al conectar");
+     // this._emit("showAlert", "Error al conectar");
     }
   }
 

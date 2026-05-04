@@ -31,7 +31,8 @@ class HeartRateMonitor {
       // document.getElementById("hrButton").disabled = true;
 
     } catch (err) {
-      document.getElementById('status').innerText = "Error HR: " + err;
+       console.error("BT Error", err);
+     // document.getElementById('status').innerText = "Error HR: " + err;
     }
   }
 
