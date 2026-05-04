@@ -1,8 +1,9 @@
 class Main {
-  constructor() {
+  constructor(simulador=false) {
     document.addEventListener("DOMContentLoaded", () => {
       this.dialogs={};
       this.dialogFocus=null;
+      this.simulador=simulador;
       this.inicializar();
       
     
@@ -14,7 +15,7 @@ class Main {
 //    const dialogB = new DialogB();
 //    const dialogC = new DialogC();
 
-    const enrtenamientoDialog = new EntrenamientoDialog(this,true);
+    const enrtenamientoDialog = new EntrenamientoDialog(this,this.simulador);
     this.dialogs["enrtenamientoDialog"]=enrtenamientoDialog;
 
     const dialog = new EditaLayoutDialog(this,enrtenamientoDialog);

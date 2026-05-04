@@ -1,5 +1,5 @@
 class EntrenamientoDialog extends Dialog {
-  constructor(mainApp,testMode=false) {
+  constructor(mainApp,testMode) {
     super({
       id: "entrenamientoDialog",
       width: 450,
@@ -309,20 +309,30 @@ ajustarPotencia(rampa) {
 
   detenerActividad(){
     this.ajustarPotencia([60]);
-    this.timelineControl.setEstatusActividad(false); 
     this.simulador.detener();
-    this.pause=true;
 
-     this.getChildById("btnPausa").hide();
-     this.getChildById("btnDetener").hide();
-     this.getChildById("btnTCX").show();
-     this.getChildById("ergFile").show();
-     this.getChildById("btnStart").show();
+//    this.showAlert("Actividad finalizada  duracion :" +this.temporizador.getTimeTemporizador());
+    this.resumenModal=new ResumenEntrenamientoModal(this,this.timelineControl.workout,this.entrenamiento);
+    this.resumenModal.mostrar();
+
+    this.timelineControl.setEstatusActividad(false); 
+    this.pause=true;
+    this.getChildById("btnPausa").hide();
+    this.getChildById("btnDetener").hide();
+    this.getChildById("ergFile").show();
+    this.getChildById("btnStart").show();
+    this.getChildById("btnTCX").show();
+
+
+
   } 
 
 
 
   iniciActividad(){
+
+
+    
     this.ajustarPotencia([60]);
 
     this.timelineControl.reset();
@@ -440,7 +450,7 @@ class SimuladorRodillo {
 
       // 2. Aplicamos la fórmula de suavizado: 
       // ValorActual = ValorActual + (Target - ValorActual) * Factor
-      this.currentPotencia += (this.app.potObjetivo+30 - this.currentPotencia) * this.smoothFactor;
+      this.currentPotencia += (this.app.potObjetivo - this.currentPotencia) * this.smoothFactor;
       this.currentVelocidad += (targetVelocidad - this.currentVelocidad) * this.smoothFactor;
       this.currentCadencia += (targetCadencia - this.currentCadencia) * this.smoothFactor;
 
