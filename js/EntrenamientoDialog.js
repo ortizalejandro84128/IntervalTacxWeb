@@ -63,7 +63,7 @@ class EntrenamientoDialog extends Dialog {
 crearControles() {
  //this.addChildBoton({ id: "btnTitulo", texto: "Simulador ERG, Con Rodillo TACX FLOW", color:"info" });
   // Botones
-  this.addChildBoton({ id: "btnRodillo", texto: "Tacx", fn: this.conectarRodillo.bind(this) });
+  this.addChildBoton({ id: "btnRodillo", texto: "Trainer", fn: this.conectarRodillo.bind(this) });
   this.addChildBoton({ id: "btnHR", texto: "HR", fn: this.conectaMonitorHR.bind(this) });
   this.addChildBoton({ id: "btnStart", color: "success", texto:"Iniciar", fn:this.iniciActividad.bind(this)});
   this.addChildBoton({ id: "btnPausa", color: "info", texto: "Pausa", fn:this.pauseActividad.bind(this)});
