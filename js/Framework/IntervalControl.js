@@ -10,6 +10,8 @@ class IntervalControl extends Window {
     this.fnIniciaSegmento = fnIniciaSegmento || null;
     this.fnFinActividad = fnFinActividad || null;
 
+    this.temporizador= new TemporizadorRegresivo();
+
     this.intervals = [];
     this.current = 0;
     this.elapsed = 0;
@@ -91,9 +93,9 @@ render() {
     titleContainer.style.padding = "4px 10px"; 
     
     
-    var titleText = document.createElement("span");
-    titleText.textContent = this.workout.workoutName 
-    titleContainer.appendChild(titleText);
+    this.titleText = document.createElement("span");
+    this.titleText.textContent = this.workout.workoutName;
+    titleContainer.appendChild(this.titleText);
 
     // --- CONTROLES FTP ---
     
@@ -280,6 +282,8 @@ render() {
   }
 
 tick() {
+  this.temporizador.tick();
+  this.titleText.textContent = this.temporizador.getTimeTemporizador();
   if (!this.intervals.length) return;
 
   if (this.current < this.intervals.length) {
@@ -299,6 +303,7 @@ tick() {
 
       // 3. Notificar a la app pasando la rampa en lugar de solo los watts
       if (this.fnIniciaSegmento) {
+        this.temporizador.init(interval.duration/this.factor)
         this.fnIniciaSegmento(interval.wattsIni, potAnterior,this.ftp, interval.wattsFin, interval.duration/this.factor, interval.label);
       }
     }      
