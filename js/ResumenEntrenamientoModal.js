@@ -39,7 +39,6 @@ class ResumenEntrenamientoModal extends DialogModal {
     const min = Math.floor(totalPuntos / 60);
     const seg = totalPuntos % 60;
 
-    // Cálculo de TSS: (seg * watts * IF) / (FTP * 3600) * 100
     const intensidad = avgWatts / this.ftp;
     const tss = Math.round(((totalPuntos * avgWatts * intensidad) / (this.ftp * 3600)) * 100);
 
@@ -56,17 +55,17 @@ class ResumenEntrenamientoModal extends DialogModal {
   crearInterfaz() {
     const x = 25;
     const anchoComp = 400;
-    let y = 60;
+    let y = 10;
 
-    // 1. Título y Tiempo Principal
+    // 1. Título principal (+2 -> 26px)
     this.agregarHijo(new Label({
       id: "lblResTitulo", top: y, left: x, width: anchoComp,
-      texto: this.workoutOriginal.workoutName, fontSize: 18, bold: true
+      texto: this.workoutOriginal.workoutName, fontSize: 26, bold: true, color: "#fff"
     }));
 
-    y += 45;
+    y += 60;
 
-    // 2. Grid de Estadísticas (Bootstrap Style)
+    // 2. Grid de Estadísticas (Labels 19px, Valores 20px)
     const metrics = [
       { l: "Tiempo:", v: this.stats.tiempo },
       { l: "TSS:", v: this.stats.tss },
@@ -76,73 +75,82 @@ class ResumenEntrenamientoModal extends DialogModal {
       { l: "Cadencia:", v: this.stats.avgCad + " rpm" }
     ];
 
+    const gridRowHeight = 55; 
     metrics.forEach((m, i) => {
       const col = i % 2;
       const row = Math.floor(i / 2);
-      const posX = x + (col * 205);
-      const posY = y + (row * 30);
+      const posX = x + (col * 210);
+      const posY = y + (row * gridRowHeight);
 
       this.agregarHijo(new Label({
-        id: `m_l_${i}`, top: posY, left: posX, width: 90, texto: m.l, fontSize: 13, color: "#999"
+        id: `m_l_${i}`, top: posY, left: posX, width: 110, texto: m.l, fontSize: 19, color: "#bbb"
       }));
       this.agregarHijo(new Label({
-        id: `m_v_${i}`, top: posY, left: posX + 85, width: 90, texto: m.v, fontSize: 13, bold: true
+        id: `m_v_${i}`, top: posY, left: posX + 105, width: 100, texto: m.v, fontSize: 20, bold: true, color: "#fff"
       }));
     });
 
-    y += 110;
+    y += (Math.ceil(metrics.length / 2) * gridRowHeight) + 10;
 
     // 3. Tabla de Tiempo en Zona (TiZ)
     this.agregarHijo(new Label({
-      id: "lblTizHeader", top: y, left: x, texto: "Tiempo en Zona (Distribución)", 
-      fontSize: 14, bold: true, color: "var(--bs-info)"
+      id: "lblTizHeader", top: y, left: x, texto: "Distribución de Potencia", 
+      fontSize: 21, bold: true, color: "var(--bs-info)"
     }));
 
-    y += 30;
+    y += 45;
 
-    // Encabezados Tabla
-    const headers = ["Z", "Descripción", "%", "Tiempo"];
-    const colWs = [35, 160, 65, 80];
+    // Encabezados Tabla (17px)
+    const headers = ["Z", "Zona", "%", "Tiempo"];
+    const colWs = [45, 155, 85, 105];
     let curX = x;
 
     headers.forEach((h, i) => {
       this.agregarHijo(new Label({
-        id: `th_${i}`, top: y, left: curX, width: colWs[i], texto: h, fontSize: 11, bold: true, color: "#777"
+        id: `th_${i}`, top: y, left: curX, width: colWs[i], texto: h, fontSize: 17, bold: true, color: "#999"
       }));
       curX += colWs[i];
     });
 
-    y += 25;
+    y += 40;
 
-    // Filas de Datos (ZonaUtils)
+    // Filas de Datos (18px)
     const filas = ZonaUtils.obtenerDatosTablaTIZ(this.telemetriaRaw, this.ftp);
+    const rowHeightTiz = 40; 
+
     filas.forEach((f, idx) => {
       let rX = x;
       const vals = [f.zona, f.nombre, f.porcentaje, f.tiempo];
       vals.forEach((v, cIdx) => {
         this.agregarHijo(new Label({
-          id: `tr_${idx}_${cIdx}`, top: y, left: rX, width: colWs[cIdx], texto: v, fontSize: 12
+          id: `tr_${idx}_${cIdx}`, 
+          top: y, 
+          left: rX, 
+          width: colWs[cIdx], 
+          texto: v, 
+          fontSize: 18, 
+          color: (cIdx === 1) ? "#ddd" : "#fff" 
         }));
         rX += colWs[cIdx];
       });
-      y += 24;
+      y += rowHeightTiz;
     });
 
-    y += 40;
+    y += 20;
 
     // 4. Botones de Acción
     this.agregarHijo(new Boton({
-      id: "btnExportTCX", top: y, left: x, width: anchoComp, height: 45,
-      texto: "Descargar .TCX (Strava)",
+      id: "btnExportTCX", top: y, left: x, width: anchoComp, height: 65,
+      texto: "Descargar .TCX para Strava",
       color: "success",
       fn: () => this.ejecutarDescarga()
     }));
 
-    y += 60;
+    y += 75;
 
     this.agregarHijo(new Boton({
-      id: "btnCerrarResumen", top: y, left: x + (anchoComp / 4), width: anchoComp / 2, height: 40,
-      texto: "Cerrar",
+      id: "btnCerrarResumen", top: y, left: x + (anchoComp / 4), width: anchoComp / 2, height: 55,
+      texto: "Finalizar",
       color: "secondary",
       fn: () => this.cerrar()
     }));

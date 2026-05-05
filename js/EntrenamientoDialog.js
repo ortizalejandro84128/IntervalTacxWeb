@@ -44,7 +44,7 @@ class EntrenamientoDialog extends Dialog {
     this.entrenamiento=[];
 
     if(this.testMode){
-    this.timerGrabacion = setInterval(this.procesaTick.bind(this), 500);
+    this.timerGrabacion = setInterval(this.procesaTick.bind(this), 50);
     }else{
     this.timerGrabacion = setInterval(this.procesaTick.bind(this), 1000);
     }
