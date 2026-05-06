@@ -2,50 +2,106 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Div Programático Bootstrap</title>
-    <!-- Importamos Bootstrap 5 desde CDN -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Debug Pantalla Android</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Eliminamos el scroll por defecto para que el margen no cause desbordamiento */
         body, html {
             margin: 0;
             padding: 0;
-            overflow: hidden; 
-            height: 100%;
+            overflow: hidden; /* Evita el scroll global */
             width: 100%;
+            height: 100%;
+            background-color: #212529;
+        }
+
+        /* Clase para los puntos de referencia absolutos */
+        .punto-absoluto {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            border: 2px solid white;
+            border-radius: 8px;
+            color: white;
+            pointer-events: none; /* No interfieren con clics */
         }
     </style>
 </head>
 <body>
 
 <script>
-    // 1. Crear el elemento DIV
-    const miDiv = document.createElement('div');
+    // Creamos el contenedor principal
+    const mainDiv = document.createElement('div');
+    mainDiv.className = 'bg-primary text-white d-flex flex-column align-items-center justify-content-center shadow-lg';
+    mainDiv.style.position = 'absolute';
+    mainDiv.style.transition = 'none'; // Sin retrasos en resize
+    document.body.appendChild(mainDiv);
 
-    // 2. Asignar clases de Bootstrap
-    // bg-primary (azul), d-flex y justify-content-center (centrar contenido)
-    miDiv.className = 'bg-primary text-white d-flex align-items-center justify-content-center shadow-lg';
-    miDiv.innerHTML = '<h1>Contenedor Dinámico</h1>';
+    // Creamos elementos para mostrar la info
+    const infoDisplay = document.createElement('div');
+    infoDisplay.className = 'text-center p-3';
+    infoDisplay.style.zIndex = "10";
+    mainDiv.appendChild(infoDisplay);
 
-    // 3. Función para ajustar el tamaño dinámicamente
-    function ajustarTamano() {
-        const margen = 10; // 10px en las 4 direcciones
-        
-        // Calculamos el ancho y alto restando el margen doble (izquierda+derecha / arriba+abajo)
-        miDiv.style.position = 'absolute';
-        miDiv.style.top = margen + 'px';
-        miDiv.style.left = margen + 'px';
-        miDiv.style.width = `calc(100vw - ${margen * 2}px)`;
-        miDiv.style.height = `calc(100vh - ${margen * 2}px)`;
+    // Función para crear "puntos de control" en las esquinas
+    function crearPuntos() {
+        const posiciones = [
+            { label: 'TOP-LEFT', top: '10px', left: '10px', bg: 'bg-danger' },
+            { label: 'TOP-RIGHT', top: '10px', right: '10px', bg: 'bg-success' },
+            { label: 'BOT-LEFT', bottom: '10px', left: '10px', bg: 'bg-warning' },
+            { label: 'BOT-RIGHT', bottom: '10px', right: '10px', bg: 'bg-info' }
+        ];
+
+        posiciones.forEach(pos => {
+            const p = document.createElement('div');
+            p.className = `punto-absoluto ${pos.bg}`;
+            p.innerText = pos.label;
+            if(pos.top) p.style.top = pos.top;
+            if(pos.bottom) p.style.bottom = pos.bottom;
+            if(pos.left) p.style.left = pos.left;
+            if(pos.right) p.style.right = pos.right;
+            mainDiv.appendChild(p);
+        });
     }
 
-    // 4. Ejecutar la función al cargar y al hacer resize
-    window.addEventListener('resize', ajustarTamano);
-    ajustarTamano();
+    function actualizar() {
+        const margen = 10;
+        
+        // Usamos window.innerHeight en lugar de 100vh para evitar el recorte en Android
+        const realWidth = window.innerWidth;
+        const realHeight = window.innerHeight;
+        const dpx = window.devicePixelRatio;
 
-    // 5. Insertar el div en el body
-    document.body.appendChild(miDiv);
+        // Asignar dimensiones restando márgenes
+        mainDiv.style.top = margen + 'px';
+        mainDiv.style.left = margen + 'px';
+        mainDiv.style.width = (realWidth - (margen * 2)) + 'px';
+        mainDiv.style.height = (realHeight - (margen * 2)) + 'px';
+
+        // Mostrar información técnica
+        infoDisplay.innerHTML = `
+            <h2 class="fw-bold">INFO DE PANTALLA</h2>
+            <hr>
+            <p class="fs-4">Ancho: <b>${realWidth}px</b></p>
+            <p class="fs-4">Alto: <b>${realHeight}px</b></p>
+            <p class="fs-4">DPX (Pixel Ratio): <b>${dpx.toFixed(2)}</b></p>
+            <p class="badge bg-dark">Margen: ${margen}px</p>
+        `;
+    }
+
+    // Inicializar
+    crearPuntos();
+    actualizar();
+
+    // Eventos
+    window.addEventListener('resize', actualizar);
+    // En móviles, a veces el resize no se dispara inmediatamente al ocultar la barra de URL
+    window.addEventListener('orientationchange', () => setTimeout(actualizar, 200));
 </script>
 
 </body>
