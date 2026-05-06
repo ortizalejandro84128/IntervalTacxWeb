@@ -126,11 +126,14 @@ ajustarPantalla() {
             });
 
             if (ctrl instanceof IntervalControl) {
-                ctrl.fontSize = item.fontSize / 10;
+                ctrl.fontSize = item.fontSize/7 ;
+                ctrl.width = item.width; // Actualizar dimensiones lógicas
+                ctrl.height = item.height;
                 ctrl.render();
             }
         });
     }
+
 
     seleccionarLayout() {
         const ratio = window.innerWidth / window.innerHeight;
@@ -156,83 +159,73 @@ ajustarPantalla() {
         });
     }
 
-    procesarLayoutPorcentual(anchoContenedor, altoContenedor, arregloHijos, porcentajesFilas, toleranciaVertical = 15) {
-        if (!arregloHijos || arregloHijos.length === 0) return [];
+   
 
-        // --- MEJORA: Márgenes adaptativos ---
-        const margenLateral = anchoContenedor < 400 ? 5 : 10;
-        const margenInterno = anchoContenedor < 400 ? 3 : 6;
+procesarLayoutPorcentual(width, height, pos, filaPct) {
+    if (!pos || pos.length === 0) return [];
 
-        const gruposPosicion = new Map();
-        arregloHijos.forEach(h => {
-            const key = `${Math.round(h.top)}|${Math.round(h.left)}`;
-            if (!gruposPosicion.has(key)) gruposPosicion.set(key, []);
-            gruposPosicion.get(key).push({ ...h });
-        });
+    const margenLateral = width < 400 ? 5 : 10;
+    const margenInterno = width < 400 ? 3 : 6;
 
-        const representantes = [];
-        gruposPosicion.forEach(gemelos => representantes.push({ principal: gemelos[0], todos: gemelos }));
-        representantes.sort((a, b) => a.principal.top - b.principal.top);
+    const totalMargenesVerticales = margenInterno * (filaPct.length + 1);
+    const altoUtilVertical = height - totalMargenesVerticales;
 
-        let filas = [];
-        representantes.forEach(rep => {
-            const hTop = rep.principal.top;
-            let filaEncontrada = filas.find(f => Math.abs(f.top - hTop) <= toleranciaVertical);
-            if (filaEncontrada) {
-                filaEncontrada.items.push(rep);
-            } else {
-                filas.push({ top: hTop, items: [rep] });
-            }
-        });
+    let resultadoFinal = [];
+    let currentY = margenInterno;
 
-        const totalMargenesVerticales = margenInterno * (filas.length + 1);
-        const altoUtilVertical = altoContenedor - totalMargenesVerticales;
+    filaPct.forEach((pct, indexFila) => {
+        const altoFilaEfectivo = Math.floor((altoUtilVertical * pct) / 100);
+        const elementosFila = pos.filter(item => item.fila === indexFila);
 
-        const resultadoFinal = [];
-        let currentY = margenInterno;
-
-        filas.forEach((fila, idxFila) => {
-            const porc = porcentajesFilas[idxFila] || 0;
-            const altoFilaEfectivo = Math.floor((altoUtilVertical * porc) / 100);
-
-            const nElem = fila.items.length;
-            fila.items.sort((a, b) => a.principal.left - b.principal.left);
-
-            const huecosHorizontales = (margenLateral * 2) + (margenInterno * (nElem - 1));
-            const anchoUtilHoriz = anchoContenedor - huecosHorizontales;
-            
-            const anchoIndividual = Math.floor(anchoUtilHoriz / nElem);
-            const residuoHoriz = anchoUtilHoriz % nElem;
-
-            fila.items.forEach((rep, idxItem) => {
-                const ajusteResiduo = (idxItem < residuoHoriz) ? 1 : 0;
-                const anchoConAjuste = anchoIndividual + ajusteResiduo;
-                
-                const previoX = fila.items.slice(0, idxItem).reduce((acc, curr, i) => {
-                    const adj = (i < residuoHoriz) ? 1 : 0;
-                    return acc + anchoIndividual + adj + margenInterno;
-                }, margenLateral);
-
-                rep.todos.forEach(h => {
-                    h.left = previoX;
-                    h.width = anchoConAjuste;
-                    h.top = currentY;
-                    h.height = altoFilaEfectivo; 
-                    
-                    // --- MEJORA: Font-Size Clamp ---
-                    // Evita que el texto desborde si el control es muy estrecho
-                    let sizeSugerido = Math.floor(altoFilaEfectivo * 0.5);
-                    const limitePorAncho = Math.floor(anchoConAjuste * 0.18);
-                    
-                    h.fontSize = Math.max(12, Math.min(sizeSugerido, limitePorAncho)); 
-                    
-                    resultadoFinal.push(h);
-                });
+        if (elementosFila.length > 0) {
+            // 1. Obtenemos los factores únicos por columna
+            const factoresColumnas = {};
+            elementosFila.forEach(item => {
+                factoresColumnas[item.col] = item.factor || 1;
             });
 
-            currentY += altoFilaEfectivo + margenInterno;
-        });
+            // 2. SUMA TOTAL DE FACTORES (El denominador de nuestra proporción)
+            const sumaFactoresTotal = Object.values(factoresColumnas).reduce((a, b) => a + b, 0);
+            
+            // 3. Espacio horizontal neto para repartir
+            const nColumnas = Object.keys(factoresColumnas).length;
+            const huecosHorizontales = (margenLateral * 2) + (margenInterno * (nColumnas - 1));
+            const anchoUtilHoriz = width - huecosHorizontales;
+            
+            // La "unidad de factor" en píxeles
+            const pxPorFactor = anchoUtilHoriz / sumaFactoresTotal;
 
-        return resultadoFinal;
-    }
+            elementosFila.forEach(item => {
+                // 4. Calcular X sumando el ancho proporcional de las columnas a la izquierda
+                let xOffset = margenLateral;
+                for (let c = 0; c < item.col; c++) {
+                    if (factoresColumnas[c] !== undefined) {
+                        xOffset += (factoresColumnas[c] * pxPorFactor) + margenInterno;
+                    }
+                }
+
+                // ANCHO PROPORCIONAL: (Mi Factor / Suma Total) * Ancho Util
+                const anchoFinal = Math.floor(pxPorFactor * (item.factor || 1));
+
+                // Font-Size Clamp basado en el nuevo ancho proporcional
+                let sizeSugerido = Math.floor(altoFilaEfectivo * 0.5);
+                const limitePorAncho = Math.floor(anchoFinal * 0.18);
+                const fontSize = Math.max(12, Math.min(sizeSugerido, limitePorAncho));
+
+                resultadoFinal.push({
+                    id: item.id,
+                    top: currentY,
+                    left: xOffset,
+                    width: anchoFinal,
+                    height: altoFilaEfectivo,
+                    fontSize: fontSize
+                });
+            });
+        }
+
+        currentY += altoFilaEfectivo + margenInterno;
+    });
+
+    return resultadoFinal;
+}
 }

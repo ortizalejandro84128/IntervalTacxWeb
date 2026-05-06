@@ -127,12 +127,12 @@ getBoundsHorizontal() {
         height: Math.max(window.innerHeight, minHeight) 
     };
 }
-getLayoutHorizontal(){
 
+/*
+getLayoutHorizontal(){
 
 let pos= [
 
-  
    // { id: "btnTitulo", top: 0, left: 10,  width: 120, height: 40 },
 
   // Fila 1: Botones (todos al mismo top = 60)
@@ -169,7 +169,47 @@ let filaPct= [ 10, 9, 12,66];
 let bounds=this.getBoundsHorizontal();
 return this.procesarLayoutPorcentual(bounds.width,bounds.height,pos,filaPct);
 
+}*/
+getLayoutHorizontal() {
+    let pos = [
+        // Fila 0: Botones de control y archivos
+        // Suma de factores: 1+1+1+1+0.8 = 4.8
+        { id: "btnRodillo", fila: 0, col: 0, factor: 1 },
+        { id: "btnHR",      fila: 0, col: 1, factor: 1 },
+        { id: "btnStart",   fila: 0, col: 2, factor: 1 }, // btnStart y btnPausa comparten celda
+        { id: "btnPausa",   fila: 0, col: 2, factor: 1 },
+        { id: "ergFile",    fila: 0, col: 3, factor: 1 }, // ergFile y btnDetener comparten celda
+        { id: "btnDetener", fila: 0, col: 3, factor: 1 },
+        { id: "btnTCX",     fila: 0, col: 4, factor: 0.8 }, 
 
+        // Fila 1: Encabezados (Labels)
+        // Todos tienen factor 1 para ser equidistantes
+        { id: "lblTimeHead",     fila: 1, col: 0, factor: 1 },
+        { id: "lblHRHead",       fila: 1, col: 1, factor: 1.5 },
+        { id: "lblWattsObjHead", fila: 1, col: 2, factor: 1 },
+        { id: "lblWattsHead",    fila: 1, col: 3, factor: 1.5 },
+        { id: "lblCadenceHead",  fila: 1, col: 4, factor: 1 },
+        { id: "lblSpeedHead",    fila: 1, col: 5, factor: 1 },
+
+        // Fila 2: Datos dinámicos (Valores)
+        { id: "timeCell",     fila: 2, col: 0, factor: 1 },
+        { id: "hrValue",      fila: 2, col: 1, factor: 1.5 },
+        { id: "wattsObjCell", fila: 2, col: 2, factor: 1 },
+        { id: "wattsCell",    fila: 2, col: 3, factor: 1.5 },
+        { id: "cadenceCell",  fila: 2, col: 4, factor: 1 },
+        { id: "speedCell",    fila: 2, col: 5, factor: 1 },
+
+        // Fila 3: El Timeline (Ocupa todo el ancho)
+        { id: "intervalDemo", fila: 3, col: 0, factor: 1 }
+    ];
+
+    // Mantengo tus porcentajes de altura originales
+    let filaPct = [10, 9, 12, 66];
+
+    let bounds = this.getBoundsHorizontal();
+    
+    // Ahora enviamos el nuevo formato a tu lógica evolucionada
+    return this.procesarLayoutPorcentual(bounds.width, bounds.height, pos, filaPct);
 }
 
 
@@ -182,6 +222,7 @@ getBoundsVertical() {
         height: Math.max(window.innerHeight, minHeight) 
     };
 }
+/*
 getLayoutVertical() {
   let pos= [
     //    { id: "btnTitulo", top: 0, left: 10,  width: 120, height: 40 },
@@ -226,8 +267,60 @@ getLayoutVertical() {
   let bounds=this.getBoundsVertical();
 return this.procesarLayoutPorcentual(bounds.width,bounds.height,pos,filaPct);
 
-}
+}*/
+getLayoutVertical() {
+    let pos = [
+        // Fila 0: Conectividad y Exportación
+        { id: "btnRodillo", fila: 0, col: 0, factor: 1 },
+        { id: "btnHR",      fila: 0, col: 1, factor: 1 },
+        { id: "btnTCX",     fila: 0, col: 2, factor: 1 }, 
 
+        // Fila 1: Controles de entrenamiento y Archivo
+        { id: "btnStart",   fila: 1, col: 0, factor: 1 },
+        { id: "btnPausa",   fila: 1, col: 0, factor: 1 },
+        { id: "ergFile",    fila: 1, col: 1, factor: 1 },
+        { id: "btnDetener", fila: 1, col: 1, factor: 1 },
+
+        // Fila 2: Etiquetas de datos (Fila superior)
+        { id: "lblTimeHead",     fila: 2, col: 0, factor: .8 },
+        { id: "lblHRHead",       fila: 2, col: 1, factor: 1.2 },
+        { id: "lblWattsObjHead", fila: 2, col: 2, factor: 1 },
+
+        // Fila 3: Valores de datos (Fila superior)
+        { id: "timeCell",     fila: 3, col: 0, factor: .8 },
+        { id: "hrValue",      fila: 3, col: 1, factor: 1.2 },
+        { id: "wattsObjCell", fila: 3, col: 2, factor: 1 },
+
+        // Fila 4: Etiquetas de datos (Fila inferior)
+        { id: "lblWattsHead",    fila: 4, col: 0, factor: 1.5 },
+        { id: "lblCadenceHead",  fila: 4, col: 1, factor: 1 },
+        { id: "lblSpeedHead",    fila: 4, col: 2, factor: 1 },
+
+        // Fila 5: Valores de datos (Fila inferior)
+        { id: "wattsCell",    fila: 5, col: 0, factor: 1.5 },
+        { id: "cadenceCell",  fila: 5, col: 1, factor: 1 },
+        { id: "speedCell",    fila: 5, col: 2, factor: 1 },
+
+        // Fila 6: Gráfico Timeline
+        { id: "intervalDemo", fila: 6, col: 0, factor: 1 }
+    ];
+
+    // Ajuste de proporciones verticales (Suman 100%)
+    // Filas 2 a 5 son más bajas porque son solo texto/datos
+    let filaPct = [
+        10, // Botones conexión
+        10, // Controles Start/File
+        7,  // Labels 1
+        12, // Datos 1
+        7,  // Labels 2
+        12, // Datos 2
+        42  // Timeline (lo que sobra)
+    ];
+
+    let bounds = this.getBoundsVertical();
+    
+    return this.procesarLayoutPorcentual(bounds.width, bounds.height, pos, filaPct);
+}
     onSeleccionaEntrenamiento() {
       this.baseEntrenoModal.refresh(); 
       this.baseEntrenoModal.mostrar();
