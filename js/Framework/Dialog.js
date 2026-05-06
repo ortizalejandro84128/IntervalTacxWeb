@@ -100,7 +100,63 @@ getScale() {
 }
 */
 
-centrar() {//hibrido factor <1 reduce como imagen no por layout
+
+
+
+
+
+
+
+
+
+centrar() {
+  if (!this.focus) return;
+
+  const info = this.seleccionarLayout();
+  
+  // 1. MEJORA ANDROID: Usar VisualViewport para dimensiones reales
+  const viewportWidth = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+  const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+
+  let factor = this.calcularFactor(info.bounds);
+
+  if (factor < 1) {
+    // REDUCCIÓN
+    this.aplicarLayout(info.layout, 1); 
+    this.elemento.style.transformOrigin = "0 0";
+    this.elemento.style.transform = `scale(${factor})`;
+    
+    // IMPORTANTE: El width/height deben ser los ORIGINALES (100%)
+    // El transform scale(factor) se encarga de que se vea del tamaño correcto.
+    this.elemento.style.width = `${info.bounds.width}px`;
+    this.elemento.style.height = `${info.bounds.height}px`;
+  } else {
+    // AMPLIACIÓN
+    const lay = this.escalarLayout(info.layout, 1);
+    this.aplicarLayout(lay);
+    this.elemento.style.transform = "none";
+    
+    // Aquí sí aplicas el tamaño escalado porque no hay 'transform'
+    this.elemento.style.width = `${info.bounds.width * factor}px`;
+    this.elemento.style.height = `${info.bounds.height * factor}px`;
+  }
+
+  // 2. CÁLCULO DE POSICIÓN
+  // Usamos el tamaño renderizado (lo que el usuario ve) para centrar
+  const renderedWidth = info.bounds.width * factor;
+  const renderedHeight = info.bounds.height * factor;
+
+  // 3. MEJORA ANDROID: Eliminar el mínimo de 10px si quieres "100% de pantalla"
+  // Si dejas el Math.max(10, ...), nunca llegará al borde real.
+  const left = (viewportWidth - renderedWidth) / 2;
+  const top = (viewportHeight - renderedHeight) / 2;
+
+  this.elemento.style.left = `${left}px`;
+  this.elemento.style.top = `${top}px`;
+}
+
+//ultima
+/*centrar() {//hibrido factor <1 reduce como imagen no por layout
   if (!this.focus) return;
 
   const info = this.seleccionarLayout();
@@ -129,7 +185,7 @@ centrar() {//hibrido factor <1 reduce como imagen no por layout
   this.elemento.style.top = `${top}px`;
   this.elemento.style.width = `${renderedWidth}px`;
   this.elemento.style.height = `${renderedHeight}px`;
-}
+}*/
 
 
 
