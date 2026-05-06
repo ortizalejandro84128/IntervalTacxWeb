@@ -1,27 +1,55 @@
 <!DOCTYPE html>
 <html lang="es">
-<head >
-  
+<head>
   <link rel="icon" href="data:,">
   <base href="/IntervalTacxWeb/">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Simulador Erg2, para Rodillo Tacx Flow</title>
-  <link rel="stylesheet" href="css/styles.css">
-  <link href="css/bootstrap.min.css" rel="stylesheet"-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   
+  <!-- ENLACE AL MANIFEST -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#212529">
+  <!-- Meta etiquetas para iOS (Opcional) -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <title>Simulador Erg2, para Rodillo Tacx Flow</title>
+  
+  <link rel="stylesheet" href="css/styles.css">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+
 </head>
 <body>
+
   <div id="app"></div>
+
   <script src="js/Bundle.js"></script>
 
   <script>
-const appGuard=new AppGuard();
-appGuard.preventExit();      // Protege contra cierres y Backspace
-appGuard.keepScreenAwake();  //mantiene despierta la pantalla
+    // 1. REGISTRO DEL SERVICE WORKER
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(() => console.log('PWA Lista'))
+        .catch(err => console.log('Error SW', err));
+    }
 
-  // Instanciar Main
-new Main(true);
-</script>
+    function ajustarLienzo() {
+      const app = document.getElementById('app');
+      if (app) {
+        app.style.width = window.innerWidth + 'px';
+        app.style.height = window.innerHeight + 'px';
+      }
+    }
+
+    const appGuard = new AppGuard();
+    appGuard.preventExit();
+    appGuard.keepScreenAwake();
+
+    ajustarLienzo();
+    window.addEventListener('resize', ajustarLienzo);
+    window.addEventListener('orientationchange', () => setTimeout(ajustarLienzo, 300));
+
+    new Main(true);
+  </script>
 </body>
 </html>

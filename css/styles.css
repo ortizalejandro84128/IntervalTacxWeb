@@ -1,7 +1,24 @@
-body {
-  background-color: #f8f9fa;
-}
+/* BLINDAJE CSS: Evita el scroll y el rebote elástico en Android */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden; /* Prohíbe el scroll */
+      background-color: #212529; /* Color oscuro para evitar destellos blancos */
+      touch-action: none; /* Evita gestos nativos como pull-to-refresh */
+    }
 
+    #app {
+      position: fixed; /* Anclado a la ventana visual real */
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      display: block;
+      z-index: 1;
+    }
 .dialog {
   position: relative;
   border: 2px solid #0d6efd;

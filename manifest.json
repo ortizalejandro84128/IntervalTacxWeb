@@ -1,0 +1,18 @@
+{
+  "short_name": "IntervalTacx",
+  "name": "Simulador Erg2 Tacx Flow",
+  "icons": [
+    {
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJAAAACQCAYAAADnBHTMAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAC0SURBVHic7cExAQAAAMKg9U9tDB8gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOA3A8VAAAE8S899AAAAAElFTkSuQmCC",
+      "type": "image/png",
+      "sizes": "144x144",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/IntervalTacxWeb/",
+  "background_color": "#212529",
+  "display": "standalone",
+  "scope": "/IntervalTacxWeb/",
+  "theme_color": "#212529",
+  "orientation": "landscape"
+}
