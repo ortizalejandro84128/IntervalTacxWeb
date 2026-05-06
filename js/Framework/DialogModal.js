@@ -2,65 +2,72 @@ class DialogModal extends Window {
   constructor({ id, width = 500, height = 300, titulo }) {
     super({ id, top: 0, left: 0, width, height, texto: titulo });
     this.hijos = [];
-    this.scaleMax=1.8;
+    this.scaleMax = 1.8;
+    this._onResize = null; // Inicializamos para evitar errores al remover
     this.crear();
   }
 
   crear() {
-    // 1. Backdrop (Bootstrap standard)
+    // 1. Backdrop (Fondo oscuro)
     this.backdrop = document.createElement("div");
-    this.backdrop.className = "modal-backdrop fade show"; // Clases nativas
-    this.backdrop.style.zIndex = "1999";
-    this.backdrop.style.display = "none";
-    document.getElementById("app").appendChild(this.backdrop);
+    this.backdrop.className = "modal-backdrop fade show";
+    Object.assign(this.backdrop.style, {
+        zIndex: "10000", // Por encima de los Dialog normales (9999)
+        display: "none"
+    });
 
-    // 2. Contenedor Principal (Flex para centrar)
+    // 2. Contenedor Principal (Cubre toda la pantalla)
     this.elemento = document.createElement("div");
-    this.elemento.className = "modal fade show"; // Clases nativas
     this.elemento.id = this.id;
-    this.elemento.style.cssText = `
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      display: none; z-index: 2000;
-      align-items: center; justify-content: center;
-      pointer-events: none;
-      overflow: hidden;
-    `;
+    // Usamos modal de Bootstrap pero forzamos el display flex para centrar
+    this.elemento.className = "modal fade show"; 
+    Object.assign(this.elemento.style, {
+        position: "fixed",
+        top: "0",
+        left: "0",
+        width: "100vw",
+        height: "100vh",
+        display: "none",
+        zIndex: "10001",
+        alignItems: "center",
+        justifyContent: "center",
+        pointerEvents: "none", // El contenedor no atrapa clicks...
+        overflow: "hidden"
+    });
 
-    // 3. El Diálogo (Lo que escalamos)
+    // 3. El Diálogo (La caja blanca)
     const dialog = document.createElement("div");
-    // Eliminamos 'modal-dialog-centered' porque ya lo centramos con el flex del padre
-    dialog.className = "modal-dialog"; 
-    dialog.style.cssText = `
-      width: ${this.width}px;
-      min-width: ${this.width}px;
-      pointer-events: auto;
-      flex-shrink: 0;
-      margin: 0; /* Bootstrap pone márgenes que romperían el centrado flex */
-    `;
+    dialog.className = "modal-dialog shadow-lg"; 
+    Object.assign(dialog.style, {
+        width: `${this.width}px`,
+        minWidth: `${this.width}px`,
+        pointerEvents: "auto", // ...pero el diálogo SÍ
+        flexShrink: "0",
+        margin: "0",
+        transformOrigin: "center center"
+    });
 
     const content = document.createElement("div");
-    content.className = "modal-content"; // Aquí Bootstrap aplica el fondo, bordes y sombras
+    content.className = "modal-content border-0";
 
     const header = document.createElement("div");
-    header.className = "modal-header bg-primary text-white"; // Recuperamos el azul y blanco
+    header.className = "modal-header bg-primary text-white py-2";
     
     const title = document.createElement("h5");
-    title.className = "modal-title";
+    title.className = "modal-title fs-6"; // Texto un poco más pequeño para mobile
     title.innerText = this.texto;
     header.appendChild(title);
-    this.title = title;
 
     // 4. El Body
     this.bodyContainer = document.createElement("div");
     this.bodyContainer.className = "modal-body";
-    // Solo tocamos lo mínimo necesario para el scroll y los hijos absolutos
-    this.bodyContainer.style.cssText = `
-      height: ${(this.height - 100)}px;
-      position: relative;
-      overflow-y: auto;
-      width: 100%;
-      background-color: inherit; /* Para que respete el fondo del tema */
-    `;
+    Object.assign(this.bodyContainer.style, {
+        height: `${this.height}px`,
+        position: "relative",
+        overflowY: "auto",
+        width: "100%",
+        padding: "15px"
+    });
 
     content.appendChild(header);
     content.appendChild(this.bodyContainer);
@@ -68,7 +75,11 @@ class DialogModal extends Window {
     this.elemento.appendChild(dialog);
     this.dialogElement = dialog;
 
-    document.getElementById("app").appendChild(this.elemento);
+    // IMPORTANTE: Asegúrate de que #app no tenga 'overflow: hidden' o 'transform'
+    // Si falla, cámbialo a document.body.appendChild
+    const target = document.getElementById("app") || document.body;
+    target.appendChild(this.backdrop);
+    target.appendChild(this.elemento);
   }
 
   agregarHijo(hijo) {
@@ -80,23 +91,28 @@ class DialogModal extends Window {
   }
 
   getScale() {
-    const margen = 20;
+    const margen = 40; // Más margen para que no toque los bordes
     const sW = (window.innerWidth - margen) / this.width;
-    const sH = (window.innerHeight - margen) / this.height;
+    const sH = (window.innerHeight - margen) / (this.height + 60); // +60 por el header
     return Math.min(this.scaleMax, sW, sH);
   }
 
   applyScaleModal() {
     if (!this.dialogElement) return;
     const scale = this.getScale();
-    this.dialogElement.style.transform = `scale(${scale})`;
-    this.dialogElement.style.transformOrigin = "center center";
+    // Usamos translate3d(0,0,0) para asegurar que el navegador lo ponga en una capa de renderizado nueva
+    this.dialogElement.style.transform = `translate3d(0,0,0) scale(${scale})`;
   }
 
   mostrar() {
     this.backdrop.style.display = "block";
     this.elemento.style.display = "flex";
-    this.applyScaleModal();
+    
+    // Pequeño delay para que el navegador registre el cambio de display antes de escalar
+    requestAnimationFrame(() => {
+        this.applyScaleModal();
+    });
+
     this._onResize = () => this.applyScaleModal();
     window.addEventListener('resize', this._onResize);
   }
@@ -104,6 +120,8 @@ class DialogModal extends Window {
   cerrar() {
     this.backdrop.style.display = "none";
     this.elemento.style.display = "none";
-    window.removeEventListener('resize', this._onResize);
+    if (this._onResize) {
+        window.removeEventListener('resize', this._onResize);
+    }
   }
 }
