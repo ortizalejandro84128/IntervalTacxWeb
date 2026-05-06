@@ -42,8 +42,7 @@
     }
 
     const appGuard = new AppGuard();
-    appGuard.preventExit();
-    appGuard.keepScreenAwake();
+    appGuard.activate();
 
     ajustarLienzo();
     window.addEventListener('resize', ajustarLienzo);

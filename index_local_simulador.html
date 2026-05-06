@@ -16,8 +16,7 @@
   
   <script>
 const appGuard=new AppGuard();
-appGuard.preventExit();      // Protege contra cierres y Backspace
-appGuard.keepScreenAwake();  //mantiene despierta la pantalla
+appGuard.activate();
 
   // Instanciar Main
 new Main(true);
