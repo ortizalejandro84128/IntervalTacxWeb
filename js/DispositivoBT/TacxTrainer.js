@@ -1,4 +1,4 @@
-/*class TacxTrainer {
+class TacxTrainer {
   constructor(owner, testMode) {
     this.device = null;
     this.server = null;
@@ -178,10 +178,10 @@ console.log("Respuesta FE-C", detail);
     }
     return v * 3.6;
   }
-}*/
+}
 
 
-
+/*
 class TacxTrainer {
   constructor(owner, testMode) {
     this.device = null;
@@ -325,3 +325,4 @@ class TacxTrainer {
     }
   }
 }
+*/
