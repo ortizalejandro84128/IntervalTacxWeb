@@ -102,16 +102,26 @@ class AppGuard {
         console.log("🔓 AppGuard: Protecciones desactivadas.");
     }
 
-    handlePopState(event) {
-        if (confirm(this.exitMessage)) {
-            this.disable();
-            window.history.back(); // Sale realmente
-        } else {
-            // Si cancela, volvemos a empujar el estado para que el botón "Atrás" siga bloqueado
-            window.history.pushState({ protected: true }, null, window.location.pathname);
+handlePopState(event) {
+        // Bloqueamos la ejecución inmediata
+        if (this.isProtected) {
+            if (confirm(this.exitMessage)) {
+                this.disable();
+                // Usamos un pequeño delay para permitir que el navegador procese el historial
+                setTimeout(() => {
+                    window.history.back();
+                }, 100);
+            } else {
+                // El truco: Volver a empujar el estado inmediatamente
+                // y usar replaceState para limpiar cualquier basura en el stack
+                window.history.pushState({ protected: true }, null, window.location.pathname);
+                
+                // Opcional: un pequeño "hack" para asegurar que el navegador 
+                // registre una nueva interacción
+                console.log("Navegación bloqueada por AppGuard");
+            }
         }
     }
-
     handleBeforeUnload(e) {
         e.preventDefault();
         return (e.returnValue = '');
@@ -125,16 +135,25 @@ class AppGuard {
         }
     }
 
+    
+
     async keepScreenAwake() {
         const requestLock = async () => {
             try {
-                if ('wakeLock' in navigator && !this.wakeLock && document.visibilityState === 'visible') {
+                if ('wakeLock' in navigator && !this.wakeLock) {
                     this.wakeLock = await navigator.wakeLock.request('screen');
+                    console.log("☀️ Pantalla bloqueada: No se apagará.");
+
+                    this.wakeLock.addEventListener('release', () => {
+                        this.wakeLock = null;
+                        console.log("🌙 Bloqueo de pantalla liberado.");
+                    });
                 }
             } catch (err) {
-                console.error("AppGuard - WakeLock Error:", err.message);
+                console.error(`AppGuard - Error WakeLock: ${err.message}`);
             }
         };
+
 
         await requestLock();
         // Re-activar si el usuario cambia de pestaña y vuelve
