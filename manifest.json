@@ -22,6 +22,6 @@
   "scope": "./",
   "background_color": "#212529",
   "theme_color": "#212529",
-  "orientation": "landscape",
+  "orientation": "portrait",
   "categories": ["sports", "fitness"]
 }
