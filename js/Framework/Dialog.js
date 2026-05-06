@@ -13,6 +13,7 @@ class Dialog extends Window {
         const div = document.createElement("div");
         div.id = this.id;
         
+        
         // 1. Añadimos clases de Bootstrap para el estilo visual
         // 'card' nos da el fondo, bordes y estructura.
         // 'shadow' le da profundidad.
@@ -30,63 +31,57 @@ class Dialog extends Window {
 
         document.getElementById("app").appendChild(div);
         this.elemento = div;
+        this.elemento.style.transition = "transform 0.15s ease-out"; 
+        this.elemento.style.position = "fixed";
+        this.elemento.style.backfaceVisibility = "hidden";
 
         window.addEventListener("resize", () => this.resize());
     }
 
 ajustarPantalla() {
-        if (!this.focus || !this.elemento) return;
+    if (!this.focus || !this.elemento) return;
 
-        const info = this.seleccionarLayout();
-        
-        if (!info || !info.bounds || info.bounds.width === 0) {
-            console.warn(`AppGuard: Bounds inválidos para ${this.id}`, info);
-            return;
-        }
+    // 1. Obtener el layout seleccionado y los bounds calculados arriba
+    const info = this.seleccionarLayout();
+    
+    // 2. Medir el viewport real (lo que el usuario ve)
+    const viewport = {
+        width: window.innerWidth,
+        height: window.innerHeight
+    };
 
-        const viewport = {
-            width: window.visualViewport ? window.visualViewport.width : window.innerWidth,
-            height: window.visualViewport ? window.visualViewport.height : window.innerHeight
-        };
+    // 3. CALCULAR EL FACTOR DE ESCALA
+    // Comparamos el tamaño real contra el tamaño de los bounds.
+    // Si la pantalla es 320px y el bound es 400px, el factor será 0.8
+    let factor = Math.min(
+        viewport.width / info.bounds.width,
+        viewport.height / info.bounds.height
+    );
 
-        // 1. LÓGICA DE ESCALADO VECTORIAL (< 450px)
-        let factor = 1.0;
-        
-        // Si la pantalla es menor a 450, forzamos el escalado vectorial
-        // para que el diálogo quepa perfectamente sin desbordar.
-        if (viewport.width < 450) {
-            // Usamos un margen del 96% (0.96) para que no toque los bordes físicos
-            factor = (viewport.width * 0.96) / info.bounds.width;
-            
-            // Verificamos que también quepa a lo alto
-            const factorAlto = (viewport.height * 0.96) / info.bounds.height;
-            factor = Math.min(factor, factorAlto);
-        } else {
-            // Comportamiento normal para escritorio o tablets grandes
-            factor = Math.min(
-                (viewport.width * 0.98) / info.bounds.width, 
-                (viewport.height * 0.98) / info.bounds.height,
-                1.0 // No agrandar más allá del 100% en pantallas grandes
-            );
-        }
+    // Evitamos que el diálogo crezca más del 100% (evita pixelado)
+    if (factor > 1) factor = 1;
 
-        // 2. Aplicar el layout interno (distribución de botones/inputs)
-        this.aplicarLayout(info.layout);
+    // 4. APLICAR EL LAYOUT PORCENTUAL
+    // Esto distribuye tus botones y el IntervalControl dentro de los bounds
+    this.aplicarLayout(info.layout);
 
-        // 3. Cálculos de centrado considerando el factor de escala
-        // Al usar transformOrigin "0 0", debemos compensar el desplazamiento
-        const left = (viewport.width - (info.bounds.width * factor)) / 2;
-        const top = (viewport.height - (info.bounds.height * factor)) / 2;
+    // 5. ASIGNAR TAMAÑO Y TRANSFORMACIÓN
+    // Fijamos el tamaño del div al tamaño del diseño
+    this.elemento.style.width = `${info.bounds.width}px`;
+    this.elemento.style.height = `${info.bounds.height}px`;
 
-        // 4. Aplicación de estilos finales
-        this.elemento.style.width = `${info.bounds.width}px`;
-        this.elemento.style.height = `${info.bounds.height}px`;
-        
-        // Usamos translate3d para activar la aceleración por hardware (GPU)
-        this.elemento.style.transform = `translate3d(${left}px, ${top}px, 0) scale(${factor})`;
-        
-        this.elemento.style.display = "block";
-    }
+    // Calculamos la posición para que quede perfectamente centrado
+    // considerando que el escalado vectorial encoge el objeto desde su origen
+    const left = (viewport.width - (info.bounds.width * factor)) / 2;
+    const top = (viewport.height - (info.bounds.height * factor)) / 2;
+
+    // Aplicamos traslación y escala en una sola instrucción para mayor rendimiento
+    // Usamos translate3d para forzar la aceleración por hardware
+    this.elemento.style.transformOrigin = "0 0"; // Vital para que el centrado sea exacto
+    this.elemento.style.transform = `translate3d(${left}px, ${top}px, 0) scale(${factor})`;
+    
+    this.elemento.style.display = "block";
+}
     resize() {
       
         if (this.focus) {

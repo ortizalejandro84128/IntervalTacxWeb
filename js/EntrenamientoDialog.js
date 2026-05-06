@@ -117,14 +117,16 @@ this.addChildLabel({ id: "speedCell", texto: "--", fontSize: "24px", fontWeight:
 
 
 
-getBoundsHorizontal(){
 
-  const availableWidth = window.innerWidth;
-  const availableHeight = window.innerHeight;
+getBoundsHorizontal() {
+    const minWidth = 600;
+    const minHeight = 400;
 
-  return {width:availableWidth, height:availableHeight}
+    return { 
+        width: Math.max(window.innerWidth, minWidth), 
+        height: Math.max(window.innerHeight, minHeight) 
+    };
 }
-
 getLayoutHorizontal(){
 
 
@@ -171,13 +173,15 @@ return this.procesarLayoutPorcentual(bounds.width,bounds.height,pos,filaPct);
 }
 
 
-getBoundsVertical(){
-    const availableWidth = window.innerWidth;
-  const availableHeight = window.innerHeight;
-
-     return {width:availableWidth, height:availableHeight}
+getBoundsVertical() {
+    const minWidth = 400;
+    const minHeight = 600;
+    
+    return { 
+        width: Math.max(window.innerWidth, minWidth), 
+        height: Math.max(window.innerHeight, minHeight) 
+    };
 }
-
 getLayoutVertical() {
   let pos= [
     //    { id: "btnTitulo", top: 0, left: 10,  width: 120, height: 40 },
