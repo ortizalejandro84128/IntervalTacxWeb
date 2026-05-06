@@ -1,0 +1,9 @@
+# Forzar que los archivos de texto siempre usen LF (estilo Linux) para evitar conflictos
+* text=auto eol=lf
+
+# Declarar explícitamente que los iconos son archivos BINARIOS
+# Esto evita que Git intente normalizar sus "finales de línea"
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
