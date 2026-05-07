@@ -44,7 +44,7 @@ class EntrenamientoDialog extends Dialog {
     this.entrenamiento=[];
 
     if(this.testMode){
-    this.timerGrabacion = setInterval(this.procesaTick.bind(this), 50);
+    this.timerGrabacion = setInterval(this.procesaTick.bind(this), 500);
     }else{
     this.timerGrabacion = setInterval(this.procesaTick.bind(this), 1000);
     }
@@ -128,48 +128,6 @@ getBoundsHorizontal() {
     };
 }
 
-/*
-getLayoutHorizontal(){
-
-let pos= [
-
-   // { id: "btnTitulo", top: 0, left: 10,  width: 120, height: 40 },
-
-  // Fila 1: Botones (todos al mismo top = 60)
-  { id: "btnRodillo", top: 60, left: 10,  width: 120, height: 40 },
-  { id: "btnHR",      top: 60, left: 140, width: 120, height: 40 },
-  { id: "btnStart",   top: 60, left: 270, width: 120, height: 40 },
-  { id: "ergFile",     top: 60, left: 400, width: 120, height: 40 },
-  { id: "btnPausa",   top: 60, left: 270, width: 120, height: 40 },
-  { id: "btnDetener", top: 60, left: 400, width: 120, height: 40 },
-  { id: "btnTCX",    top: 60, left: 530, width: 100, height: 40 },
-
-  // Fila 2: Encabezados (todos al mismo top = 120)
-  { id: "lblTimeHead",     top: 110, left: 10,  width: 100, height: 30 },
-  { id: "lblHRHead",       top: 110, left: 120, width: 100, height: 30 },
-  { id: "lblWattsObjHead", top: 110, left: 230, width: 100, height: 30 },
-  { id: "lblWattsHead",    top: 110, left: 340, width: 100, height: 30 },
-  { id: "lblCadenceHead",  top: 110, left: 450, width: 100, height: 30 },
-  { id: "lblSpeedHead",    top: 110, left: 560, width: 80,  height: 30 },
-
-  // Fila 3: Datos dinámicos (todos al mismo top = 180)
-  { id: "timeCell",     top: 140, left: 10,  width: 100, height: 30 },
-  { id: "hrValue",      top: 140, left: 120, width: 100, height: 30 },
-  { id: "wattsObjCell", top: 140, left: 230, width: 100, height: 30 },
-  { id: "wattsCell",    top: 140, left: 340, width: 100, height: 30 },
-  { id: "cadenceCell",  top: 140, left: 450, width: 100, height: 30 },
-  { id: "speedCell",    top: 140, left: 560, width: 100,  height: 30 },
-
-  // Fila 4: Timeline ocupa todo el ancho y el mayor espacio posible
-  { id: "intervalDemo", top: 175, left: 10, width: 630, height: 360 }
-];
-
-let filaPct= [ 10, 9, 12,66];
-
-let bounds=this.getBoundsHorizontal();
-return this.procesarLayoutPorcentual(bounds.width,bounds.height,pos,filaPct);
-
-}*/
 getLayoutHorizontal() {
     let pos = [
         // Fila 0: Botones de control y archivos
@@ -222,52 +180,6 @@ getBoundsVertical() {
         height: Math.max(window.innerHeight, minHeight) 
     };
 }
-/*
-getLayoutVertical() {
-  let pos= [
-    //    { id: "btnTitulo", top: 0, left: 10,  width: 120, height: 40 },
-
-
-    // Fila 1: 3 botones (Height aumentado a 60)
-    { id: "btnRodillo", top: 60, left: 5,   width: 159, height: 60 },
-    { id: "btnHR",      top: 60, left: 165, width: 159, height: 60 },
-    { id: "btnStart",   top: 60, left: 325, width: 100, height: 60 },
-    { id: "btnPausa",   top: 60, left: 325, width: 100, height: 60 },
-
-    // Fila 2: 2 botones (Height 60, empieza en Top 130 para dejar margen de 10px)
-    { id: "ergFile",     top: 130, left: 5,   width: 159, height: 60 },
-    { id: "btnDetener", top: 130, left: 5,   width: 159, height: 60 },
-    { id: "btnTCX",    top: 130, left: 165, width: 159, height: 60 },
-
-    // Fila 3: Encabezados (Empieza en 205: 130 + 60 + 15 de margen)
-    { id: "lblTimeHead",     top: 205, left: 5,   width: 150, height: 30 },
-    { id: "lblWattsHead",       top: 205, left: 165, width: 150, height: 30 },
-    { id: "lblWattsObjHead", top: 205, left: 325, width: 100, height: 30 },
-
-    // Fila 4: Datos dinámicos (Justo debajo: 205 + 30 + 5 de margen interno)
-    { id: "timeCell",     top: 240, left: 5,   width: 150, height: 30 },
-    { id: "wattsCell",      top: 240, left: 165, width: 150, height: 30 },
-    { id: "wattsObjCell", top: 240, left: 325, width: 100, height: 30 },
-
-    // Fila 5: Encabezados (Siguiente bloque: 240 + 30 + 15 de margen)
-    { id: "lblHRHead",   top: 285, left: 5,   width: 150, height: 30 },
-    { id: "lblCadenceHead", top: 285, left: 165, width: 150, height: 30 },
-    { id: "lblSpeedHead",   top: 285, left: 325, width: 100, height: 30 },
-
-    // Fila 6: Datos dinámicos (285 + 30 + 5)
-    { id: "hrValue",   top: 320, left: 5,   width: 150, height: 30 },
-    { id: "cadenceCell", top: 320, left: 165, width: 150, height: 30 },
-    { id: "speedCell",   top: 320, left: 325, width: 150, height: 30 },
-
-    // Fila 7: Timeline (Debajo de todo: 320 + 30 + 20 de margen para destacar el gráfico)
-    { id: "intervalDemo", top: 370, left: 5, width: 440, height: 450 }
-  ];
-
-  let filaPct= [ 10, 8, 7,10,7,10,48];
-  let bounds=this.getBoundsVertical();
-return this.procesarLayoutPorcentual(bounds.width,bounds.height,pos,filaPct);
-
-}*/
 getLayoutVertical() {
     let pos = [
         // Fila 0: Conectividad y Exportación
@@ -369,6 +281,7 @@ getLayoutVertical() {
 recibePotencia(value) {
    this.validarEntreno();
    this.rodillo=true;
+   this.potenciaAct=value;
    this.getChildById("wattsCell").actualizarTexto(value + "w");
   }
 
@@ -396,10 +309,15 @@ ajustarPotencia(rampa) {
 }
 
   pauseActividad(){
+
      this.pause=!this.pause;
+     this.notificationManager.togglePausa(this.pause);
+     //this.setVisualPausa(this.pause);
   if(this.pause){
+      this.getChildById("btnPausa").setTexto("Reanuda");
       this.temporizador.pause();
   } else {
+      this.getChildById("btnPausa").setTexto("Pausa");
       this.temporizador.resume();
   }
   } 
@@ -437,7 +355,7 @@ ajustarPotencia(rampa) {
     this.fechaBase= new Date();
     this.fechaIni= this.fechaBase.toISOString();
     this.temporizador.init();
-    this.pause=false;
+    this.pause=true;
 
      this.getChildById("ergFile").hide();
      this.getChildById("btnStart").hide();
@@ -446,22 +364,61 @@ ajustarPotencia(rampa) {
      this.getChildById("btnDetener").show();
      //TemporizadorRegresivo.playProfessionalBeep(3200, 0.8);
      this.notificationManager.show(ICONS.START, "¡Iniciando!");
+     this.notificationManager.togglePausa(this.pause);
   } 
 
 
   procesaTick() {
-    if(!this.pause){
-    this.ajustarPotencia(this.potenciaActual);
-     const ms = this.fechaBase.getTime();
-     this.fechaBase.setTime(ms + 1000);
-     this.timelineControl.tick();
-     this.temporizador.tick();
-     this.getChildById("timeCell").actualizarTexto(this.temporizador.getTimeTemporizador())
-     const data=this.getForm()
-     data.timeTick = this.fechaBase.toISOString();
-     this.entrenamiento.push(data);
+    // 1. LÓGICA CUANDO ESTÁ ACTIVO (Detectar si hay que pausar)
+    if (!this.pause) {
+        this.ajustarPotencia(this.potenciaActual);
+        
+        // Asumimos que getForm() devuelve la potencia actual en data.potencia
+        const data = this.getForm();
+        console.log()
+        
+        // Si la potencia es 0 o nula, aumentamos el contador de inactividad
+        if (!this.potenciaAct || this.potenciaAct <= 0) {
+            this.idleTicks = (this.idleTicks || 0) + 1;
+        } else {
+            this.idleTicks = 0; // Reset si hay pedaleo
+        }
+
+        // Si pasan 5 segundos sin potencia, pausamos automáticamente
+        if (this.idleTicks >= 5) {
+            this.pauseActividad();
+            return;
+        }
+
+        // --- Registro normal del entrenamiento ---
+        const ms = this.fechaBase.getTime();
+        this.fechaBase.setTime(ms + 1000);
+        this.timelineControl.tick();
+        this.temporizador.tick();
+        this.getChildById("timeCell").actualizarTexto(this.temporizador.getTimeTemporizador());
+        
+        data.timeTick = this.fechaBase.toISOString();
+        this.entrenamiento.push(data);
+
+    } 
+    // 2. LÓGICA CUANDO ESTÁ PAUSADO (Detectar si hay que reanudar)
+    else {
+        const data = this.getForm();
+        
+        // Si detectamos potencia mientras estamos en pausa
+        if (this.potenciaAct > 10) { // Umbral de 10W para evitar ruido del sensor
+            this.resumeTicks = (this.resumeTicks || 0) + 1;
+            
+            // Si detectamos pedaleo constante durante 10 segundos
+            if (this.resumeTicks >= 10) {
+                this.pauseActividad();
+                this.resumeTicks = 0;
+            }
+        } else {
+            this.resumeTicks = 0; // Si deja de pedalear en la espera, reseteamos
+        }
     }
-	 } 
+} 
 
 cambiaSegmento(potInicial, potAnterior, ftp, potFinal, duracion, label) {
     // Generamos el segmento
@@ -479,6 +436,9 @@ cambiaSegmento(potInicial, potAnterior, ftp, potFinal, duracion, label) {
     const nuevoArr = [...nuevoSegmento];
     this.potenciaActual = nuevoArr;
 }
+
+
+
 descargaTCXFile() {
     const tcxString = TcxExport.jsonToTcxStrava(this.entrenamiento);
     const blob = new Blob([tcxString], { type: 'application/tcx+xml' });

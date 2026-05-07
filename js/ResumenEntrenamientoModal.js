@@ -141,7 +141,7 @@ class ResumenEntrenamientoModal extends DialogModal {
     // 4. Botones de Acción
     this.agregarHijo(new Boton({
       id: "btnExportTCX", top: y, left: x, width: anchoComp, height: 65,
-      texto: "Descargar .TCX para Strava",
+      texto: "Descargar .TCX",
       color: "success",
       fn: () => this.ejecutarDescarga()
     }));

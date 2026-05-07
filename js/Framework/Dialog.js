@@ -159,7 +159,6 @@ ajustarPantalla() {
         });
     }
 
-   
 
 procesarLayoutPorcentual(width, height, pos, filaPct) {
     if (!pos || pos.length === 0) return [];
