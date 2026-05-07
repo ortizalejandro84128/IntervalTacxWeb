@@ -48,6 +48,7 @@ class EntrenamientoDialog extends Dialog {
     }else{
     this.timerGrabacion = setInterval(this.procesaTick.bind(this), 1000);
     }
+    this.procesaTickActivo=false;
     this.fechaBase= new Date();
     this.fechaIni= this.fechaBase.toISOString();
     this.simulador= new SimuladorRodillo(this);
@@ -329,6 +330,8 @@ ajustarPotencia(rampa) {
   } 
 
   detenerActividad(){
+    this.procesaTickActivo=false;
+
     this.ajustarPotencia([60]);
     this.simulador.detener();
 
@@ -352,7 +355,8 @@ ajustarPotencia(rampa) {
 
   iniciActividad(){
 
-    
+    this.procesaTickActivo=true;
+
     this.ajustarPotencia([60]);
 
     this.timelineControl.reset();
@@ -375,6 +379,8 @@ ajustarPotencia(rampa) {
 
 
   procesaTick() {
+    if(this.procesaTickActivo){
+    //console.log("tick");
     // 1. LÓGICA CUANDO ESTÁ ACTIVO (Detectar si hay que pausar)
     if (!this.pause) {
         this.ajustarPotencia(this.potenciaActual);
@@ -424,6 +430,7 @@ ajustarPotencia(rampa) {
             this.resumeTicks = 0; // Si deja de pedalear en la espera, reseteamos
         }
     }
+  }
 } 
 
 cambiaSegmento(potInicial, potAnterior, ftp, potFinal, duracion, label) {
@@ -462,6 +469,8 @@ descargaTCXFile() {
 
 
    fnFinActividad() {
+    this.procesaTickActivo=false;
+
     TemporizadorRegresivo.playProfessionalBeep(3200, 0.8);
     this.notificationManager.show(ICONS.FINISH , 'Actividad Finalizada');
 
