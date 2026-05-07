@@ -38,10 +38,12 @@ class BaseEntrenoModal extends DialogModal {
     const anchoComponente = anchoModal * 0.85;
     const margenIzquierdo = 10;
 
+    const fontSizeBot=15;
+
     // Botón Cerrar (X)
     this.agregarHijo(new Boton({
       id: "btnCerrarModal",
-      top: 10, left: anchoModal - 100, width: 30, height: 30,
+      top: 10, left: anchoModal - 100, width: 30, height: 30, fontSize: fontSizeBot,
       texto: "X", fn: () => this.cerrar()
     }));
 
@@ -50,7 +52,7 @@ class BaseEntrenoModal extends DialogModal {
     const xCtrl = 15;
 
     this.agregarHijo(new Boton({
-      id: "btnNivelDown", top: yCtrl, left: xCtrl, width: 35, height: 35,
+      id: "btnNivelDown", top: yCtrl, left: xCtrl, width: 35, height: 35, fontSize: fontSizeBot,
       texto: "-", color: "danger", fn: () => this.cambiarNivelManual(-1)
     }));
 
@@ -61,7 +63,7 @@ class BaseEntrenoModal extends DialogModal {
     this.agregarHijo(this.lblNivelValue);
 
     this.agregarHijo(new Boton({
-      id: "btnNivelUp", top: yCtrl, left: xCtrl + 105, width: 35, height: 35,
+      id: "btnNivelUp", top: yCtrl, left: xCtrl + 105, width: 35, height: 35, fontSize: fontSizeBot,
       texto: "+", color: "success", fn: () => this.cambiarNivelManual(1)
     }));
 
@@ -74,7 +76,7 @@ class BaseEntrenoModal extends DialogModal {
         id: `btnTab_${tipo}`,
         top: 55, left: margenIzquierdo + (index * anchoTab),
         width: anchoTab - 4, height: 35,
-        texto: tipo, fontSize: 30,
+        texto: tipo, fontSize: fontSizeBot,
         fn: () => this.cambiarTipo(tipo)
       }));
     });

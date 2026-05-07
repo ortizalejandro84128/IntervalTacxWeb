@@ -262,7 +262,13 @@ getLayoutVertical() {
 
   conectarRodillo() {
    if (this.testMode){
-      this.simulador.iniciar()
+      if (this.simulador.iniciado){
+           this.simulador.detener();
+           this.recibePotencia(0);
+      }else{
+          this.simulador.iniciar();
+      }
+
    }else{
       this.trainer.connect();
    }
@@ -493,7 +499,7 @@ class SimuladorRodillo {
   constructor(contextoApp) {
     this.app = contextoApp;
     this.timerSimulador = null;
-    
+    this.iniciado= false;
     // Valores iniciales para empezar la transición
     this.currentPotencia = 95;
     this.currentVelocidad = 22.5;
@@ -505,6 +511,7 @@ class SimuladorRodillo {
 
   iniciar() {
     console.log("Simulador suavizado iniciado... 🚴‍♂️");
+    this.iniciado=true;
     this.timerSimulador = setInterval(() => {
       
       // 1. Definimos un "objetivo" aleatorio dentro de tus rangos
@@ -528,6 +535,7 @@ class SimuladorRodillo {
   }
 
   detener() {
+    this.iniciado=false;
     if (this.timerSimulador) {
       clearInterval(this.timerSimulador);
       console.log("Simulador detenido.");
